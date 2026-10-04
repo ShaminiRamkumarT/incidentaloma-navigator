@@ -32,7 +32,7 @@
 | Flags that were real (PPV) | 100% | 67% |
 | High-severity under-calls caught | 5/5 | 2/2 |
 
-**What this shows:** the regex rules look perfect on the reports they were tuned on and break on new phrasing: sizes in mm, "Hounsfield units", "HU 30 (precontrast)", "2.9 x 2.5 cm", two lesions in one sentence, "nodular enhancing soft tissue component". That brittleness is the case for an LLM extractor. The Claude extractor (`navigator/extract_llm.py`) uses the same schema and the same scoring script. Its prompt was kept generic and does not mention the held-out phrasings. It has **not been scored yet**; that run is pending API access (see *Next steps*).
+**What this shows:** the regex rules look perfect on the reports they were tuned on and break on new phrasing: sizes in mm, "Hounsfield units", "HU 30 (precontrast)", "2.9 x 2.5 cm", two lesions in one sentence, "nodular enhancing soft tissue component". This is why I also wrote an AI reader (`navigator/extract_llm.py`) that uses Claude to read the report instead of keyword rules. It fills in the same fields and is scored the same way, and I kept its instructions general so it doesn't know the test phrasings. I haven't run it yet because it needs a paid API key.
 
 To see exactly where the reader went wrong, open `results/eval_rules_holdout.csv`. It has one row per lesion in the 16 test reports, with the correct answer, what the reader produced and which details it got wrong (for example, report H02: size read as 2.5 cm instead of 2.9 cm). The same table appears as "Error log" in the Validation dashboard tab of the Streamlit app (`streamlit run app.py`). The browser demo does not include it.
 
@@ -65,7 +65,7 @@ Sources: Silverman SG et al. *Radiology* 2019;292:475-488 · Herts BR et al. *J 
 pip install -r requirements.txt
 python data/build_reports.py && (cd data && python build_holdout.py)   # regenerate datasets
 python run_eval.py rules all          # score the regex baseline
-ANTHROPIC_API_KEY=... python run_eval.py llm all   # score the Claude extractor
+ANTHROPIC_API_KEY=... python run_eval.py llm all   # score the AI reader (needs an API key)
 python -m pytest -q tests             # 53 guideline tests
 streamlit run app.py
 ```
@@ -92,7 +92,7 @@ web/                        Browser demo (index.html) and its JavaScript engine
 
 ## Next steps
 
-1. Score the Claude extractor on the held-out set and compare it with the baseline.
-2. Real reports: MIMIC-IV-Note radiology reports (requires PhysioNet credentialing and a data use agreement).
-3. Have a radiologist label a subset; report inter-rater agreement alongside model accuracy.
-4. Add MRI rules (Bosniak v2019 MRI criteria, chemical-shift adrenal MRI) and patient-context modifiers.
+1. Try the AI reader on the 16 test reports and see if it does better than the keyword version.
+2. Test it on real, anonymised radiology reports (for example MIMIC-IV, which needs approved access).
+3. Ask a radiologist to check my answer key, and see how often we agree.
+4. Add MRI rules and take patient history into account (for example a known cancer).
