@@ -1,0 +1,18 @@
+report,organ,side,size_cm,gold_category,gold_status,gold_severity,detected,error,pred_category,pred_status,pred_severity,category_match,status_match,field_errors
+H01,kidney,left,3.1,Bosniak IIF,concordant,none,False,,,,,False,False,not detected
+H02,kidney,right,2.9,Solid enhancing mass (suspicious for RCC),concordant,none,True,,Indeterminate renal mass,over-call,low,False,False,size_cm: gold=2.9 pred=2.5; unenhanced_hu: gold=30.0 pred=None; enhanced_hu: gold=105.0 pred=None
+H03,adrenal,left,2.3,Lipid-rich adenoma (benign imaging),concordant,none,True,,Indeterminate adrenal mass,under-call,medium,False,False,unenhanced_hu: gold=7.0 pred=None
+H04,kidney,right,1.4,Indeterminate renal mass,concordant,none,True,,"Solid mass, enhancement not assessed",concordant,none,False,True,composition: gold=indeterminate pred=solid
+H05,adrenal,left,4.4,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",concordant,none,True,,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",concordant,none,True,True,
+H06,kidney,left,5.5,Bosniak I,over-call,low,True,,Bosniak I,over-call,low,True,True,
+H07,kidney,right,2.2,Angiomyolipoma,concordant,none,True,,Angiomyolipoma,concordant,none,True,True,
+H07,adrenal,left,1.1,Indeterminate adrenal mass,under-call,medium,True,,Indeterminate adrenal mass,under-call,medium,True,True,stated_actions: gold=[CHARACTERIZATION_IMAGING] pred=[]
+H08,kidney,right,4.0,Bosniak IV,concordant,none,True,,Bosniak I,over-call,low,False,False,enhancing_nodule: gold=True pred=False
+H09,adrenal,right,1.7,Indeterminate adrenal mass,under-call,medium,True,,Indeterminate adrenal mass,under-call,medium,True,True,enhanced_hu: gold=41.0 pred=None
+H10,kidney,left,3.3,Bosniak III,under-call,high,True,,Bosniak III,under-call,high,True,True,
+H11,kidney,unknown,,Bosniak II (too small to characterize),concordant,none,False,,,,,False,False,not detected
+H12,adrenal,right,3.0,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",under-call,high,True,,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",under-call,high,True,True,
+H13,kidney,left,0.8,Solid enhancing mass <1 cm,concordant,none,False,,,,,False,False,not detected
+H14,adrenal,right,1.5,Lipid-rich adenoma (benign imaging),concordant,none,True,,Lipid-rich adenoma (benign imaging),concordant,none,True,True,unenhanced_hu: gold=-5.0 pred=3.0
+H14,adrenal,left,2.0,Lipid-rich adenoma (benign imaging),concordant,none,False,,,,,False,False,not detected
+H16,kidney,left,2.0,Bosniak II,over-call,low,True,,Bosniak II,over-call,low,True,True,

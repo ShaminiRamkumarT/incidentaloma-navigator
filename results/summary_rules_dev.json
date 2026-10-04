@@ -1,0 +1,28 @@
+{
+  "extractor": "rules (regex baseline)",
+  "split": "dev",
+  "reports": 30,
+  "gold_findings": 32,
+  "detection_recall": 1.0,
+  "false_positive_findings": 0,
+  "field_accuracy": {
+    "size_cm": 1.0,
+    "composition": 0.938,
+    "unenhanced_hu": 1.0,
+    "enhanced_hu": 1.0,
+    "homogeneous": 1.0,
+    "wall_mm": 1.0,
+    "septa_count": 1.0,
+    "septa_mm": 1.0,
+    "irregular_wall_or_septa": 1.0,
+    "enhancing_nodule": 1.0,
+    "macroscopic_fat": 1.0,
+    "too_small_to_characterize": 1.0,
+    "stated_actions": 1.0
+  },
+  "category_agreement": 0.969,
+  "status_agreement": 1.0,
+  "discordance_sensitivity": 1.0,
+  "discordance_ppv": 1.0,
+  "high_severity_caught": "5/5"
+}

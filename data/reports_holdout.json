@@ -1,0 +1,312 @@
+[
+  {
+    "id": "H01",
+    "text": "EXAM: CT abdomen/pelvis with IV contrast.\nINDICATION: Left lower quadrant pain.\nFINDINGS:\nThere is a 31 mm cystic lesion in the left kidney with numerous thin septations. Adrenal glands unremarkable.\nIMPRESSION:\nBosniak IIF left renal cyst. Recommend surveillance imaging at 6 and 12 months.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "kidney",
+          "side": "left",
+          "size_cm": 3.1,
+          "stated_actions": [
+            "IMAGING_SURVEILLANCE"
+          ],
+          "composition": "cystic",
+          "septa_count": 4,
+          "reported_category": "Bosniak IIF"
+        },
+        "expected_category": "Bosniak IIF"
+      }
+    ]
+  },
+  {
+    "id": "H02",
+    "text": "EXAM: CT urogram (unenhanced, nephrographic and excretory phases).\nINDICATION: Gross hematuria.\nFINDINGS:\nRight renal mass: 2.9 x 2.5 cm, heterogeneously enhancing, HU 30 (precontrast) and 105 (nephrographic).\nIMPRESSION:\nConcerning for renal cell carcinoma. Refer to urology.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "kidney",
+          "side": "right",
+          "size_cm": 2.9,
+          "stated_actions": [
+            "SPECIALIST_REFERRAL"
+          ],
+          "unenhanced_hu": 30,
+          "enhanced_hu": 105,
+          "homogeneous": false
+        },
+        "expected_category": "Solid enhancing mass (suspicious for RCC)"
+      }
+    ]
+  },
+  {
+    "id": "H03",
+    "text": "EXAM: CT abdomen without contrast.\nINDICATION: Hypertension, flank pain.\nFINDINGS:\nNo renal masses or stones. Left adrenal: 2.3 cm nodule with attenuation of 7 Hounsfield units on noncontrast images.\nIMPRESSION:\nLeft adrenal adenoma. Clinical correlation for hormonal hypersecretion recommended.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "adrenal",
+          "side": "left",
+          "size_cm": 2.3,
+          "stated_actions": [
+            "HORMONAL_WORKUP"
+          ],
+          "unenhanced_hu": 7
+        },
+        "expected_category": "Lipid-rich adenoma (benign imaging)"
+      }
+    ]
+  },
+  {
+    "id": "H04",
+    "text": "EXAM: CT abdomen with contrast.\nINDICATION: Fever.\nFINDINGS:\nExophytic 1.4 cm hyperdense lesion off the right kidney, 58 HU on venous phase only; cannot exclude solid lesion.\nIMPRESSION:\nIndeterminate right renal lesion; consider renal MRI for characterization.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "kidney",
+          "side": "right",
+          "size_cm": 1.4,
+          "stated_actions": [
+            "CHARACTERIZATION_IMAGING"
+          ],
+          "enhanced_hu": 58
+        },
+        "expected_category": "Indeterminate renal mass"
+      }
+    ]
+  },
+  {
+    "id": "H05",
+    "text": "EXAM: CT abdomen without and with contrast.\nINDICATION: Abdominal fullness.\nFINDINGS:\nThe left adrenal gland demonstrates a 4.4 cm homogeneous mass measuring 32 HU unenhanced.\nIMPRESSION:\nLarge indeterminate left adrenal mass. Recommend endocrine surgery referral and biochemical work-up including plasma metanephrines.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "adrenal",
+          "side": "left",
+          "size_cm": 4.4,
+          "stated_actions": [
+            "SPECIALIST_REFERRAL",
+            "HORMONAL_WORKUP"
+          ],
+          "unenhanced_hu": 32,
+          "homogeneous": true
+        },
+        "expected_category": "Indeterminate adrenal mass, ≥4 cm or heterogeneous"
+      }
+    ]
+  },
+  {
+    "id": "H06",
+    "text": "EXAM: CT abdomen with contrast.\nINDICATION: Epigastric pain.\nFINDINGS:\nSimple-appearing 5.5 cm cyst, upper pole left kidney, fluid attenuation, no septations.\nIMPRESSION:\nBenign left renal cyst. Recommend follow-up ultrasound in one year.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "kidney",
+          "side": "left",
+          "size_cm": 5.5,
+          "stated_actions": [
+            "IMAGING_SURVEILLANCE"
+          ],
+          "composition": "cystic"
+        },
+        "expected_category": "Bosniak I"
+      }
+    ]
+  },
+  {
+    "id": "H07",
+    "text": "EXAM: CT abdomen without contrast.\nINDICATION: Back pain.\nFINDINGS:\nKidneys: 2.2 cm right interpolar lesion with internal macroscopic fat consistent with AML.\nAdrenals: 1.1 cm left adrenal nodule, 22 HU.\nIMPRESSION:\n1. Right renal AML.\n2. Indeterminate 1.1 cm left adrenal nodule; adrenal washout CT recommended.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "kidney",
+          "side": "right",
+          "size_cm": 2.2,
+          "stated_actions": [],
+          "macroscopic_fat": true
+        },
+        "expected_category": "Angiomyolipoma"
+      },
+      {
+        "gold": {
+          "organ": "adrenal",
+          "side": "left",
+          "size_cm": 1.1,
+          "stated_actions": [
+            "CHARACTERIZATION_IMAGING"
+          ],
+          "unenhanced_hu": 22
+        },
+        "expected_category": "Indeterminate adrenal mass"
+      }
+    ]
+  },
+  {
+    "id": "H08",
+    "text": "EXAM: CT abdomen, renal mass protocol.\nINDICATION: Follow-up of complex cyst.\nFINDINGS:\n4.0 cm right renal cystic mass with a nodular enhancing soft tissue component measuring 9 mm.\nIMPRESSION:\nRight renal cystic mass with enhancing nodular component, Bosniak IV. Urologic consultation advised.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "kidney",
+          "side": "right",
+          "size_cm": 4.0,
+          "stated_actions": [
+            "SPECIALIST_REFERRAL"
+          ],
+          "composition": "cystic",
+          "enhancing_nodule": true,
+          "reported_category": "Bosniak IV"
+        },
+        "expected_category": "Bosniak IV"
+      }
+    ]
+  },
+  {
+    "id": "H09",
+    "text": "EXAM: CT chest with contrast.\nINDICATION: Cough.\nFINDINGS:\nLungs clear. Upper abdomen: partially imaged 1.7 cm hypoattenuating right adrenal nodule (Hounsfield units 41, contrast-enhanced).\nIMPRESSION:\nNo acute cardiopulmonary process.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "adrenal",
+          "side": "right",
+          "size_cm": 1.7,
+          "stated_actions": [],
+          "enhanced_hu": 41
+        },
+        "expected_category": "Indeterminate adrenal mass"
+      }
+    ]
+  },
+  {
+    "id": "H10",
+    "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Urinary tract infection.\nFINDINGS:\nKidneys: 3.3 cm left renal cyst with a 4 mm irregular enhancing wall.\nIMPRESSION:\nComplex left renal cyst; recommend follow-up CT in 6 months.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "kidney",
+          "side": "left",
+          "size_cm": 3.3,
+          "stated_actions": [
+            "IMAGING_SURVEILLANCE"
+          ],
+          "composition": "cystic",
+          "wall_mm": 4,
+          "irregular_wall_or_septa": true
+        },
+        "expected_category": "Bosniak III"
+      }
+    ]
+  },
+  {
+    "id": "H11",
+    "text": "EXAM: CT abdomen with contrast.\nINDICATION: Abdominal pain.\nFINDINGS:\nSeveral subcentimeter hypodensities in both kidneys, too small to characterize.\nIMPRESSION:\nNo follow-up needed for tiny renal hypodensities.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "kidney",
+          "side": "unknown",
+          "size_cm": null,
+          "stated_actions": [
+            "NO_FOLLOWUP"
+          ],
+          "too_small_to_characterize": true
+        },
+        "expected_category": "Bosniak II (too small to characterize)"
+      }
+    ]
+  },
+  {
+    "id": "H12",
+    "text": "EXAM: CT abdomen with contrast, portal venous phase.\nINDICATION: Weight loss.\nFINDINGS:\nAdrenals: 3.0 cm right adrenal mass with heterogeneous enhancement, 85 HU. No unenhanced images.\nIMPRESSION:\nRight adrenal mass, likely adenoma. No further follow up.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "adrenal",
+          "side": "right",
+          "size_cm": 3.0,
+          "stated_actions": [
+            "NO_FOLLOWUP"
+          ],
+          "enhanced_hu": 85,
+          "homogeneous": false
+        },
+        "expected_category": "Indeterminate adrenal mass, ≥4 cm or heterogeneous"
+      }
+    ]
+  },
+  {
+    "id": "H13",
+    "text": "EXAM: CT abdomen without and with contrast.\nINDICATION: Hematuria.\nFINDINGS:\n8 mm enhancing solid nodule in the left kidney (25 HU unenhanced, 90 HU nephrographic).\nIMPRESSION:\nTiny enhancing left renal nodule; recommend follow-up renal mass protocol CT in 6-12 months.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "kidney",
+          "side": "left",
+          "size_cm": 0.8,
+          "stated_actions": [
+            "IMAGING_SURVEILLANCE"
+          ],
+          "composition": "solid",
+          "unenhanced_hu": 25,
+          "enhanced_hu": 90
+        },
+        "expected_category": "Solid enhancing mass <1 cm"
+      }
+    ]
+  },
+  {
+    "id": "H14",
+    "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nBilateral adrenal nodules: right 1.5 cm (−5 HU), left 2.0 cm (3 HU).\nIMPRESSION:\nBilateral adrenal adenomas. Recommend 1 mg overnight dexamethasone suppression test.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "adrenal",
+          "side": "right",
+          "size_cm": 1.5,
+          "stated_actions": [
+            "HORMONAL_WORKUP"
+          ],
+          "unenhanced_hu": -5
+        },
+        "expected_category": "Lipid-rich adenoma (benign imaging)"
+      },
+      {
+        "gold": {
+          "organ": "adrenal",
+          "side": "left",
+          "size_cm": 2.0,
+          "stated_actions": [
+            "HORMONAL_WORKUP"
+          ],
+          "unenhanced_hu": 3
+        },
+        "expected_category": "Lipid-rich adenoma (benign imaging)"
+      }
+    ]
+  },
+  {
+    "id": "H15",
+    "text": "EXAM: CT abdomen with contrast.\nINDICATION: Surveillance after left nephrectomy.\nFINDINGS:\nKidneys: Status post left nephrectomy. Right kidney normal without masses.\nAdrenals: No nodules.\nIMPRESSION:\nNo evidence of recurrence.",
+    "findings": []
+  },
+  {
+    "id": "H16",
+    "text": "EXAM: CT abdomen with contrast.\nINDICATION: Pain.\nFINDINGS:\n2.0 cm left renal cyst with one thin septum and a fleck of calcification.\nIMPRESSION:\nMinimally complex left renal cyst (Bosniak IIF). Follow-up CT in 6 months recommended.",
+    "findings": [
+      {
+        "gold": {
+          "organ": "kidney",
+          "side": "left",
+          "size_cm": 2.0,
+          "stated_actions": [
+            "IMAGING_SURVEILLANCE"
+          ],
+          "composition": "cystic",
+          "septa_count": 1,
+          "reported_category": "Bosniak IIF"
+        },
+        "expected_category": "Bosniak II"
+      }
+    ]
+  }
+]

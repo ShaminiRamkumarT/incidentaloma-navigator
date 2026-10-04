@@ -1,0 +1,522 @@
+<title>Incidentaloma Navigator App</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: reading-station app; report editor on the left, verdict cards on the right; tabs for batch worklist and rules */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#18212b; --muted:#5a6876; --line:#d9e0e6;
+  --accent:#1f6f8b; --accent-ink:#ffffff; --accent-soft:#e2eff4; --film:#0f1820; --film-ink:#d7e3ea; --caret:#8fd0e8;
+  --ok:#2f7d4f; --ok-bg:#e5f3ea; --warn:#a2610b; --warn-bg:#fbefdc; --bad:#b4322c; --bad-bg:#fbe6e4;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e141a; --surface:#16202a; --ink:#e3eaf0; --muted:#97a6b4; --line:#2a3744;
+  --accent:#62b4d2; --accent-ink:#06141b; --accent-soft:#163242; --film:#070b0f; --film-ink:#cfdde6; --caret:#62b4d2;
+  --ok:#6cc792; --ok-bg:#15301f; --warn:#e5a54a; --warn-bg:#36260d; --bad:#f08079; --bad-bg:#3a1714; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e141a; --surface:#16202a; --ink:#e3eaf0; --muted:#97a6b4; --line:#2a3744;
+  --accent:#62b4d2; --accent-ink:#06141b; --accent-soft:#163242; --film:#070b0f; --film-ink:#cfdde6; --caret:#62b4d2;
+  --ok:#6cc792; --ok-bg:#15301f; --warn:#e5a54a; --warn-bg:#36260d; --bad:#f08079; --bad-bg:#3a1714; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--body)}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 56px;display:grid;gap:22px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.2;text-wrap:balance}
+h1{font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:800}
+h2{font-size:1.2rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px}
+.top p{color:var(--muted);max-width:62ch}
+.badge{font:500 .72rem/1.35 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:var(--surface)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{font:600 .92rem var(--body);background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:10px 14px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.panel{display:grid;gap:12px;min-width:0}
+label{font:500 .72rem/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+select{font:inherit;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
+textarea{font:13.5px/1.65 var(--mono);width:100%;min-height:400px;resize:vertical;background:var(--film);color:var(--film-ink);caret-color:var(--caret);border:0;border-radius:10px;padding:16px 18px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.hint{font-size:.83rem;color:var(--muted)}
+.hint code{font:12.5px var(--mono);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.summary{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 .8rem/1 var(--body);padding:7px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.chip.concordant{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.chip.under-call{background:var(--bad-bg);color:var(--bad);border-color:transparent}
+.chip.over-call{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.lesion{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:12px}
+.lesion.concordant{border-left-color:var(--ok)} .lesion.under-call{border-left-color:var(--bad)} .lesion.over-call{border-left-color:var(--warn)}
+.lesion-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
+.pill{font:600 .75rem/1 var(--body);padding:5px 9px;border-radius:999px;white-space:nowrap}
+.pill.concordant{background:var(--ok-bg);color:var(--ok)} .pill.under-call{background:var(--bad-bg);color:var(--bad)} .pill.over-call{background:var(--warn-bg);color:var(--warn)}
+.vs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.vs div{display:grid;gap:3px;align-content:start}
+.k{font:500 .68rem/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.v{font-weight:600}
+.why{font-size:.82rem;color:var(--muted)}
+details summary{cursor:pointer;font-size:.82rem;color:var(--accent)}
+.fields{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.fields span{font:400 .75rem/1 var(--mono);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 7px}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:22px;color:var(--muted)}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .68rem/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums}
+caption{text-align:left;padding:12px 12px 4px;font:700 1rem var(--display)}
+tbody tr.clickable{cursor:pointer} tbody tr.clickable:hover{background:var(--accent-soft)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:2px}
+.stat b{font:800 1.7rem/1.1 var(--display);font-variant-numeric:tabular-nums}
+.stat.bad b{color:var(--bad)} .stat.warn b{color:var(--warn)} .stat.ok b{color:var(--ok)}
+.rules{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
+.src{font-size:.8rem;color:var(--muted)}
+footer{font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:860px){.grid,.rules{grid-template-columns:minmax(0,1fr)}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}textarea{min-height:300px}}
+@media (max-width:460px){.vs{grid-template-columns:minmax(0,1fr)}}
+</style>
+<div class="wrap">
+  <div class="top">
+    <div style="display:grid;gap:6px">
+      <h1>Incidentaloma Follow-up Navigator</h1>
+      <p>Paste a CT report. The app finds incidental kidney and adrenal lesions, applies Bosniak v2019, ACR 2018 and ESE/ENSAT 2023, and flags follow-up advice that is too weak or more than needed.</p>
+    </div>
+    <span class="badge">Prototype · fictional data · not for clinical use</span>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="t-check" aria-selected="true" aria-controls="p-check">Check a report</button>
+    <button role="tab" id="t-batch" aria-selected="false" aria-controls="p-batch">Worklist (46 reports)</button>
+    <button role="tab" id="t-rules" aria-selected="false" aria-controls="p-rules">Guideline rules</button>
+  </div>
+
+  <section id="p-check" role="tabpanel" aria-labelledby="t-check" class="grid">
+    <div class="panel">
+      <label for="sample">Load a sample report</label>
+      <select id="sample"></select>
+      <label for="report">Report text</label>
+      <textarea id="report" spellcheck="false"></textarea>
+      <div class="row">
+        <button class="btn" id="run">Check report</button>
+        <button class="btn ghost" id="clear">Clear</button>
+      </div>
+      <p class="hint">Results update as you type. Try editing a number: in the first sample, change <code>7 mm mural nodule</code> to <code>thin wall</code>, or change a recommendation to <code>Urology referral</code>.</p>
+    </div>
+    <div class="panel" aria-live="polite">
+      <div class="summary" id="summary"></div>
+      <div id="results" class="panel"></div>
+    </div>
+  </section>
+
+  <section id="p-batch" role="tabpanel" aria-labelledby="t-batch" class="panel" hidden>
+    <p class="hint">Every sample report run through the checker, sorted so the most serious gaps come first. Select a row to open that report.</p>
+    <div class="stats" id="stats"></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Report</th><th>Lesion</th><th>Guideline category</th><th>Guideline action</th><th>Report action</th><th>Flag</th></tr></thead>
+      <tbody id="worklist"></tbody></table></div>
+  </section>
+
+  <section id="p-rules" role="tabpanel" aria-labelledby="t-rules" class="panel" hidden>
+    <div class="rules">
+      <div class="tbl"><table><caption>Kidney</caption>
+        <thead><tr><th>Feature</th><th>Category</th><th>Action</th></tr></thead><tbody>
+        <tr><td>Macroscopic fat</td><td>Angiomyolipoma</td><td>None; urology if ≥4 cm</td></tr>
+        <tr><td>Cyst with enhancing nodule</td><td>Bosniak IV</td><td>Urology referral</td></tr>
+        <tr><td>Wall/septa ≥4 mm or irregular</td><td>Bosniak III</td><td>Urology referral</td></tr>
+        <tr><td>Wall/septa 3 mm, or ≥4 thin septa</td><td>Bosniak IIF</td><td>Imaging at 6 and 12 months, then yearly to 5 years</td></tr>
+        <tr><td>1–3 thin septa; ≥70 HU unenhanced; 21–30 HU portal venous; too small to characterize</td><td>Bosniak II</td><td>None</td></tr>
+        <tr><td>Simple fluid (−9 to 20 HU), thin wall, no septa</td><td>Bosniak I</td><td>None</td></tr>
+        <tr><td>Solid, enhances ≥20 HU, no fat</td><td>Suspicious for RCC</td><td>Urology referral (&lt;1 cm: imaging follow-up)</td></tr>
+        <tr><td>Anything else</td><td>Indeterminate</td><td>Renal mass protocol CT or MRI</td></tr>
+      </tbody></table></div>
+      <div class="tbl"><table><caption>Adrenal</caption>
+        <thead><tr><th>Feature</th><th>Category</th><th>Action</th></tr></thead><tbody>
+        <tr><td>&lt;1 cm</td><td>Below threshold</td><td>None</td></tr>
+        <tr><td>Macroscopic fat</td><td>Myelolipoma</td><td>None</td></tr>
+        <tr><td>Homogeneous, ≤10 HU unenhanced</td><td>Lipid-rich adenoma</td><td>No imaging; 1 mg dexamethasone test</td></tr>
+        <tr><td>≥4 cm or heterogeneous</td><td>Indeterminate, high risk</td><td>MDT review + hormonal work-up</td></tr>
+        <tr><td>&gt;10 HU or no unenhanced phase</td><td>Indeterminate</td><td>More imaging + hormonal work-up</td></tr>
+      </tbody></table></div>
+    </div>
+    <p class="hint"><b>Flags.</b> Under-call: the guideline asks for something the report leaves out (high severity when a specialist referral is missing). Over-call: the report asks for follow-up the guideline does not. Any imaging meets an imaging requirement, and a referral covers one.</p>
+    <p class="src">Sources: Silverman SG et al., Radiology 2019;292:475–488 · Herts BR et al., J Am Coll Radiol 2018;15:264–273 · Fassnacht M et al., Eur J Endocrinol 2023;189:G1–G42. Simplified: CT only, no patient history, no adrenal washout.</p>
+  </section>
+
+  <footer>The reader is keyword-based and works best on reports written like the samples: sizes in cm and attenuation written as "HU". It runs entirely in your browser, and nothing you paste is sent anywhere.</footer>
+</div>
+<script>
+// JavaScript port of navigator/extract_rules.py + navigator/guidelines.py, for the browser demo.
+// Keep in step with the Python; web/parity_check.js compares both on every sample report.
+(function (root) {
+  "use strict";
+
+  const A = {
+    NO_FOLLOWUP: "NO_FOLLOWUP",
+    IMAGING_SURVEILLANCE: "IMAGING_SURVEILLANCE",
+    CHARACTERIZATION_IMAGING: "CHARACTERIZATION_IMAGING",
+    SPECIALIST_REFERRAL: "SPECIALIST_REFERRAL",
+    HORMONAL_WORKUP: "HORMONAL_WORKUP",
+  };
+  const ORDER = Object.values(A);
+  const LABELS = {
+    NO_FOLLOWUP: "No follow-up",
+    IMAGING_SURVEILLANCE: "Interval imaging surveillance",
+    CHARACTERIZATION_IMAGING: "Dedicated characterization imaging",
+    SPECIALIST_REFERRAL: "Specialist referral",
+    HORMONAL_WORKUP: "Hormonal work-up",
+  };
+
+  // ------------------------------------------------------------------ reader
+  const SIZE_RE = /(\d+(?:\.\d+)?)\s*cm\b/i;
+  const HU_RE = /(-?\d+(?:\.\d+)?)\s*HU\b/g;
+  const LESION_RE = /\b(lesion|cyst|mass|nodule|hypodensity|angiomyolipoma|myelolipoma)/i;
+  const UNENH_RE = /unenhanced|non-?contrast|pre-?contrast|\bpre\b|without contrast/i;
+  const ENH_RE = /nephrographic|portal|post-?contrast|\bpost\b|after contrast|enhanced phase|arterial/i;
+  const SPLIT_IMPRESSION = /\n\s*(?:IMPRESSION|IMP)\s*:/i;
+  const COUNT_WORDS = { a: 1, an: 1, one: 1, single: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
+    few: 2, several: 4, multiple: 4, many: 4 };
+  const SEPTA_COUNT_RE = new RegExp(
+    "\\b(a|an|one|single|two|three|four|five|six|few|several|multiple|many)\\b(\\s*\\((\\d+)\\))?" +
+    "((?:[\\s,]+(?:thin|thick|thickened|smooth|irregular|enhancing|minimally|\\(?\\d+(?:\\.\\d+)?\\s*mm\\)?))*)[\\s,]+sept", "i");
+  const ACTION_PATTERNS = [
+    [A.SPECIALIST_REFERRAL, /urolog|referr|\brefer\b|surgical (consult|evaluation)|multidisciplinary|\bMDT\b/i],
+    [A.HORMONAL_WORKUP, /dexamethasone|\bDST\b|biochemical|hormonal|metanephrine|aldosterone|endocrin/i],
+    [A.IMAGING_SURVEILLANCE, /follow[- ]?up (CT|MRI|ultrasound|imaging|US)\b|in \d+ months|surveillance|repeat (CT|MRI|imaging)/i],
+    [A.CHARACTERIZATION_IMAGING, /protocol (CT|MRI)|mass protocol|adrenal protocol|dedicated|further evaluat|\bMRI\b|characteri[sz]ation/i],
+  ];
+  const EXPLICIT_CHAR = /protocol|dedicated/i;
+  const NO_FU_RE = /no (further )?(follow[- ]?up|imaging)|no further (imaging|evaluation|work)/i;
+
+  function newFinding(organ, side, size) {
+    return { organ, side, size_cm: size, composition: "indeterminate", unenhanced_hu: null, enhanced_hu: null,
+      homogeneous: null, wall_mm: null, septa_count: null, septa_mm: null, irregular_wall_or_septa: false,
+      enhancing_nodule: false, macroscopic_fat: false, too_small_to_characterize: false, stated_actions: [],
+      reported_category: null };
+  }
+
+  const lines = (t) => t.split(/\r\n|\r|\n/);
+  function sentences(text) {
+    const out = [];
+    for (const line of lines(text)) {
+      for (const s of line.split(/(?<=[.;])\s+/)) if (s.trim()) out.push(s.trim());
+    }
+    return out;
+  }
+  function organOf(s) {
+    if (/adrenal/i.test(s)) return "adrenal";
+    if (/kidney|renal/i.test(s)) return "kidney";
+    return null;
+  }
+  function sideOf(s) {
+    let m = s.match(/\b(left|right)\b/i);
+    if (m) return m[1].toLowerCase();
+    m = s.match(/\b([LR])\b/);
+    if (m) return m[1] === "L" ? "left" : "right";
+    return "unknown";
+  }
+  function examPhase(header) {
+    if (/with and without|without and with|w\/wo|multiphase|renal (mass )?protocol/i.test(header)) return null;
+    if (/without (iv )?contrast|non-?contrast|stone protocol/i.test(header)) return "unenhanced";
+    if (/contrast|portal venous/i.test(header)) return "enhanced";
+    return null;
+  }
+  function mmFeatures(s, f) {
+    const re = /(\d+(?:\.\d+)?)\s*mm\b/g;
+    let m;
+    while ((m = re.exec(s))) {
+      const val = parseFloat(m[1]);
+      const end = m.index + m[0].length;
+      const after = s.slice(end, end + 35).toLowerCase();
+      const before = s.slice(Math.max(0, m.index - 30), m.index).toLowerCase();
+      const keys = ["wall", "sept", "nodul"];
+      let hits = keys.filter((k) => after.indexOf(k) >= 0).map((k) => [after.indexOf(k), k]);
+      if (!hits.length) hits = keys.filter((k) => before.lastIndexOf(k) >= 0).map((k) => [before.length - before.lastIndexOf(k), k]);
+      if (!hits.length) continue;
+      hits.sort((x, y) => x[0] - y[0] || (x[1] < y[1] ? -1 : 1));
+      const kind = hits[0][1];
+      if (kind === "wall") f.wall_mm = val;
+      else if (kind === "sept") f.septa_mm = Math.max(val, f.septa_mm || 0);
+    }
+  }
+  function features(s, f, phase) {
+    const low = s.toLowerCase();
+    if (/\bcyst/.test(low)) f.composition = "cystic";
+    else if (/\bsolid\b/.test(low)) f.composition = "solid";
+    if (low.includes("heterogeneous")) f.homogeneous = false;
+    else if (low.includes("homogeneous")) f.homogeneous = true;
+    if (low.includes("irregular")) f.irregular_wall_or_septa = true;
+    if (low.includes("too small to characterize")) f.too_small_to_characterize = true;
+    if (/macroscopic fat|fat[- ]containing|containing fat/.test(low)) f.macroscopic_fat = true;
+    if (f.organ === "kidney" && /(enhancing|mural|soft[- ]tissue)\s+(\d+\s*mm\s+)?(mural\s+)?nodul/.test(low)) f.enhancing_nodule = true;
+    const m = s.match(SEPTA_COUNT_RE);
+    if (m) f.septa_count = m[3] ? parseInt(m[3], 10) : COUNT_WORDS[m[1].toLowerCase()];
+    mmFeatures(s, f);
+    const hus = [...s.matchAll(HU_RE)];
+    hus.forEach((h, i) => {
+      const hend = h.index + h[0].length;
+      const end = i + 1 < hus.length ? hus[i + 1].index : s.length;
+      const after = s.slice(hend, Math.min(end, hend + 40));
+      let kind;
+      if (UNENH_RE.test(after)) kind = "unenhanced";
+      else if (ENH_RE.test(after)) kind = "enhanced";
+      else kind = phase || "enhanced";
+      f[kind + "_hu"] = parseFloat(h[1]);
+    });
+  }
+
+  function extract(text) {
+    const sm = SPLIT_IMPRESSION.exec(text);
+    const body = sm ? text.slice(0, sm.index) : text;
+    const impression = sm ? text.slice(sm.index + sm[0].length) : "";
+    const header = body.includes("FINDINGS") ? body.split("FINDINGS")[0] : lines(body)[0];
+    const phase = examPhase(header);
+    const findings = [];
+    for (const line of lines(body)) {
+      const headerOrgan = line.includes(":") ? organOf(line.split(":")[0]) : null;
+      let current = null;
+      for (const s of sentences(line)) {
+        const organ = organOf(s) || headerOrgan;
+        if (organ && SIZE_RE.test(s) && LESION_RE.test(s)) {
+          current = newFinding(organ, sideOf(s), parseFloat(s.match(SIZE_RE)[1]));
+          findings.push(current);
+          features(s, current, phase);
+        } else if (current && !/^no\b/i.test(s) && organOf(s) === null) {
+          features(s, current, phase);
+        }
+      }
+    }
+    const bm = impression.match(/Bosniak\s+(IIF|IV|III|II|I)\b/);
+    if (bm) findings.forEach((f) => { if (f.organ === "kidney") f.reported_category = "Bosniak " + bm[1]; });
+    assignActions(impression, findings);
+    return findings;
+  }
+
+  function assignActions(impression, findings) {
+    const items = ("\n" + impression).split(/\n\s*\d+[.)]\s*/);
+    for (const item of items) {
+      let ctxOrgan = null, ctxSide = "unknown";
+      for (const s of sentences(item)) {
+        const organ = organOf(s);
+        if (organ) {
+          ctxOrgan = organ;
+          ctxSide = /bilateral/i.test(s) ? "unknown" : sideOf(s);
+        }
+        let actions = ACTION_PATTERNS.filter(([, rx]) => rx.test(s)).map(([a]) => a);
+        if (actions.includes(A.IMAGING_SURVEILLANCE) && actions.includes(A.CHARACTERIZATION_IMAGING) && !EXPLICIT_CHAR.test(s))
+          actions = actions.filter((a) => a !== A.CHARACTERIZATION_IMAGING);
+        if (NO_FU_RE.test(s)) {
+          actions = actions.filter((a) => a !== A.IMAGING_SURVEILLANCE && a !== A.CHARACTERIZATION_IMAGING);
+          actions.unshift(A.NO_FOLLOWUP);
+        }
+        if (!actions.length) continue;
+        const targets = findings.filter((f) => ctxOrgan === null || f.organ === ctxOrgan);
+        const sided = targets.filter((f) => ctxSide !== "unknown" && f.side === ctxSide);
+        for (const f of (sided.length ? sided : targets))
+          for (const a of actions) if (!f.stated_actions.includes(a)) f.stated_actions.push(a);
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------ guidelines
+  const BOSNIAK = "Bosniak v2019 (Radiology 2019)";
+  const ACR_RENAL = "ACR renal mass white paper (JACR 2018)";
+  const ESE = "ESE/ENSAT adrenal incidentaloma guideline (EJE 2023)";
+  const R = (category, actions, rationale, source) => ({ category, actions, rationale, source });
+  const fluid = (hu) => hu !== null && hu !== undefined && hu >= -9 && hu <= 20;
+  const enhancement = (f) => (f.unenhanced_hu === null || f.enhanced_hu === null ? null : f.enhanced_hu - f.unenhanced_hu);
+
+  function classifyRenal(f) {
+    const enh = enhancement(f), size = f.size_cm;
+    if (f.macroscopic_fat) {
+      if (size !== null && size >= 4)
+        return R("Angiomyolipoma ≥4 cm", [A.SPECIALIST_REFERRAL], "Macroscopic fat indicates angiomyolipoma; ≥4 cm carries haemorrhage risk, so urology review is advised.", ACR_RENAL);
+      return R("Angiomyolipoma", [A.NO_FOLLOWUP], "Macroscopic fat without calcification indicates a benign angiomyolipoma.", ACR_RENAL);
+    }
+    if (f.composition === "cystic") {
+      if (f.enhancing_nodule)
+        return R("Bosniak IV", [A.SPECIALIST_REFERRAL], "Enhancing nodule in a cystic mass (~90% malignant): urology referral.", BOSNIAK);
+      const vals = [f.wall_mm, f.septa_mm].filter((x) => x !== null);
+      const thick = vals.length ? Math.max(...vals) : null;
+      if (f.irregular_wall_or_septa || (thick !== null && thick >= 4))
+        return R("Bosniak III", [A.SPECIALIST_REFERRAL], "Thick (≥4 mm) or irregular enhancing wall/septa (~50% malignant): urology referral.", BOSNIAK);
+      if ((thick !== null && thick >= 3) || (f.septa_count || 0) >= 4)
+        return R("Bosniak IIF", [A.IMAGING_SURVEILLANCE], "Minimally thickened (3 mm) wall/septa or ≥4 thin septa: imaging at 6 and 12 months, then yearly to 5 years.", BOSNIAK);
+      if ((f.septa_count || 0) >= 1 && (f.septa_count || 0) <= 3)
+        return R("Bosniak II", [A.NO_FOLLOWUP], "Few (1-3) thin septa: benign, no follow-up.", BOSNIAK);
+      const hu = f.enhanced_hu !== null ? f.enhanced_hu : f.unenhanced_hu;
+      if (hu === null || fluid(hu))
+        return R("Bosniak I", [A.NO_FOLLOWUP], "Thin smooth wall, no septa, simple fluid attenuation: benign, no follow-up.", BOSNIAK);
+    }
+    if (f.too_small_to_characterize)
+      return R("Bosniak II (too small to characterize)", [A.NO_FOLLOWUP], "Homogeneous low-attenuation lesion too small to characterize: presumed benign.", BOSNIAK);
+    const solidEnh = enh !== null && enh >= 20;
+    if (f.composition === "solid" || solidEnh) {
+      if (solidEnh) {
+        if (size !== null && size < 1)
+          return R("Solid enhancing mass <1 cm", [A.IMAGING_SURVEILLANCE], "Very small enhancing solid mass: follow-up imaging is a reasonable option.", ACR_RENAL);
+        return R("Solid enhancing mass (suspicious for RCC)", [A.SPECIALIST_REFERRAL], "Enhancement ≥20 HU without macroscopic fat: suspicious for renal cell carcinoma, urology referral.", ACR_RENAL);
+      }
+      if (enh === null)
+        return R("Solid mass, enhancement not assessed", [A.CHARACTERIZATION_IMAGING], "Solid-appearing mass without pre- and post-contrast measurements: renal mass protocol CT or MRI.", ACR_RENAL);
+    }
+    if (f.homogeneous !== false) {
+      if (f.unenhanced_hu !== null && f.unenhanced_hu >= 70)
+        return R("Bosniak II (hyperattenuating)", [A.NO_FOLLOWUP], "Homogeneous ≥70 HU on non-contrast CT: benign hyperdense cyst.", BOSNIAK);
+      if (enh !== null && enh < 10 && (f.unenhanced_hu || 0) > 20)
+        return R("Bosniak II (non-enhancing)", [A.NO_FOLLOWUP], "Homogeneous, >20 HU and non-enhancing on renal mass protocol CT.", BOSNIAK);
+      if (f.enhanced_hu === null && fluid(f.unenhanced_hu))
+        return R("Bosniak II", [A.NO_FOLLOWUP], "Homogeneous -9 to 20 HU on non-contrast CT: benign.", BOSNIAK);
+      if (f.unenhanced_hu === null && f.enhanced_hu !== null) {
+        if (fluid(f.enhanced_hu))
+          return R("Bosniak I/II (fluid attenuation)", [A.NO_FOLLOWUP], "Homogeneous fluid attenuation on post-contrast CT: benign.", BOSNIAK);
+        if (f.enhanced_hu >= 21 && f.enhanced_hu <= 30)
+          return R("Bosniak II", [A.NO_FOLLOWUP], "Homogeneous 21-30 HU on portal venous phase: benign.", BOSNIAK);
+      }
+    }
+    return R("Indeterminate renal mass", [A.CHARACTERIZATION_IMAGING], "Cannot be classified from available phases: renal mass protocol CT or MRI.", BOSNIAK);
+  }
+
+  function classifyAdrenal(f) {
+    const size = f.size_cm;
+    if (size !== null && size < 1)
+      return R("Sub-centimetre adrenal nodule", [A.NO_FOLLOWUP], "Guideline applies to masses ≥1 cm; no work-up needed.", ESE);
+    if (f.macroscopic_fat)
+      return R("Myelolipoma", [A.NO_FOLLOWUP], "Macroscopic fat indicates a benign myelolipoma.", ESE);
+    if (f.unenhanced_hu !== null && f.unenhanced_hu <= 10 && f.homogeneous !== false)
+      return R("Lipid-rich adenoma (benign imaging)", [A.HORMONAL_WORKUP],
+        "Homogeneous ≤10 HU on non-contrast CT: benign, no further imaging; every patient still needs a 1 mg dexamethasone suppression test (plus aldosterone/renin if hypertensive or hypokalaemic).", ESE);
+    if ((size !== null && size >= 4) || f.homogeneous === false)
+      return R("Indeterminate adrenal mass, ≥4 cm or heterogeneous", [A.SPECIALIST_REFERRAL, A.HORMONAL_WORKUP],
+        "Indeterminate mass that is large or heterogeneous: discuss in an expert multidisciplinary team (surgery usually considered) and complete hormonal work-up including metanephrines.", ESE);
+    const why = f.unenhanced_hu === null ? "No non-contrast attenuation available" : `${f.unenhanced_hu} HU on non-contrast CT (>10 HU)`;
+    return R("Indeterminate adrenal mass", [A.CHARACTERIZATION_IMAGING, A.HORMONAL_WORKUP],
+      `${why}: further imaging (non-contrast/washout CT or chemical-shift MRI) or repeat imaging in 6-12 months, plus hormonal work-up including metanephrines.`, ESE);
+  }
+
+  const classify = (f) => (f.organ === "kidney" ? classifyRenal(f) : classifyAdrenal(f));
+  const IMAGING = [A.IMAGING_SURVEILLANCE, A.CHARACTERIZATION_IMAGING];
+
+  function concordance(f, g) {
+    const required = new Set(g.actions.filter((a) => a !== A.NO_FOLLOWUP));
+    const stated = new Set(f.stated_actions.filter((a) => a !== A.NO_FOLLOWUP));
+    const noRec = f.stated_actions.length === 0;
+    let missing = new Set([...required].filter((a) => !stated.has(a)));
+    let extra = new Set([...stated].filter((a) => !required.has(a)));
+    const has = (set, list) => list.some((a) => set.has(a));
+    if (has(missing, IMAGING) && has(stated, IMAGING)) { IMAGING.forEach((a) => { missing.delete(a); extra.delete(a); }); }
+    if (has(missing, IMAGING) && stated.has(A.SPECIALIST_REFERRAL)) IMAGING.forEach((a) => missing.delete(a));
+    const sort = (s) => [...s].sort((x, y) => ORDER.indexOf(x) - ORDER.indexOf(y));
+    const m = sort(missing), e = sort(extra);
+    const words = (l) => l.map((a) => a.replace(/_/g, " ").toLowerCase()).join(", ");
+    if (m.length) {
+      const severity = missing.has(A.SPECIALIST_REFERRAL) ? "high" : "medium";
+      const lead = noRec ? "No recommendation given" : "Recommendation falls short";
+      return { status: "under-call", severity, missing: m, extra: e, no_recommendation: noRec, message: `${lead}: guideline calls for ${words(m)}.` };
+    }
+    if (e.length)
+      return { status: "over-call", severity: "low", missing: m, extra: e, no_recommendation: noRec, message: `Guideline does not call for ${words(e)} (possible unnecessary follow-up).` };
+    return { status: "concordant", severity: "none", missing: [], extra: [], no_recommendation: noRec, message: "Recommendation matches the guideline." };
+  }
+
+  const api = { A, LABELS, extract, classify, concordance };
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+  else root.Navigator = api;
+})(typeof globalThis !== "undefined" ? globalThis : this);
+
+</script>
+<script>
+const SAMPLES=[{"id": "R01", "text": "EXAM: CT abdomen and pelvis with IV contrast (portal venous phase).\nINDICATION: Right lower quadrant pain.\nFINDINGS:\nKidneys: 2.1 cm homogeneous lesion in the right kidney interpolar region measuring 8 HU, with an imperceptible wall and no septa or calcification. Left kidney unremarkable.\nAdrenals: Normal.\nAppendix: Normal.\nIMPRESSION:\n1. No acute abnormality.\n2. Simple right renal cyst (Bosniak I). No follow-up needed."}, {"id": "R02", "text": "EXAM: CT abdomen with IV contrast, portal venous phase.\nINDICATION: Weight loss.\nFINDINGS:\nKidneys: Left kidney lower pole cystic lesion measuring 3.4 cm with two thin (1 mm) septa and thin peripheral calcification. No enhancing soft tissue. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\nLeft renal cyst, Bosniak II. No follow-up imaging required."}, {"id": "R03", "text": "EXAM: CT chest, abdomen and pelvis with contrast.\nINDICATION: Lymphoma staging, follow-up.\nFINDINGS:\nAbdomen: Right kidney upper pole cystic lesion measuring 4.2 cm with a smooth, minimally thickened 3 mm enhancing wall. No septa or nodularity. Left kidney normal. Adrenal glands normal.\nIMPRESSION:\n1. No evidence of lymphoma recurrence.\n2. Right renal complex cyst, likely benign."}, {"id": "R04", "text": "EXAM: CT abdomen/pelvis with IV contrast.\nINDICATION: Diverticulitis.\nFINDINGS:\nKidneys: 2.8 cm cystic lesion in the left kidney containing multiple (5) thin, smooth enhancing septa, each less than 2 mm. No thickened wall or nodule.\nAdrenals: Unremarkable.\nIMPRESSION:\n1. Uncomplicated sigmoid diverticulitis.\n2. Left renal cystic lesion, Bosniak IIF. Recommend follow-up CT or MRI in 6 months."}, {"id": "R05", "text": "EXAM: CT abdomen with and without contrast (renal mass protocol).\nINDICATION: Hematuria.\nFINDINGS:\nRight kidney: 3.0 cm cystic lesion with an irregular, thick 5 mm enhancing septum. Left kidney normal.\nAdrenals: Normal.\nIMPRESSION:\nRight renal cystic mass, Bosniak III. Urology referral recommended."}, {"id": "R06", "text": "EXAM: CT abdomen and pelvis with IV contrast.\nINDICATION: Abdominal pain.\nFINDINGS:\nKidneys: Left kidney interpolar cystic lesion measuring 3.6 cm with an enhancing 7 mm mural nodule along the posterior wall. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\nLeft renal cystic lesion. Recommend follow-up ultrasound in 12 months."}, {"id": "R07", "text": "EXAM: CT abdomen, multiphase renal protocol.\nINDICATION: Microscopic hematuria.\nFINDINGS:\nRight kidney: 2.4 cm solid mass in the lower pole measuring 35 HU on unenhanced images and 120 HU in the nephrographic phase. No macroscopic fat.\nLeft kidney and adrenals: Normal.\nIMPRESSION:\nEnhancing solid right renal mass, suspicious for renal cell carcinoma. Urology referral."}, {"id": "R08", "text": "EXAM: CT abdomen with and without IV contrast.\nINDICATION: Right upper quadrant pain.\nFINDINGS:\nGallbladder: Multiple gallstones without wall thickening.\nKidneys: 1.9 cm exophytic solid lesion from the left upper pole measuring 28 HU pre-contrast and 95 HU post-contrast. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\n1. Cholelithiasis without cholecystitis.\n2. Small left renal lesion, likely cyst."}, {"id": "R09", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain, rule out stone.\nFINDINGS:\nKidneys: No hydronephrosis or calculi. 1.6 cm lesion in the right kidney containing macroscopic fat (-45 HU), consistent with angiomyolipoma.\nAdrenals: Normal.\nIMPRESSION:\n1. No urolithiasis.\n2. Small right renal angiomyolipoma. No follow-up needed."}, {"id": "R10", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Trauma, motor vehicle collision.\nFINDINGS:\nNo solid organ injury. Left kidney: 5.2 cm fat-containing lesion (-60 HU) in the lower pole without hemorrhage. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\n1. No traumatic injury.\n2. Left renal angiomyolipoma. No further imaging."}, {"id": "R11", "text": "EXAM: CT chest/abdomen with contrast.\nINDICATION: Pulmonary nodule follow-up.\nFINDINGS:\nUpper abdomen: 0.6 cm hypodense lesion in the right kidney, too small to characterize. Adrenals normal.\nIMPRESSION:\nStable 4 mm pulmonary nodule. Tiny right renal hypodensity, too small to characterize, likely cyst; no follow-up."}, {"id": "R12", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Pancreatitis.\nFINDINGS:\nPancreas: Mild peripancreatic stranding.\nKidneys: 0.7 cm hypodense left renal lesion too small to characterize.\nAdrenals: Normal.\nIMPRESSION:\n1. Mild acute interstitial pancreatitis.\n2. Subcentimeter left renal lesion. Recommend renal ultrasound to further evaluate."}, {"id": "R13", "text": "EXAM: CT abdomen and pelvis with contrast, portal venous phase only.\nINDICATION: Crohn disease flare.\nFINDINGS:\nKidneys: 2.2 cm homogeneous lesion in the right kidney measuring 45 HU. No unenhanced images available.\nAdrenals: Normal.\nIMPRESSION:\n1. Active terminal ileitis.\n2. Indeterminate right renal lesion. Recommend renal mass protocol CT or MRI."}, {"id": "R14", "text": "EXAM: CT abdomen with IV contrast (portal venous phase).\nINDICATION: Nausea and vomiting.\nFINDINGS:\nKidneys: 1.8 cm homogeneous left renal lesion measuring 52 HU.\nAdrenals: Normal.\nIMPRESSION:\n1. No bowel obstruction.\n2. Left renal lesion, likely hyperdense cyst."}, {"id": "R15", "text": "EXAM: CT abdomen and pelvis without contrast (stone protocol).\nINDICATION: Left flank pain.\nFINDINGS:\nKidneys: 3 mm non-obstructing left lower pole calculus. 1.5 cm homogeneous right renal lesion measuring 78 HU.\nAdrenals: Normal.\nIMPRESSION:\n1. Non-obstructing left nephrolithiasis.\n2. Hyperdense right renal cyst, Bosniak II. No follow-up."}, {"id": "R16", "text": "EXAM: CT abdomen with contrast, portal venous phase.\nINDICATION: Elevated liver enzymes.\nFINDINGS:\nKidneys: 2.5 cm homogeneous right renal lesion measuring 26 HU, likely cyst.\nAdrenals: Normal.\nIMPRESSION:\n1. Hepatic steatosis.\n2. Right renal lesion, likely cyst. Recommend follow-up ultrasound in 6 months."}, {"id": "R17", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Hematuria, stone protocol.\nFINDINGS:\nKidneys: No calculi.\nAdrenals: 2.1 cm homogeneous left adrenal nodule measuring 4 HU.\nIMPRESSION:\nLeft adrenal nodule consistent with lipid-rich adenoma. No further imaging. Recommend biochemical evaluation for autonomous cortisol secretion (1 mg dexamethasone suppression test)."}, {"id": "R18", "text": "EXAM: CT abdomen and pelvis without contrast.\nINDICATION: Renal colic.\nFINDINGS:\nKidneys: 4 mm obstructing right UVJ stone with mild hydronephrosis.\nAdrenals: 1.8 cm right adrenal nodule measuring -2 HU.\nIMPRESSION:\n1. Obstructing right UVJ calculus.\n2. Right adrenal adenoma, no follow-up."}, {"id": "R19", "text": "EXAM: CT abdomen with contrast, portal venous phase.\nINDICATION: Abdominal pain.\nFINDINGS:\nAdrenals: 2.6 cm homogeneous left adrenal nodule measuring 60 HU.\nKidneys: Normal.\nIMPRESSION:\nIndeterminate left adrenal nodule. Recommend dedicated adrenal protocol CT and endocrine evaluation."}, {"id": "R20", "text": "EXAM: CT abdomen without and with contrast.\nINDICATION: Back pain.\nFINDINGS:\nAdrenals: 4.8 cm heterogeneous right adrenal mass measuring 38 HU on unenhanced images.\nKidneys: Normal.\nIMPRESSION:\nRight adrenal mass. Recommend follow-up CT in 12 months."}, {"id": "R21", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Colitis.\nFINDINGS:\nAdrenals: 0.8 cm left adrenal nodule.\nKidneys: Normal.\nIMPRESSION:\n1. Mild colitis.\n2. Subcentimeter left adrenal nodule, no follow-up."}, {"id": "R22", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Abdominal distension.\nFINDINGS:\nAdrenals: 3.2 cm right adrenal mass containing macroscopic fat (-80 HU), consistent with myelolipoma.\nKidneys: Normal.\nIMPRESSION:\nRight adrenal myelolipoma. No follow-up."}, {"id": "R23", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Constipation.\nFINDINGS:\nAdrenals: 1.4 cm homogeneous left adrenal nodule measuring 18 HU.\nKidneys: Normal.\nIMPRESSION:\n1. Moderate stool burden.\n2. Left adrenal nodule."}, {"id": "R24", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nAdrenals: 1.2 cm left adrenal nodule measuring 6 HU.\nKidneys: No calculi.\nIMPRESSION:\nLeft adrenal adenoma. Recommend follow-up CT in 12 months and hormonal workup."}, {"id": "R25", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nKidneys: 3.1 cm simple right renal cyst measuring 5 HU with no septa.\nAdrenals: 2.4 cm homogeneous left adrenal nodule measuring 8 HU.\nIMPRESSION:\n1. Bosniak I right renal cyst, no follow-up.\n2. Left adrenal adenoma; recommend 1 mg dexamethasone suppression test."}, {"id": "R26", "text": "EXAM: CT abdomen with and without contrast.\nINDICATION: Anemia.\nFINDINGS:\nKidneys: 2.0 cm solid left renal mass measuring 40 HU unenhanced and 130 HU after contrast.\nAdrenals: 1.6 cm right adrenal nodule measuring 25 HU on unenhanced images.\nIMPRESSION:\n1. Left renal mass suspicious for renal cell carcinoma; urology referral.\n2. Right adrenal nodule, likely adenoma."}, {"id": "R27", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Pelvic pain.\nFINDINGS:\nKidneys: 1.2 cm simple cyst in the right kidney measuring 3 HU. 3.8 cm cyst in the left kidney with a 3 mm thickened enhancing septum.\nAdrenals: Normal.\nIMPRESSION:\nBilateral renal cysts, benign. No follow-up."}, {"id": "R28", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Abdominal pain.\nFINDINGS:\nKidneys: Normal in size and enhancement. No masses or hydronephrosis.\nAdrenals: Normal.\nIMPRESSION:\nNo acute abnormality."}, {"id": "R29", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Gastroenteritis.\nFINDINGS:\nKidneys: 2.7 cm right renal cystic lesion with a thin 2 mm wall and two thin septa.\nAdrenals: Normal.\nIMPRESSION:\nRight renal cystic lesion, Bosniak IIF. Recommend follow-up imaging in 6 months."}, {"id": "R30", "text": "CT A/P w/wo contrast for hematuria.\nIncidental 2.3cm enhancing solid lesion arising from the lower pole of the R kidney (32 HU pre / 110 HU post). L kidney and both adrenals unremarkable.\nIMP: R renal lesion. Recommend dedicated renal MRI."}, {"id": "H01", "text": "EXAM: CT abdomen/pelvis with IV contrast.\nINDICATION: Left lower quadrant pain.\nFINDINGS:\nThere is a 31 mm cystic lesion in the left kidney with numerous thin septations. Adrenal glands unremarkable.\nIMPRESSION:\nBosniak IIF left renal cyst. Recommend surveillance imaging at 6 and 12 months."}, {"id": "H02", "text": "EXAM: CT urogram (unenhanced, nephrographic and excretory phases).\nINDICATION: Gross hematuria.\nFINDINGS:\nRight renal mass: 2.9 x 2.5 cm, heterogeneously enhancing, HU 30 (precontrast) and 105 (nephrographic).\nIMPRESSION:\nConcerning for renal cell carcinoma. Refer to urology."}, {"id": "H03", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Hypertension, flank pain.\nFINDINGS:\nNo renal masses or stones. Left adrenal: 2.3 cm nodule with attenuation of 7 Hounsfield units on noncontrast images.\nIMPRESSION:\nLeft adrenal adenoma. Clinical correlation for hormonal hypersecretion recommended."}, {"id": "H04", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Fever.\nFINDINGS:\nExophytic 1.4 cm hyperdense lesion off the right kidney, 58 HU on venous phase only; cannot exclude solid lesion.\nIMPRESSION:\nIndeterminate right renal lesion; consider renal MRI for characterization."}, {"id": "H05", "text": "EXAM: CT abdomen without and with contrast.\nINDICATION: Abdominal fullness.\nFINDINGS:\nThe left adrenal gland demonstrates a 4.4 cm homogeneous mass measuring 32 HU unenhanced.\nIMPRESSION:\nLarge indeterminate left adrenal mass. Recommend endocrine surgery referral and biochemical work-up including plasma metanephrines."}, {"id": "H06", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Epigastric pain.\nFINDINGS:\nSimple-appearing 5.5 cm cyst, upper pole left kidney, fluid attenuation, no septations.\nIMPRESSION:\nBenign left renal cyst. Recommend follow-up ultrasound in one year."}, {"id": "H07", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Back pain.\nFINDINGS:\nKidneys: 2.2 cm right interpolar lesion with internal macroscopic fat consistent with AML.\nAdrenals: 1.1 cm left adrenal nodule, 22 HU.\nIMPRESSION:\n1. Right renal AML.\n2. Indeterminate 1.1 cm left adrenal nodule; adrenal washout CT recommended."}, {"id": "H08", "text": "EXAM: CT abdomen, renal mass protocol.\nINDICATION: Follow-up of complex cyst.\nFINDINGS:\n4.0 cm right renal cystic mass with a nodular enhancing soft tissue component measuring 9 mm.\nIMPRESSION:\nRight renal cystic mass with enhancing nodular component, Bosniak IV. Urologic consultation advised."}, {"id": "H09", "text": "EXAM: CT chest with contrast.\nINDICATION: Cough.\nFINDINGS:\nLungs clear. Upper abdomen: partially imaged 1.7 cm hypoattenuating right adrenal nodule (Hounsfield units 41, contrast-enhanced).\nIMPRESSION:\nNo acute cardiopulmonary process."}, {"id": "H10", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Urinary tract infection.\nFINDINGS:\nKidneys: 3.3 cm left renal cyst with a 4 mm irregular enhancing wall.\nIMPRESSION:\nComplex left renal cyst; recommend follow-up CT in 6 months."}, {"id": "H11", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Abdominal pain.\nFINDINGS:\nSeveral subcentimeter hypodensities in both kidneys, too small to characterize.\nIMPRESSION:\nNo follow-up needed for tiny renal hypodensities."}, {"id": "H12", "text": "EXAM: CT abdomen with contrast, portal venous phase.\nINDICATION: Weight loss.\nFINDINGS:\nAdrenals: 3.0 cm right adrenal mass with heterogeneous enhancement, 85 HU. No unenhanced images.\nIMPRESSION:\nRight adrenal mass, likely adenoma. No further follow up."}, {"id": "H13", "text": "EXAM: CT abdomen without and with contrast.\nINDICATION: Hematuria.\nFINDINGS:\n8 mm enhancing solid nodule in the left kidney (25 HU unenhanced, 90 HU nephrographic).\nIMPRESSION:\nTiny enhancing left renal nodule; recommend follow-up renal mass protocol CT in 6-12 months."}, {"id": "H14", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nBilateral adrenal nodules: right 1.5 cm (−5 HU), left 2.0 cm (3 HU).\nIMPRESSION:\nBilateral adrenal adenomas. Recommend 1 mg overnight dexamethasone suppression test."}, {"id": "H15", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Surveillance after left nephrectomy.\nFINDINGS:\nKidneys: Status post left nephrectomy. Right kidney normal without masses.\nAdrenals: No nodules.\nIMPRESSION:\nNo evidence of recurrence."}, {"id": "H16", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Pain.\nFINDINGS:\n2.0 cm left renal cyst with one thin septum and a fleck of calcification.\nIMPRESSION:\nMinimally complex left renal cyst (Bosniak IIF). Follow-up CT in 6 months recommended."}];
+const N = window.Navigator;
+const FEATURED = {R06:"Cystic kidney mass with a nodule",R26:"Kidney mass plus adrenal nodule",R10:"Large angiomyolipoma",R20:"Large heterogeneous adrenal mass",
+  R12:"Tiny kidney spot",R17:"Adrenal adenoma",R04:"Bosniak IIF cyst",R30:"Short dictation style"};
+const STATUS = {"concordant":"Concordant","under-call":"Under-call","over-call":"Over-call"};
+const SEV = {high:0,medium:1,low:2,none:3};
+const FIELD = {composition:"composition",unenhanced_hu:"unenhanced HU",enhanced_hu:"enhanced HU",homogeneous:"homogeneous",wall_mm:"wall mm",septa_count:"septa",
+  septa_mm:"septa mm",irregular_wall_or_septa:"irregular",enhancing_nodule:"enhancing nodule",macroscopic_fat:"macroscopic fat",too_small_to_characterize:"too small to characterize",reported_category:"report's category"};
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const labels = (acts) => { const a = acts.filter((x) => x !== "NO_FOLLOWUP"); return (a.length ? a : ["NO_FOLLOWUP"]).map((x) => N.LABELS[x]).join(", "); };
+const indication = (t) => { const m = t.match(/INDICATION:\s*(.+)/i); return m ? m[1].replace(/\.$/, "") : t.split("\n")[0].slice(0, 40); };
+
+function analyse(text) {
+  return N.extract(text).map((f) => { const g = N.classify(f); return { f, g, c: N.concordance(f, g) }; });
+}
+
+function card({ f, g, c }) {
+  const fields = Object.keys(FIELD).filter((k) => f[k] !== null && f[k] !== false && f[k] !== "indeterminate")
+    .map((k) => `<span>${FIELD[k]}${f[k] === true ? "" : ": " + esc(f[k])}</span>`).join("") || "<span>no extra features</span>";
+  const sev = c.severity !== "none" ? " · " + c.severity : "";
+  const side = f.side === "unknown" ? "" : f.side[0].toUpperCase() + f.side.slice(1) + " ";
+  return `<article class="lesion ${c.status}">
+    <div class="lesion-top"><h3>${side}${f.organ}${f.size_cm !== null ? " · " + f.size_cm + " cm" : ""}</h3><span class="pill ${c.status}">${STATUS[c.status]}${sev}</span></div>
+    <div class="vs"><div><span class="k">Guideline</span><span class="v">${esc(g.category)}</span><span>→ ${esc(labels(g.actions))}</span></div>
+    <div><span class="k">Report says</span><span>→ ${f.stated_actions.length ? esc(labels(f.stated_actions)) : "<i>nothing recommended</i>"}</span></div></div>
+    <p>${esc(c.message)}</p>
+    <p class="why">${esc(g.rationale)} Source: ${esc(g.source)}.</p>
+    <details><summary>What the reader extracted</summary><div class="fields">${fields}</div></details></article>`;
+}
+
+function render() {
+  const text = $("report").value;
+  if (!text.trim()) { $("summary").innerHTML = ""; $("results").innerHTML = '<div class="empty">Paste a report or load a sample to see the check.</div>'; return; }
+  const res = analyse(text);
+  if (!res.length) {
+    $("summary").innerHTML = '<span class="chip">0 lesions</span>';
+    $("results").innerHTML = '<div class="empty">No kidney or adrenal lesion with a size in cm was found. The keyword reader needs a lesion word (lesion, cyst, mass, nodule) and a size such as "2.1 cm" in the findings.</div>';
+    return;
+  }
+  const count = (s) => res.filter((r) => r.c.status === s).length;
+  $("summary").innerHTML = `<span class="chip">${res.length} lesion${res.length > 1 ? "s" : ""}</span>` +
+    ["under-call", "over-call", "concordant"].filter((s) => count(s)).map((s) => `<span class="chip ${s}">${count(s)} ${STATUS[s].toLowerCase()}</span>`).join("");
+  $("results").innerHTML = res.map(card).join("");
+}
+
+// samples
+const sel = $("sample");
+const byId = Object.fromEntries(SAMPLES.map((r) => [r.id, r]));
+const og1 = document.createElement("optgroup"); og1.label = "Featured";
+Object.entries(FEATURED).forEach(([id, name]) => og1.append(new Option(name, id)));
+const og2 = document.createElement("optgroup"); og2.label = "All sample reports";
+SAMPLES.forEach((r) => og2.append(new Option(`${r.id} · ${indication(r.text)}`, r.id)));
+sel.append(new Option("Paste your own…", "")); sel.append(og1, og2);
+sel.onchange = () => { $("report").value = sel.value ? byId[sel.value].text : ""; render(); if (!sel.value) $("report").focus(); };
+let timer; $("report").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(render, 250); });
+$("run").onclick = render;
+$("clear").onclick = () => { $("report").value = ""; sel.value = ""; render(); $("report").focus(); };
+
+// worklist
+function buildWorklist() {
+  const rows = [];
+  SAMPLES.forEach((r) => analyse(r.text).forEach((x) => rows.push({ id: r.id, ...x })));
+  rows.sort((a, b) => SEV[a.c.severity] - SEV[b.c.severity] || a.id.localeCompare(b.id));
+  const n = (s) => rows.filter((r) => r.c.status === s).length;
+  $("stats").innerHTML = `<div class="stat"><span class="k">Lesions found</span><b>${rows.length}</b></div>
+    <div class="stat bad"><span class="k">Under-calls</span><b>${n("under-call")}</b></div>
+    <div class="stat warn"><span class="k">Over-calls</span><b>${n("over-call")}</b></div>
+    <div class="stat ok"><span class="k">Concordant</span><b>${n("concordant")}</b></div>`;
+  $("worklist").innerHTML = rows.map((r) => `<tr class="clickable" tabindex="0" data-id="${r.id}"><td class="num">${r.id}</td>
+    <td>${r.f.side === "unknown" ? "" : r.f.side + " "}${r.f.organ}${r.f.size_cm !== null ? " " + r.f.size_cm + " cm" : ""}</td>
+    <td>${esc(r.g.category)}</td><td>${esc(labels(r.g.actions))}</td>
+    <td>${r.f.stated_actions.length ? esc(labels(r.f.stated_actions)) : "<i>none</i>"}</td>
+    <td><span class="pill ${r.c.status}">${STATUS[r.c.status]}${r.c.severity !== "none" ? " · " + r.c.severity : ""}</span></td></tr>`).join("");
+  $("worklist").querySelectorAll("tr").forEach((tr) => {
+    const open = () => { sel.value = tr.dataset.id; sel.onchange(); showTab("t-check"); window.scrollTo({ top: 0 }); };
+    tr.onclick = open; tr.onkeydown = (e) => { if (e.key === "Enter") open(); };
+  });
+}
+
+// tabs
+const TABS = ["t-check", "t-batch", "t-rules"];
+function showTab(id) {
+  TABS.forEach((t) => { const on = t === id; $(t).setAttribute("aria-selected", on); $($(t).getAttribute("aria-controls")).hidden = !on; });
+}
+TABS.forEach((t) => ($(t).onclick = () => showTab(t)));
+
+buildWorklist();
+sel.value = "R06"; sel.onchange();
+
+</script>
