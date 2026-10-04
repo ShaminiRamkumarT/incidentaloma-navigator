@@ -6,6 +6,8 @@
 
 **Live demo:** https://shaminiramkumart.github.io/incidentaloma-navigator/web/ (runs in the browser, no install)
 
+**Result:** on 16 held-out reports written in new phrasing, the regex baseline caught every discordant recommendation (6/6, including both high-severity under-calls), but overall flag agreement fell from 100% on the dev set to 59%. [Details below](#results-regex-baseline).
+
 ## Portfolio card
 
 **Why?**
@@ -33,6 +35,8 @@
 | High-severity under-calls caught | 5/5 | 2/2 |
 
 **What this shows:** the regex rules look perfect on the reports they were tuned on and break on new phrasing: sizes in mm, "Hounsfield units", "HU 30 (precontrast)", "2.9 x 2.5 cm", two lesions in one sentence, "nodular enhancing soft tissue component". This is why I also wrote an AI reader (`navigator/extract_llm.py`) that uses Claude to read the report instead of keyword rules. It fills in the same fields and is scored the same way, and I kept its instructions general so it doesn't know the test phrasings. I haven't run it yet because it needs a paid API key.
+
+**What I'd change first:** all 7 held-out misses come from the reader, not the guideline rules (4 lesions not detected, 3 misread). So I'd normalise units and size formats before extraction (mm to cm, "Hounsfield units" to HU, "2.9 x 2.5 cm" to longest diameter), split sentences that describe two lesions, and then score the Claude extractor on the same 16 reports, with a fresh held-out set afterwards so I'm not tuning on this one.
 
 To see exactly where the reader went wrong, open `results/eval_rules_holdout.csv`. It has one row per lesion in the 16 test reports, with the correct answer, what the reader produced and which details it got wrong (for example, report H02: size read as 2.5 cm instead of 2.9 cm). The same table appears as "Error log" in the Validation dashboard tab of the Streamlit app (`streamlit run app.py`). The browser demo does not include it.
 
@@ -96,3 +100,7 @@ web/                        Browser demo (index.html) and its JavaScript engine
 2. Test it on real, anonymised radiology reports (for example MIMIC-IV, which needs approved access).
 3. Ask a radiologist to check my answer key, and see how often we agree.
 4. Add MRI rules and take patient history into account (for example a known cancer).
+
+## Author and license
+
+Built by Shamini Ramkumar T, 2026. Code and synthetic reports are released under the MIT license. See [LICENSE](LICENSE).
