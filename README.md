@@ -2,6 +2,8 @@
 
 **AI · Radiology · Renal cell carcinoma · Adrenal incidentaloma · Python/Streamlit**
 
+**Live demo:** https://shaminiramkumart.github.io/incidentaloma-navigator/web/ (runs in the browser, no install)
+
 ## Portfolio card
 
 **Why?**
