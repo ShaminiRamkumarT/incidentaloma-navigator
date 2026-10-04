@@ -1,4 +1,4 @@
-"""Incidentaloma Follow-up Navigator - Streamlit app.  Run: streamlit run app.py"""
+"""IncidentaLens - Streamlit app.  Run: streamlit run app.py"""
 import json
 import os
 from pathlib import Path
@@ -12,7 +12,7 @@ from navigator.guidelines import classify, concordance
 from navigator.schema import ACTION_LABELS, Action, Finding
 
 ROOT = Path(__file__).parent
-st.set_page_config(page_title="Incidentaloma Follow-up Navigator", page_icon="🩻", layout="wide")
+st.set_page_config(page_title="IncidentaLens", page_icon="🩻", layout="wide")
 
 STATUS_STYLE = {
     "concordant": ("✅", "green", "Concordant"),
@@ -27,7 +27,7 @@ def labels(actions):
 
 
 # ---------------------------------------------------------------- sidebar
-st.sidebar.title("🩻 Incidentaloma Navigator")
+st.sidebar.title("🩻 IncidentaLens")
 st.sidebar.caption("Renal & adrenal incidental findings on CT: does the report's follow-up match the guidelines?")
 has_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
 mode = st.sidebar.radio(

@@ -1,4 +1,6 @@
-# Incidentaloma Follow-up Navigator
+# IncidentaLens
+
+*Incidentaloma follow-up checker for kidney and adrenal lesions on CT*
 
 **AI · Radiology · Renal cell carcinoma · Adrenal incidentaloma · Python/Streamlit**
 

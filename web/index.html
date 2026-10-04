@@ -1,20 +1,23 @@
-<title>Incidentaloma Navigator App</title>
+<title>IncidentaLens</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: reading-station app; report editor on the left, verdict cards on the right; tabs for batch worklist and rules */
 :root{
   --bg:#f3f5f7; --surface:#ffffff; --ink:#18212b; --muted:#5a6876; --line:#d9e0e6;
   --accent:#1f6f8b; --accent-ink:#ffffff; --accent-soft:#e2eff4; --film:#0f1820; --film-ink:#d7e3ea; --caret:#8fd0e8;
+  --brand:#0e5a6e; --brand-2:#14879f; --brand-ink:#ffffff; --hero-soft:#d4eef4; --kidney:#a3367a; --kidney-bg:#f8e4f0; --adrenal:#2468b8; --adrenal-bg:#e2edfa;
   --ok:#2f7d4f; --ok-bg:#e5f3ea; --warn:#a2610b; --warn-bg:#fbefdc; --bad:#b4322c; --bad-bg:#fbe6e4;
   --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0e141a; --surface:#16202a; --ink:#e3eaf0; --muted:#97a6b4; --line:#2a3744;
   --accent:#62b4d2; --accent-ink:#06141b; --accent-soft:#163242; --film:#070b0f; --film-ink:#cfdde6; --caret:#62b4d2;
+  --brand:#0b4a5c; --brand-2:#1a8aa3; --brand-ink:#f2fbfd; --hero-soft:#bfe3ec; --kidney:#f08cc6; --kidney-bg:#3a1830; --adrenal:#86b8f2; --adrenal-bg:#14284a;
   --ok:#6cc792; --ok-bg:#15301f; --warn:#e5a54a; --warn-bg:#36260d; --bad:#f08079; --bad-bg:#3a1714; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e141a; --surface:#16202a; --ink:#e3eaf0; --muted:#97a6b4; --line:#2a3744;
   --accent:#62b4d2; --accent-ink:#06141b; --accent-soft:#163242; --film:#070b0f; --film-ink:#cfdde6; --caret:#62b4d2;
+  --brand:#0b4a5c; --brand-2:#1a8aa3; --brand-ink:#f2fbfd; --hero-soft:#bfe3ec; --kidney:#f08cc6; --kidney-bg:#3a1830; --adrenal:#86b8f2; --adrenal-bg:#14284a;
   --ok:#6cc792; --ok-bg:#15301f; --warn:#e5a54a; --warn-bg:#36260d; --bad:#f08079; --bad-bg:#3a1714; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -30,7 +33,9 @@ p{margin:0}
 .badge{font:500 .72rem/1.35 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:var(--surface)}
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
 .tabs button{font:600 .92rem var(--body);background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:10px 14px;cursor:pointer;white-space:nowrap}
-.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs button{border-radius:8px 8px 0 0}
+.tabs button[aria-selected="true"]{color:var(--brand-ink);background:var(--brand);border-bottom-color:var(--brand)}
+.tabs{border-bottom:3px solid var(--brand)}
 button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
 .panel{display:grid;gap:12px;min-width:0}
@@ -38,7 +43,7 @@ label{font:500 .72rem/1 var(--mono);text-transform:uppercase;letter-spacing:.1em
 select{font:inherit;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
 textarea{font:13.5px/1.65 var(--mono);width:100%;min-height:400px;resize:vertical;background:var(--film);color:var(--film-ink);caret-color:var(--caret);border:0;border-radius:10px;padding:16px 18px}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn{font:600 .92rem var(--body);padding:10px 16px;border-radius:8px;border:1px solid var(--brand);background:var(--brand);color:var(--brand-ink);cursor:pointer}
 .btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--line)}
 .hint{font-size:.83rem;color:var(--muted)}
 .hint code{font:12.5px var(--mono);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
@@ -76,13 +81,23 @@ tbody tr.clickable{cursor:pointer} tbody tr.clickable:hover{background:var(--acc
 .rules{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
 .src{font-size:.8rem;color:var(--muted)}
 footer{font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+.hero{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:var(--brand-ink);border-radius:14px;padding:24px 26px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:14px}
+.hero h1{color:var(--brand-ink)}
+.hero p{color:var(--hero-soft);max-width:62ch}
+.hero .sub{font:500 .8rem/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--brand-ink);opacity:.9}
+.hero .badge{background:transparent;color:var(--brand-ink);border-color:var(--hero-soft)}
+.org{font:600 .72rem/1 var(--body);padding:4px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.06em;vertical-align:2px;margin-right:6px}
+.org.kidney{background:var(--kidney-bg);color:var(--kidney)} .org.adrenal{background:var(--adrenal-bg);color:var(--adrenal)}
+tr.sev-high td:first-child{box-shadow:inset 4px 0 0 var(--bad)} tr.sev-medium td:first-child{box-shadow:inset 4px 0 0 var(--warn)} tr.sev-low td:first-child{box-shadow:inset 4px 0 0 var(--warn)} tr.sev-none td:first-child{box-shadow:inset 4px 0 0 var(--ok)}
+.stat.bad{background:var(--bad-bg);border-color:transparent} .stat.warn{background:var(--warn-bg);border-color:transparent} .stat.ok{background:var(--ok-bg);border-color:transparent} .stat.all{background:var(--accent-soft);border-color:transparent}
 @media (max-width:860px){.grid,.rules{grid-template-columns:minmax(0,1fr)}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}textarea{min-height:300px}}
 @media (max-width:460px){.vs{grid-template-columns:minmax(0,1fr)}}
 </style>
 <div class="wrap">
-  <div class="top">
+  <div class="hero">
     <div style="display:grid;gap:6px">
-      <h1>Incidentaloma Follow-up Navigator</h1>
+      <h1>IncidentaLens</h1>
+      <p class="sub">Incidentaloma follow-up checker for kidney and adrenal lesions on CT</p>
       <p>Paste a CT report. The app finds incidental kidney and adrenal lesions, applies Bosniak v2019, ACR 2018 and ESE/ENSAT 2023, and flags follow-up advice that is too weak or more than needed.</p>
     </div>
     <span class="badge">Prototype · fictional data · not for clinical use</span>
@@ -452,7 +467,7 @@ function card({ f, g, c }) {
   const sev = c.severity !== "none" ? " · " + c.severity : "";
   const side = f.side === "unknown" ? "" : f.side[0].toUpperCase() + f.side.slice(1) + " ";
   return `<article class="lesion ${c.status}">
-    <div class="lesion-top"><h3>${side}${f.organ}${f.size_cm !== null ? " · " + f.size_cm + " cm" : ""}</h3><span class="pill ${c.status}">${STATUS[c.status]}${sev}</span></div>
+    <div class="lesion-top"><h3><span class="org ${f.organ}">${f.organ}</span>${side}${f.size_cm !== null ? " · " + f.size_cm + " cm" : ""}</h3><span class="pill ${c.status}">${STATUS[c.status]}${sev}</span></div>
     <div class="vs"><div><span class="k">Guideline</span><span class="v">${esc(g.category)}</span><span>→ ${esc(labels(g.actions))}</span></div>
     <div><span class="k">Report says</span><span>→ ${f.stated_actions.length ? esc(labels(f.stated_actions)) : "<i>nothing recommended</i>"}</span></div></div>
     <p>${esc(c.message)}</p>
@@ -494,11 +509,11 @@ function buildWorklist() {
   SAMPLES.forEach((r) => analyse(r.text).forEach((x) => rows.push({ id: r.id, ...x })));
   rows.sort((a, b) => SEV[a.c.severity] - SEV[b.c.severity] || a.id.localeCompare(b.id));
   const n = (s) => rows.filter((r) => r.c.status === s).length;
-  $("stats").innerHTML = `<div class="stat"><span class="k">Lesions found</span><b>${rows.length}</b></div>
+  $("stats").innerHTML = `<div class="stat all"><span class="k">Lesions found</span><b>${rows.length}</b></div>
     <div class="stat bad"><span class="k">Under-calls</span><b>${n("under-call")}</b></div>
     <div class="stat warn"><span class="k">Over-calls</span><b>${n("over-call")}</b></div>
     <div class="stat ok"><span class="k">Concordant</span><b>${n("concordant")}</b></div>`;
-  $("worklist").innerHTML = rows.map((r) => `<tr class="clickable" tabindex="0" data-id="${r.id}"><td class="num">${r.id}</td>
+  $("worklist").innerHTML = rows.map((r) => `<tr class="clickable sev-${r.c.severity}" tabindex="0" data-id="${r.id}"><td class="num">${r.id}</td>
     <td>${r.f.side === "unknown" ? "" : r.f.side + " "}${r.f.organ}${r.f.size_cm !== null ? " " + r.f.size_cm + " cm" : ""}</td>
     <td>${esc(r.g.category)}</td><td>${esc(labels(r.g.actions))}</td>
     <td>${r.f.stated_actions.length ? esc(labels(r.f.stated_actions)) : "<i>none</i>"}</td>
