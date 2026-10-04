@@ -32,7 +32,7 @@
 
 **What this shows:** the regex rules look perfect on the reports they were tuned on and break on new phrasing: sizes in mm, "Hounsfield units", "HU 30 (precontrast)", "2.9 x 2.5 cm", two lesions in one sentence, "nodular enhancing soft tissue component". That brittleness is the case for an LLM extractor. The Claude extractor (`navigator/extract_llm.py`) uses the same schema and the same scoring script. Its prompt was kept generic and does not mention the held-out phrasings. It has **not been scored yet** because no API key was available in the build environment (see *Next steps*).
 
-Per-lesion errors are in `results/eval_rules_holdout.csv`. The dashboard shows them under "Error log".
+To see exactly where the reader went wrong, open `results/eval_rules_holdout.csv`. It has one row per lesion in the 16 test reports, with the correct answer, what the reader produced and which details it got wrong (for example, report H02: size read as 2.5 cm instead of 2.9 cm). The same table appears as "Error log" in the Validation dashboard tab of the Streamlit app (`streamlit run app.py`). The browser demo does not include it.
 
 ## Guideline logic (simplified)
 
