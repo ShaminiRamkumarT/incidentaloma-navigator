@@ -1,11 +1,22 @@
 """Deterministic guideline engine for incidental renal and adrenal masses on CT.
 
 Simplified, educational encodings of:
-  * Bosniak classification v2019 (Silverman SG et al., Radiology 2019;292:475-488)
-  * ACR Incidental Findings Committee white paper on renal masses
-    (Herts BR et al., J Am Coll Radiol 2018;15:264-273)
-  * ESE/ENSAT guideline on adrenal incidentalomas
-    (Fassnacht M et al., Eur J Endocrinol 2023;189:G1-G42)
+  * Bosniak classification v2019 [1]
+  * ACR Incidental Findings Committee white paper on renal masses [2]
+  * ESE/ENSAT guideline on adrenal incidentalomas [3]
+
+Sources:
+  1. Silverman SG, Pedrosa I, Ellis JH, et al. Bosniak Classification of Cystic
+     Renal Masses, Version 2019: An Update Proposal and Needs Assessment.
+     Radiology. 2019;292(2):475-488. doi:10.1148/radiol.2019182646
+  2. Herts BR, Silverman SG, Hindman NM, et al. Management of the Incidental
+     Renal Mass on CT: A White Paper of the ACR Incidental Findings Committee.
+     J Am Coll Radiol. 2018;15(2):264-273. doi:10.1016/j.jacr.2017.04.028
+  3. Fassnacht M, Tsagarakis S, Terzolo M, et al. European Society of
+     Endocrinology clinical practice guidelines on the management of adrenal
+     incidentalomas, in collaboration with the European Network for the Study
+     of Adrenal Tumors. Eur J Endocrinol. 2023;189(1):G1-G42.
+     doi:10.1093/ejendo/lvad066
 
 NOT a medical device and not for clinical use. Thresholds are simplified; see README.
 """
