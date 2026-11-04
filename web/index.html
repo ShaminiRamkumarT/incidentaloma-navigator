@@ -1,4 +1,5 @@
 <title>IncidentaLens</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
 <script>document.documentElement.dataset.theme="light";</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -120,8 +121,8 @@ body{margin:0}
 .nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .nav-in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:18px}
 .logo{font:800 1.1rem var(--display);color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:9px}
-.logo i{width:22px;height:22px;border-radius:50%;border:3px solid var(--brand-2);position:relative;display:inline-block}
-.logo i::after{content:"";position:absolute;width:8px;height:3px;background:var(--brand-2);right:-7px;bottom:-4px;transform:rotate(45deg);border-radius:2px}
+.logo svg{flex:none}
+.logo-lens{color:#7c3aed}
 .nav-links{display:flex;gap:18px;margin-left:auto}
 .nav-links a{color:var(--muted);text-decoration:none;font-weight:500;font-size:.92rem}
 .nav-links a:hover{color:var(--ink)}
@@ -173,7 +174,7 @@ body{margin:0}
 @media (max-width:460px){.organs{grid-template-columns:minmax(0,1fr)}.kpi b{font-size:1.8rem}}
 </style>
 <nav class="nav"><div class="nav-in">
-  <a class="logo" href="#top"><i aria-hidden="true"></i>IncidentaLens</a>
+  <a class="logo" href="#top"><svg aria-hidden="true" viewBox="0 0 120 120" width="30" height="30"><circle cx="52" cy="52" r="34" fill="none" stroke="#3730a3" stroke-width="11"/><line x1="77" y1="77" x2="104" y2="104" stroke="#3730a3" stroke-width="13" stroke-linecap="round"/><circle cx="52" cy="52" r="20" fill="#ede9fe"/><circle cx="61" cy="43" r="8" fill="#7c3aed"/></svg><span>Incidenta<span class="logo-lens">Lens</span></span></a>
   <div class="nav-links"><a href="#how">How it works</a><a href="#organs">Coverage</a><a href="#evidence">Results</a><a href="https://github.com/ShaminiRamkumarT/incidentaloma-navigator">GitHub</a></div>
   <a class="btn" href="#app">Try it</a>
 </div></nav>
