@@ -38,7 +38,7 @@
   },
   "category_agreement": 0.368,
   "status_agreement": 0.384,
-  "discordance_sensitivity": 0.521,
+  "discordance_sensitivity": 0.51,
   "discordance_ppv": 0.862,
   "category_agreement_by_organ": {
     "adrenal": 0.125,
@@ -51,5 +51,5 @@
     "pituitary": 0.438,
     "thyroid": 0.176
   },
-  "high_severity_caught": "7/12"
+  "high_severity_caught": "7/13"
 }

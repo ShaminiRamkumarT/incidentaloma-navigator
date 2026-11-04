@@ -82,7 +82,7 @@ T062,pancreas,unknown,1.6,Pancreatic cyst with worrisome features,concordant,non
 T063,adrenal,left,0.6,Sub-centimetre adrenal nodule,concordant,none,True,,Sub-centimetre adrenal nodule,over-call,low,True,False,"stated_actions: gold=[NO_FOLLOWUP] pred=[NO_FOLLOWUP,HORMONAL_WORKUP]"
 T064,kidney,right,2.9,Bosniak IIF,concordant,none,True,,Bosniak IIF,concordant,none,True,True,size_cm: gold=2.9 pred=29.0
 T064,pancreas,unknown,3.6,Pancreatic cyst ≥3 cm,concordant,none,True,,Pancreatic cyst ≥3 cm,concordant,none,True,True,
-T065,thyroid,left,2.7,FDG-avid thyroid nodule,concordant,none,True,,FDG-avid thyroid nodule,concordant,none,True,True,
+T065,thyroid,left,2.7,FDG-avid thyroid nodule,under-call,high,True,,FDG-avid thyroid nodule,under-call,high,True,True,
 T065,bone,unknown,1.3,Bone-RADS 4,under-call,high,True,,Bone-RADS 4,under-call,high,True,True,
 T066,pituitary,unknown,0.7,Pituitary microincidentaloma (<1 cm),concordant,none,True,,Pituitary macroincidentaloma (≥1 cm),concordant,none,False,True,size_cm: gold=0.7 pred=7.0
 T067,brain,left,1.1,Incidental asymptomatic meningioma,over-call,low,True,,Incidental asymptomatic meningioma,over-call,low,True,True,

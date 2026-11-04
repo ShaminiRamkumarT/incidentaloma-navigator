@@ -38,8 +38,8 @@
   },
   "category_agreement": 0.779,
   "status_agreement": 0.853,
-  "discordance_sensitivity": 0.875,
-  "discordance_ppv": 0.656,
+  "discordance_sensitivity": 0.878,
+  "discordance_ppv": 0.662,
   "category_agreement_by_organ": {
     "adrenal": 0.708,
     "bone": 1.0,
@@ -51,5 +51,5 @@
     "pituitary": 0.75,
     "thyroid": 0.882
   },
-  "high_severity_caught": "9/12"
+  "high_severity_caught": "10/13"
 }
