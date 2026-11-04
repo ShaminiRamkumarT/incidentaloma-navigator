@@ -239,6 +239,22 @@ Sources:
 9. Goldbrunner R, Stavrinou P, Jenkinson MD, et al. EANO guideline on the diagnosis and management of meningiomas. *Neuro Oncol*. 2021;23(11):1821-1834. doi:10.1093/neuonc/noab150
 10. Chang CY, Garner HW, Ahlawat S, et al. Society of Skeletal Radiology – white paper. Guidelines for the diagnostic management of incidental solitary bone lesions on CT and MRI in adults: bone reporting and data system (Bone-RADS). *Skeletal Radiol*. 2022;51(9):1743-1764. doi:10.1007/s00256-022-04022-8
 
+### How the guideline rules were checked
+
+The rules for kidney and adrenal come from the first version of the project. For the seven organs added later, I checked each rule against a copy of the guideline before coding it. Not every original paper was openly readable, so this is what was actually read:
+
+| Guideline | What was read | What could not be confirmed |
+|---|---|---|
+| Fleischner 2017 (lung) | Summary tables from [UW eRadiology](https://sites.uw.edu/eradsite/trauma-radiology-reference-resource/4-chest/fleischner-guidelines-for-pulmonary-nodules-2017), [North York General](https://www.nygh.on.ca/wp-content/uploads/2024/03/3133_Fleischner_Society_2017_Guidelines.pdf) and [PulmCCM](https://www.pulmccm.org/p/fleischner-society-guideline-update-2017) | The original paper was not read in full |
+| ACR liver 2017 | The paper itself ([Dartmouth copy](https://geiselmed.dartmouth.edu/radiology/wp-content/uploads/sites/47/2019/04/incidental_liver.pdf)) and the [Canadian adaptation](https://journals.sagepub.com/doi/full/10.1177/0846537120928349) | The flowchart is an image, so the rules were rebuilt from the paper's text and figure notes. Volume and pages of the citation were taken from a secondary site |
+| ACR pancreas 2017 | The paper itself ([University of Wisconsin copy](https://wiki.radiology.wisc.edu/images/1/13/Acrpancfull.pdf)) and the [UCSD summary](https://radres.ucsd.edu/pancreas) | The interval charts are images; schedules for patients over 80 were not readable. The issue number was not confirmed |
+| ACR thyroid 2015 | Secondary summaries only: [Radiopaedia](https://radiopaedia.org/articles/69951), [AuntMinnie](https://www.auntminnie.com/clinical-news/ultrasound/article/15610817/acr-committee-offers-tips-for-incidental-thyroid-nodules) and the authors' [letter in *Thyroid*](https://core.ac.uk/download/70381401.pdf) | The original paper was not read |
+| Endocrine Society pituitary 2011 | The guideline itself ([University of Liège copy](https://orbi.uliege.be/bitstream/2268/71283/1/JCEMFreda-2010.pdf)) | Nothing important |
+| EANO meningioma 2021 | The [publisher's page](https://academic.oup.com/neuro-oncology/article/23/11/1821/6310843) | About half the text was read word for word; the follow-up interval came from the rest of the page and should be checked against the PDF |
+| Bone-RADS 2022 | The paper's text ([SciSpace copy](https://scispace.com/pdf/society-of-skeletal-radiology-white-paper-guidelines-for-the-jumd1zv5.pdf)) | The flowcharts are images and only about half the text was available, so the rules follow the paper's prose. The MRI branch with low signal on both sequences was not read |
+
+The real test sentences were found with the [Europe PMC search service](https://europepmc.org/RestfulWebService), limited to open-access case reports licensed CC BY.
+
 ## Browser demo
 
 `web/index.html` runs in any browser, with no install and no API key. Open the file directly, or serve the repository with GitHub Pages. It has four tabs.
