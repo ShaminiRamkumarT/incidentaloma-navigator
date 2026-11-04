@@ -2,20 +2,20 @@
   "extractor": "rules (regex baseline)",
   "sentences": 51,
   "with_target_lesion": 44,
-  "lesions_found": 0.182,
-  "side_correct_where_stated": 0.857,
-  "size_correct": 0.114,
+  "lesions_found": 0.705,
+  "side_correct_where_stated": 0.929,
+  "size_correct": 0.591,
   "found_by_organ": {
     "adrenal": 0.62,
     "bone": 0.0,
     "brain": 0.0,
     "kidney": 0.5,
-    "liver": 0.0,
-    "lung": 0.0,
-    "pancreas": 0.0,
-    "pituitary": 0.0,
-    "thyroid": 0.0
+    "liver": 1.0,
+    "lung": 0.75,
+    "pancreas": 1.0,
+    "pituitary": 1.0,
+    "thyroid": 0.75
   },
   "false_alarms_on_negatives": "0/7",
-  "extra_findings_on_positives": 0
+  "extra_findings_on_positives": 1
 }
