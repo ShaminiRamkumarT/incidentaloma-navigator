@@ -50,9 +50,9 @@ Four test sets, from least to most independent of me:
 | Lesions found | 43% | 100% |
 | Guideline category agreement | 37% | 78% |
 | Flag agreement | 38% | 85% |
-| Discordances caught | 52% | 88% |
+| Discordances caught | 51% | 88% |
 | Flags that were real (PPV) | 86% | 66% |
-| High-severity under-calls caught | 7/12 | 9/12 |
+| High-severity under-calls caught | 7/13 | 10/13 |
 | **Real sentences from case reports** (51 sentences, 44 lesions; reading only, see below) | | |
 | Lesions found | 70% | 82% |
 
@@ -72,7 +72,7 @@ Flag agreement on the synthetic test, by organ:
 - The 30 dev reports were used to debug both readers, so their scores (regex 100%, model 84% flag agreement) are optimistic and are left out of the table.
 
 **Two fixes made while building the new held-out set:**
-- *Thyroid rule.* Writing the reports showed that the engine called an FNA unnecessary for an FDG-avid thyroid nodule. The ACR paper recommends ultrasound and FNA there, so the rule now expects both, and accepts ultrasound with FNA for nodules with suspicious features.
+- *Thyroid rule.* Writing the reports showed that the engine called an FNA unnecessary for an FDG-avid thyroid nodule. The original ACR paper says both ultrasound and FNA should be done, with FNA "regardless of the ultrasound findings", so the rule now expects both and flags ultrasound alone as falling short. For nodules with suspicious features it expects ultrasound and also accepts ultrasound with FNA, as the paper suggests "consideration for FNA".
 - *Scoring.* The scorer required the side of the lesion to match even for organs without sides, so "the left side of the pituitary" counted as a miss. It now ignores side when the answer key has none. This did not change any earlier result.
 
 **What I'd change first:** add more varied wording to the generator (units, nodule types, phase descriptions, bone words), look at the word after a number when reading units, and get a radiologist to write a fresh held-out set, so the test is not written by the person who built both readers.
@@ -268,10 +268,10 @@ The rules for kidney and adrenal come from the first version of the project. For
 
 | Guideline | What was read | What could not be confirmed |
 |---|---|---|
-| Fleischner 2017 (lung) | Summary tables from [UW eRadiology](https://sites.uw.edu/eradsite/trauma-radiology-reference-resource/4-chest/fleischner-guidelines-for-pulmonary-nodules-2017), [North York General](https://www.nygh.on.ca/wp-content/uploads/2024/03/3133_Fleischner_Society_2017_Guidelines.pdf) and [PulmCCM](https://www.pulmccm.org/p/fleischner-society-guideline-update-2017) | The original paper was not read in full |
+| Fleischner 2017 (lung) | The original paper's Table 1 and notes, on the [RSNA site](https://pubs.rsna.org/doi/full/10.1148/radiol.2017161659) (free access); earlier also summary tables from [UW eRadiology](https://sites.uw.edu/eradsite/trauma-radiology-reference-resource/4-chest/fleischner-guidelines-for-pulmonary-nodules-2017) and [North York General](https://www.nygh.on.ca/wp-content/uploads/2024/03/3133_Fleischner_Society_2017_Guidelines.pdf) | Every row of Table 1 matches the rules, including size as the average of long and short axis. The guideline does not apply to lung cancer screening, immunosuppressed patients, patients with known cancer or people under 35; the engine does not check for these |
 | ACR liver 2017 | The paper itself ([Dartmouth copy](https://geiselmed.dartmouth.edu/radiology/wp-content/uploads/sites/47/2019/04/incidental_liver.pdf)) and the [Canadian adaptation](https://journals.sagepub.com/doi/full/10.1177/0846537120928349) | The flowchart is an image, so the rules were rebuilt from the paper's text and figure notes. Volume and pages of the citation were taken from a secondary site |
 | ACR pancreas 2017 | The paper itself ([University of Wisconsin copy](https://wiki.radiology.wisc.edu/images/1/13/Acrpancfull.pdf)) and the [UCSD summary](https://radres.ucsd.edu/pancreas) | The interval charts are images; schedules for patients over 80 were not readable. The issue number was not confirmed |
-| ACR thyroid 2015 | Secondary summaries only: [Radiopaedia](https://radiopaedia.org/articles/69951), [AuntMinnie](https://www.auntminnie.com/clinical-news/ultrasound/article/15610817/acr-committee-offers-tips-for-incidental-thyroid-nodules) and the authors' [letter in *Thyroid*](https://core.ac.uk/download/70381401.pdf) | The original paper was not read |
+| ACR thyroid 2015 | The full text of the white paper ([copy hosted by Professional Radiology](https://www.professionalradiology.com/media/user/resources/Incidental%20Thyroid%20Nodules.pdf)), plus [Radiopaedia](https://radiopaedia.org/articles/69951) and [AuntMinnie](https://www.auntminnie.com/clinical-news/ultrasound/article/15610817/acr-committee-offers-tips-for-incidental-thyroid-nodules) earlier | Rules match the paper after one correction (FNA for FDG-avid nodules, see Results). The paper does not apply to patients at increased thyroid cancer risk, with thyroid symptoms, or children, and recommends ultrasound for an enlarged heterogeneous gland; the engine does not model these |
 | Endocrine Society pituitary 2011 | The guideline itself ([University of Liège copy](https://orbi.uliege.be/bitstream/2268/71283/1/JCEMFreda-2010.pdf)) | Nothing important |
 | EANO meningioma 2021 | The [publisher's page](https://academic.oup.com/neuro-oncology/article/23/11/1821/6310843) | About half the text was read word for word; the follow-up interval came from the rest of the page and should be checked against the PDF |
 | Bone-RADS 2022 | The paper's text ([SciSpace copy](https://scispace.com/pdf/society-of-skeletal-radiology-white-paper-guidelines-for-the-jumd1zv5.pdf)) | The flowcharts are images and only about half the text was available, so the rules follow the paper's prose. The MRI branch with low signal on both sequences was not read |
