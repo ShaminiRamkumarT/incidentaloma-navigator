@@ -475,7 +475,7 @@
     if (f.limited_life_expectancy)
       return R("Thyroid nodule, limited life expectancy", NONE_, "Limited life expectancy or serious comorbidity: no further evaluation.", ACR_THYROID);
     if (f.fdg_avid)
-      return R("FDG-avid thyroid nodule", CHAR.concat(REF), "Focal FDG uptake is highly suspicious: thyroid ultrasound and FNA (ultrasound first, with FNA decided afterwards, is also accepted).", ACR_THYROID, [], [CHAR]);
+      return R("FDG-avid thyroid nodule", CHAR.concat(REF), "Focal FDG uptake is highly suspicious: thyroid ultrasound and FNA, with FNA regardless of the ultrasound findings.", ACR_THYROID);
     if (size === null) return R("Thyroid nodule, size not stated", CHAR, "Size is needed; thyroid ultrasound is the safe default.", ACR_THYROID);
     if (age === null) {
       if (size < 1) return R("Thyroid nodule <1 cm", NONE_, "Below the size threshold at any age.", ACR_THYROID);
