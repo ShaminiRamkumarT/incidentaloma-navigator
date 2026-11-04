@@ -300,4 +300,20 @@ web/                         Browser demo (index.html) and its JavaScript engine
 
 ## Author and license
 
-Built by Shamini Ramkumar T, 2026. Code and synthetic reports are released under the MIT license. See [LICENSE](LICENSE).
+Built by Shamini Ramkumar T, 2026.
+
+What this repository contains, who it belongs to, and under which terms:
+
+| Part | Where | Owner and licence |
+|---|---|---|
+| Code, browser demo, rules engine, trained model | `navigator/`, `web/`, scripts | Shamini Ramkumar T, MIT license ([LICENSE](LICENSE)) |
+| 46 hand-written reports | `data/reports.json`, `data/reports_holdout.json` | Shamini Ramkumar T, MIT. Fictional, no patient data |
+| 750 generated reports | `data/synthetic_*.json` | Shamini Ramkumar T, MIT. Fictional, made by `data/generate_synthetic.py`, no patient data |
+| 51 real sentences | `data/real_snippets.json` | The original authors of each case report, under CC BY. Copied word for word, not changed, each stored with its full source. They are not covered by the MIT license |
+| Answer key for the 51 sentences | `data/real_snippets.json` (`gold` fields) | Shamini Ramkumar T, MIT. Written by me from each sentence; not reviewed by a radiologist |
+| Guideline tables | README, `navigator/guidelines.py`, demo | My simplified summaries of the cited guidelines. The guidelines belong to their publishers, and the societies that wrote them have not reviewed or endorsed this project |
+| Fonts on the demo page | Google Fonts (Archivo, IBM Plex) | Their designers, under the SIL Open Font License |
+
+No real patient records, credentialed datasets (such as MIMIC) or data under restrictive terms were used. Sources I looked at and decided not to use, because their terms don't allow public redistribution, are MTSamples and the Indiana University chest X-ray reports (Open-i).
+
+This is an educational prototype. It is not a medical device, it has not been clinically validated, and it must not be used to make decisions about patients.
