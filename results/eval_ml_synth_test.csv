@@ -1,0 +1,191 @@
+report,organ,side,size_cm,gold_category,gold_status,gold_severity,detected,error,pred_category,pred_status,pred_severity,category_match,status_match,field_errors
+T001,adrenal,right,6.8,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",under-call,high,True,,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",under-call,high,True,True,homogeneous: gold=False pred=None
+T002,kidney,right,1.9,Bosniak II (hyperattenuating),concordant,none,True,,Bosniak II (hyperattenuating),concordant,none,True,True,size_cm: gold=1.9 pred=19.0
+T003,liver,unknown,2.6,Liver lesion >1.5 cm with suspicious features,concordant,none,True,,Liver lesion >1.5 cm with suspicious features,concordant,none,True,True,
+T004,lung,left,1.4,Ground-glass nodule ≥6 mm,concordant,none,True,,Solid nodule >8 mm (single),concordant,none,False,True,nodule_type: gold=ground-glass pred=None
+T004,adrenal,left,2.5,Indeterminate adrenal mass,concordant,none,True,,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",under-call,high,False,False,size_cm: gold=2.5 pred=25.0
+T005,lung,right,1.1,Solid nodule >8 mm (single),concordant,none,True,,Part-solid nodule ≥6 mm,over-call,low,False,False,nodule_type: gold=None pred=part-solid
+T006,bone,unknown,2.6,Bone-RADS 3,concordant,none,True,,Bone-RADS 3,concordant,none,True,True,
+T007,adrenal,left,2.8,Myelolipoma,over-call,low,True,,Myelolipoma,over-call,low,True,True,
+T007,bone,left,2.4,Bone-RADS 1,concordant,none,True,,Bone-RADS 1,concordant,none,True,True,
+T008,pancreas,unknown,2.7,Pancreatic cyst 2.5-3 cm,concordant,none,True,,Pancreatic cyst 2.5-3 cm,concordant,none,True,True,
+T009,liver,unknown,1.5,Liver lesion with benign features,over-call,low,True,,Liver lesion with benign features,over-call,low,True,True,
+T010,lung,right,1.4,Ground-glass nodule ≥6 mm,concordant,none,True,,Ground-glass nodule ≥6 mm,concordant,none,True,True,patient_risk: gold=low pred=high
+T011,pituitary,unknown,0.6,Pituitary microincidentaloma (<1 cm),under-call,medium,True,,Pituitary microincidentaloma (<1 cm),concordant,none,True,False,"stated_actions: gold=[CHARACTERIZATION_IMAGING] pred=[CHARACTERIZATION_IMAGING,HORMONAL_WORKUP]"
+T012,lung,left,0.3,Ground-glass nodule <6 mm,concordant,none,True,,Ground-glass nodule ≥6 mm,under-call,medium,False,False,size_cm: gold=0.3 pred=3.0
+T013,lung,right,0.9,Solid nodules >8 mm (multiple),over-call,low,True,,Solid nodules >8 mm (multiple),over-call,low,True,True,
+T014,brain,right,2.6,Growing or symptomatic meningioma,concordant,none,True,,Growing or symptomatic meningioma,concordant,none,True,True,
+T015,pituitary,unknown,0.6,Pituitary microincidentaloma (<1 cm),under-call,medium,True,,Pituitary microincidentaloma (<1 cm),concordant,none,True,False,"stated_actions: gold=[CHARACTERIZATION_IMAGING] pred=[CHARACTERIZATION_IMAGING,HORMONAL_WORKUP]"
+T016,lung,right,0.4,Solid nodule <6 mm (single),concordant,none,True,,Solid nodule <6 mm (single),concordant,none,True,True,
+T017,kidney,left,3.7,Bosniak IV,under-call,high,True,,Bosniak IV,under-call,high,True,True,
+T018,adrenal,right,3.6,Indeterminate adrenal mass,under-call,medium,True,,Indeterminate adrenal mass,under-call,medium,True,True,
+T019,bone,unknown,2.5,Bone-RADS 3,concordant,none,True,,Bone-RADS 3,concordant,none,True,True,
+T019,adrenal,left,0.6,Sub-centimetre adrenal nodule,concordant,none,True,,Sub-centimetre adrenal nodule,concordant,none,True,True,
+T020,thyroid,right,1.1,FDG-avid thyroid nodule,concordant,none,True,,FDG-avid thyroid nodule,concordant,none,True,True,size_cm: gold=1.1 pred=11.0
+T021,lung,right,0.8,Solid nodule 6-8 mm (single),over-call,low,True,,Part-solid nodule ≥6 mm,over-call,low,False,True,nodule_type: gold=None pred=part-solid
+T022,bone,left,2.5,Bone-RADS 3,concordant,none,True,,Bone-RADS 3,concordant,none,True,True,
+T022,thyroid,left,1.3,"Thyroid nodule, limited life expectancy",concordant,none,True,,"Thyroid nodule, limited life expectancy",concordant,none,True,True,
+T023,adrenal,right,2.4,Lipid-rich adenoma (benign imaging),concordant,none,True,,Indeterminate adrenal mass,under-call,medium,False,False,unenhanced_hu: gold=7.0 pred=None
+T024,lung,right,1.8,Ground-glass nodule ≥6 mm,concordant,none,True,,Ground-glass nodule ≥6 mm,concordant,none,True,True,
+T025,liver,unknown,0.8,Liver lesion <1 cm,concordant,none,True,,Liver lesion with benign features,over-call,low,False,False,size_cm: gold=0.8 pred=8.0; patient_risk: gold=high pred=low
+T026,liver,unknown,0.4,Liver lesion <1 cm,concordant,none,True,,Liver lesion <1 cm,concordant,none,True,True,
+T027,pituitary,unknown,2.3,Pituitary macroincidentaloma (≥1 cm),concordant,none,True,,Pituitary macroincidentaloma (≥1 cm),concordant,none,True,True,
+T027,brain,right,3.4,Incidental asymptomatic meningioma,concordant,none,True,,Incidental asymptomatic meningioma,concordant,none,True,True,
+T028,liver,unknown,0.5,Liver lesion <1 cm,concordant,none,True,,Liver lesion <1 cm,concordant,none,True,True,
+T029,lung,right,1.8,Ground-glass nodule ≥6 mm,concordant,none,True,,Ground-glass nodule ≥6 mm,concordant,none,True,True,
+T030,kidney,right,3.5,Bosniak IIF,under-call,medium,True,,Bosniak IIF,under-call,medium,True,True,
+T031,thyroid,left,2.1,"Thyroid nodule ≥1.5 cm, age ≥35",concordant,none,True,,"Thyroid nodule ≥1.5 cm, age ≥35",over-call,low,True,False,"stated_actions: gold=[CHARACTERIZATION_IMAGING] pred=[CHARACTERIZATION_IMAGING,SPECIALIST_REFERRAL]"
+T032,kidney,right,2.6,Bosniak II,concordant,none,True,,Bosniak II,concordant,none,True,True,
+T033,bone,right,0.9,Bone-RADS 4,under-call,high,True,,Bone-RADS 4,under-call,high,True,True,stated_actions: gold=[NO_FOLLOWUP] pred=[]
+T033,pancreas,unknown,3.3,Pancreatic cyst with high-risk stigmata,under-call,high,True,,Pancreatic cyst with high-risk stigmata,concordant,none,True,False,"stated_actions: gold=[NO_FOLLOWUP] pred=[SPECIALIST_REFERRAL,NO_FOLLOWUP]"
+T034,lung,right,1.4,"Part-solid nodule ≥6 mm, solid part ≥6 mm",concordant,none,True,,"Part-solid nodule ≥6 mm, solid part ≥6 mm",concordant,none,True,True,
+T035,thyroid,left,0.5,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,True,
+T035,bone,left,2.3,Bone-RADS 4,under-call,high,True,,Bone-RADS 4,under-call,high,True,True,
+T036,brain,right,1.4,Incidental asymptomatic meningioma,concordant,none,True,,Incidental asymptomatic meningioma,concordant,none,True,True,size_cm: gold=1.4 pred=14.0
+T037,adrenal,right,1.9,Lipid-rich adenoma (benign imaging),concordant,none,True,,Lipid-rich adenoma (benign imaging),concordant,none,True,True,
+T037,kidney,left,0.4,Bosniak II (too small to characterize),concordant,none,True,,Bosniak II (too small to characterize),concordant,none,True,True,size_cm: gold=0.4 pred=4.0
+T038,pituitary,unknown,0.3,Pituitary microincidentaloma (<1 cm),concordant,none,True,,Pituitary macroincidentaloma (≥1 cm),concordant,none,False,True,size_cm: gold=0.3 pred=3.0
+T039,lung,left,1.1,"Part-solid nodule ≥6 mm, solid part ≥6 mm",under-call,medium,True,,"Part-solid nodule ≥6 mm, solid part ≥6 mm",under-call,medium,True,True,
+T040,lung,left,0.6,Solid nodule 6-8 mm (multiple),concordant,none,True,,Solid nodule 6-8 mm (single),concordant,none,False,True,multiple: gold=True pred=False
+T041,liver,unknown,2.6,Liver lesion with benign features,concordant,none,True,,Indeterminate liver lesion >1.5 cm,under-call,medium,False,False,enhanced_hu: gold=5.0 pred=None
+T042,adrenal,left,0.8,Sub-centimetre adrenal nodule,concordant,none,True,,Sub-centimetre adrenal nodule,over-call,low,True,False,"stated_actions: gold=[NO_FOLLOWUP] pred=[NO_FOLLOWUP,HORMONAL_WORKUP]"
+T043,pituitary,unknown,0.5,Pituitary microincidentaloma (<1 cm),concordant,none,True,,Pituitary microincidentaloma (<1 cm),concordant,none,True,True,
+T044,liver,unknown,4.5,Liver lesion >1.5 cm with suspicious features,concordant,none,True,,Indeterminate liver lesion >1.5 cm,concordant,none,False,True,appearance: gold=suspicious pred=None
+T045,brain,right,2.2,Incidental asymptomatic meningioma,under-call,medium,True,,Incidental asymptomatic meningioma,under-call,medium,True,True,
+T046,brain,left,2.8,Incidental asymptomatic meningioma,under-call,medium,True,,Incidental asymptomatic meningioma,under-call,medium,True,True,
+T046,pituitary,unknown,0.8,Pituitary microincidentaloma (<1 cm),concordant,none,True,,Pituitary microincidentaloma (<1 cm),concordant,none,True,True,
+T047,lung,right,1.1,Solid nodule >8 mm (single),concordant,none,True,,Part-solid nodule ≥6 mm,concordant,none,False,True,nodule_type: gold=None pred=part-solid
+T047,liver,unknown,0.6,Liver lesion <1 cm,concordant,none,True,,Liver lesion <1 cm,concordant,none,True,True,
+T047,adrenal,right,6.2,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",concordant,none,True,,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",concordant,none,True,True,
+T048,pancreas,unknown,1.7,Pancreatic cyst with high-risk stigmata,concordant,none,True,,Pancreatic cyst with high-risk stigmata,concordant,none,True,True,
+T049,brain,left,2.2,Incidental asymptomatic meningioma,over-call,low,True,,Incidental asymptomatic meningioma,over-call,low,True,True,
+T050,kidney,right,5.6,Bosniak I,over-call,low,True,,Bosniak I,over-call,low,True,True,unenhanced_hu: gold=3.0 pred=None
+T050,lung,left,0.8,Solid nodule 6-8 mm (multiple),under-call,medium,True,,Solid nodules >8 mm (multiple),under-call,medium,False,True,size_cm: gold=0.8 pred=8.0
+T050,liver,unknown,1.2,Liver lesion with benign features,concordant,none,True,,Liver lesion with benign features,concordant,none,True,True,size_cm: gold=1.2 pred=12.0
+T051,lung,right,0.8,Solid nodule 6-8 mm (single),concordant,none,True,,Solid nodule 6-8 mm (single),concordant,none,True,True,
+T051,adrenal,right,2.5,Indeterminate adrenal mass,under-call,medium,True,,Indeterminate adrenal mass,under-call,medium,True,True,
+T052,kidney,left,3.8,Angiomyolipoma,concordant,none,True,,Angiomyolipoma ≥4 cm,under-call,high,False,False,size_cm: gold=3.8 pred=38.0
+T052,liver,unknown,3.0,Liver lesion >1.5 cm with suspicious features,concordant,none,True,,Liver lesion >1.5 cm with suspicious features,concordant,none,True,True,
+T052,pancreas,unknown,3.1,Pancreatic cyst ≥3 cm,concordant,none,True,,Pancreatic cyst ≥3 cm,concordant,none,True,True,
+T053,liver,unknown,1.0,Liver lesion with benign features,concordant,none,True,,Liver lesion with benign features,concordant,none,True,True,
+T054,liver,unknown,0.4,Liver lesion <1 cm,under-call,medium,True,,Liver lesion <1 cm,under-call,medium,True,True,
+T055,lung,left,0.6,Solid nodule <6 mm (single),concordant,none,True,,Solid nodule <6 mm (single),concordant,none,True,True,size_cm: gold=0.6 pred=0.4; short_axis_cm: gold=0.4 pred=None
+T056,kidney,left,1.5,Bosniak III,concordant,none,True,,Bosniak III,concordant,none,True,True,wall_mm: gold=None pred=6.0; septa_count: gold=1 pred=None; septa_mm: gold=6.0 pred=None
+T056,kidney,right,2.1,Bosniak IIF,concordant,none,True,,Bosniak IIF,concordant,none,True,True,
+T057,liver,unknown,2.9,Flash-filling liver lesion >1.5 cm,concordant,none,True,,Flash-filling liver lesion >1.5 cm,concordant,none,True,True,homogeneous: gold=None pred=True; patient_risk: gold=high pred=low
+T058,lung,left,0.7,Ground-glass nodule ≥6 mm,concordant,none,True,,Solid nodule 6-8 mm (single),concordant,none,False,True,nodule_type: gold=ground-glass pred=None
+T059,thyroid,right,1.2,"Thyroid nodule <1.5 cm, age ≥35",over-call,low,True,,"Thyroid nodule <1.5 cm, age ≥35",over-call,low,True,True,
+T059,bone,unknown,3.5,Bone-RADS 4,under-call,high,True,,Bone-RADS 4,under-call,high,True,True,
+T060,pituitary,unknown,1.7,Pituitary macroincidentaloma (≥1 cm),concordant,none,True,,Pituitary macroincidentaloma (≥1 cm),concordant,none,True,True,
+T061,adrenal,left,1.6,Indeterminate adrenal mass,under-call,medium,True,,Indeterminate adrenal mass,under-call,medium,True,True,
+T062,pancreas,unknown,1.6,Pancreatic cyst with worrisome features,concordant,none,True,,Pancreatic cyst with worrisome features,concordant,none,True,True,
+T063,adrenal,left,0.6,Sub-centimetre adrenal nodule,concordant,none,True,,Sub-centimetre adrenal nodule,over-call,low,True,False,"stated_actions: gold=[NO_FOLLOWUP] pred=[NO_FOLLOWUP,HORMONAL_WORKUP]"
+T064,kidney,right,2.9,Bosniak IIF,concordant,none,True,,Bosniak IIF,concordant,none,True,True,size_cm: gold=2.9 pred=29.0
+T064,pancreas,unknown,3.6,Pancreatic cyst ≥3 cm,concordant,none,True,,Pancreatic cyst ≥3 cm,concordant,none,True,True,
+T065,thyroid,left,2.7,FDG-avid thyroid nodule,concordant,none,True,,FDG-avid thyroid nodule,concordant,none,True,True,
+T065,bone,unknown,1.3,Bone-RADS 4,under-call,high,True,,Bone-RADS 4,under-call,high,True,True,
+T066,pituitary,unknown,0.7,Pituitary microincidentaloma (<1 cm),concordant,none,True,,Pituitary macroincidentaloma (≥1 cm),concordant,none,False,True,size_cm: gold=0.7 pred=7.0
+T067,brain,left,1.1,Incidental asymptomatic meningioma,over-call,low,True,,Incidental asymptomatic meningioma,over-call,low,True,True,
+T068,lung,left,0.4,Solid nodule <6 mm (single),concordant,none,True,,Solid nodule <6 mm (single),over-call,low,True,False,patient_risk: gold=high pred=low
+T069,pancreas,unknown,2.7,Pancreatic cyst 2.5-3 cm,concordant,none,True,,Pancreatic cyst 2.5-3 cm,concordant,none,True,True,
+T070,brain,left,3.1,Growing or symptomatic meningioma,under-call,high,True,,Growing or symptomatic meningioma,under-call,high,True,True,
+T071,lung,left,0.6,Ground-glass nodule ≥6 mm,under-call,medium,True,,Solid nodule 6-8 mm (single),under-call,medium,False,True,stated_actions: gold=[NO_FOLLOWUP] pred=[]; nodule_type: gold=ground-glass pred=None
+T071,bone,unknown,3.6,Bone-RADS 1,concordant,none,True,,Bone-RADS 1,concordant,none,True,True,
+T072,pancreas,unknown,0.7,Pancreatic cyst with worrisome features,concordant,none,True,,Pancreatic cyst with worrisome features,concordant,none,True,True,
+T073,brain,right,3.3,Growing or symptomatic meningioma,concordant,none,True,,Growing or symptomatic meningioma,concordant,none,True,True,
+T074,pancreas,unknown,1.1,Pancreatic cyst <1.5 cm,concordant,none,True,,Pancreatic cyst <1.5 cm,concordant,none,True,True,
+T074,liver,unknown,2.8,Indeterminate liver lesion >1.5 cm,concordant,none,True,,Indeterminate liver lesion >1.5 cm,concordant,none,True,True,
+T075,lung,left,0.4,Solid nodule <6 mm (single),concordant,none,True,,Solid nodule >8 mm (single),concordant,none,False,True,size_cm: gold=0.4 pred=4.0
+T076,lung,left,0.7,Part-solid nodule ≥6 mm,concordant,none,True,,Part-solid nodule ≥6 mm,concordant,none,True,True,
+T077,pancreas,unknown,3.7,Pancreatic cyst with worrisome features,concordant,none,True,,Pancreatic cyst with worrisome features,concordant,none,True,True,
+T078,liver,unknown,0.6,Liver lesion <1 cm,concordant,none,True,,Liver lesion <1 cm,concordant,none,True,True,homogeneous: gold=None pred=True
+T079,lung,right,1.8,Solid nodule >8 mm (single),concordant,none,True,,Solid nodule >8 mm (single),concordant,none,True,True,
+T080,bone,left,2.3,Bone-RADS 3,concordant,none,True,,Bone-RADS 3,concordant,none,True,True,
+T080,liver,unknown,1.2,Liver lesion with benign features,concordant,none,True,,Liver lesion with benign features,concordant,none,True,True,size_cm: gold=1.2 pred=12.0
+T081,lung,right,0.3,Part-solid nodule <6 mm,over-call,low,True,,Solid nodule <6 mm (single),over-call,low,False,True,nodule_type: gold=part-solid pred=None
+T082,adrenal,left,2.4,Indeterminate adrenal mass,concordant,none,True,,Indeterminate adrenal mass,concordant,none,True,True,
+T083,thyroid,left,1.2,"Thyroid nodule ≥1 cm, age <35",under-call,medium,True,,"Thyroid nodule ≥1 cm, age <35",under-call,medium,True,True,
+T083,bone,right,2.0,Bone-RADS 3,under-call,medium,True,,Bone-RADS 3,under-call,medium,True,True,
+T084,pancreas,unknown,3.0,Pancreatic cyst with high-risk stigmata,concordant,none,True,,Pancreatic cyst with high-risk stigmata,concordant,none,True,True,
+T084,liver,unknown,0.7,Liver lesion <1 cm,concordant,none,True,,Liver lesion <1 cm,concordant,none,True,True,
+T085,brain,right,1.9,Incidental asymptomatic meningioma,concordant,none,True,,Incidental asymptomatic meningioma,concordant,none,True,True,
+T086,kidney,left,5.6,Bosniak I,concordant,none,True,,Bosniak I,concordant,none,True,True,
+T086,pancreas,unknown,1.3,Pancreatic cyst with worrisome features,concordant,none,True,,Pancreatic cyst with worrisome features,concordant,none,True,True,
+T087,brain,right,2.6,Incidental asymptomatic meningioma,under-call,medium,True,,Incidental asymptomatic meningioma,under-call,medium,True,True,
+T088,lung,left,1.8,Solid nodules >8 mm (multiple),concordant,none,True,,Solid nodule >8 mm (single),concordant,none,False,True,multiple: gold=True pred=False
+T089,bone,unknown,3.5,Bone-RADS 3,under-call,medium,True,,Bone-RADS 3,under-call,medium,True,True,bone_density: gold=lucent pred=sclerotic
+T089,adrenal,right,3.4,Indeterminate adrenal mass,concordant,none,True,,Indeterminate adrenal mass,concordant,none,True,True,
+T090,liver,unknown,0.7,Liver lesion <1 cm,concordant,none,True,,Liver lesion <1 cm,concordant,none,True,True,
+T090,kidney,right,0.6,Bosniak II (too small to characterize),over-call,low,True,,Bosniak II (too small to characterize),over-call,low,True,True,size_cm: gold=0.6 pred=6.0
+T091,kidney,right,5.7,Angiomyolipoma ≥4 cm,concordant,none,True,,Angiomyolipoma ≥4 cm,concordant,none,True,True,size_cm: gold=5.7 pred=57.0
+T091,bone,unknown,2.8,Bone-RADS 3,concordant,none,True,,Bone-RADS 3,concordant,none,True,True,
+T091,adrenal,right,0.7,Sub-centimetre adrenal nodule,concordant,none,True,,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",under-call,high,False,False,size_cm: gold=0.7 pred=7.0
+T092,lung,left,1.8,"Multiple subsolid nodules, one or more ≥6 mm",under-call,medium,True,,Solid nodule >8 mm (single),under-call,medium,False,True,nodule_type: gold=ground-glass pred=None; multiple: gold=True pred=False
+T093,pituitary,unknown,0.8,Pituitary microincidentaloma (<1 cm),concordant,none,True,,Pituitary microincidentaloma (<1 cm),concordant,none,True,True,
+T094,lung,right,0.9,Ground-glass nodule ≥6 mm,concordant,none,True,,Solid nodule 6-8 mm (single),concordant,none,False,True,nodule_type: gold=ground-glass pred=None
+T095,thyroid,right,1.1,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,True,
+T096,liver,unknown,1.5,Liver lesion with benign features,concordant,none,True,,Indeterminate liver lesion 1-1.5 cm,under-call,medium,False,False,enhanced_hu: gold=5.0 pred=None
+T097,pancreas,unknown,2.8,Pancreatic cyst with worrisome features,concordant,none,True,,Pancreatic cyst with worrisome features,concordant,none,True,True,
+T098,liver,unknown,1.0,Indeterminate liver lesion 1-1.5 cm,concordant,none,True,,Indeterminate liver lesion 1-1.5 cm,concordant,none,True,True,appearance: gold=indeterminate pred=None
+T099,liver,unknown,1.3,Liver lesion 1-1.5 cm with suspicious features,under-call,medium,True,,Liver lesion >1.5 cm with suspicious features,under-call,medium,False,True,size_cm: gold=1.3 pred=13.0
+T100,pancreas,unknown,1.9,Pancreatic cyst with high-risk stigmata,concordant,none,True,,Pancreatic cyst with high-risk stigmata,concordant,none,True,True,
+T101,bone,unknown,1.8,Bone-RADS 4,under-call,high,True,,Bone-RADS 4,under-call,high,True,True,
+T102,adrenal,right,2.3,Lipid-rich adenoma (benign imaging),concordant,none,True,,Indeterminate adrenal mass,under-call,medium,False,False,unenhanced_hu: gold=-1.0 pred=None
+T102,bone,right,1.8,Bone-RADS 4,concordant,none,True,,Bone-RADS 4,concordant,none,True,True,
+T103,lung,right,0.9,Solid nodule >8 mm (single),under-call,medium,True,,Solid nodule >8 mm (single),concordant,none,True,False,"size_cm: gold=0.9 pred=9.0; stated_actions: gold=[NO_FOLLOWUP] pred=[NO_FOLLOWUP,SPECIALIST_REFERRAL]"
+T104,liver,unknown,0.4,Liver lesion <1 cm,concordant,none,True,,Liver lesion <1 cm,concordant,none,True,True,
+T105,thyroid,left,0.5,"Thyroid nodule <1.5 cm, age ≥35",over-call,low,True,,"Thyroid nodule <1.5 cm, age ≥35",over-call,low,True,True,
+T106,kidney,right,1.6,Solid enhancing mass (suspicious for RCC),concordant,none,True,,"Solid mass, enhancement not assessed",over-call,low,False,False,unenhanced_hu: gold=40.0 pred=None; enhanced_hu: gold=80.0 pred=40.0
+T107,lung,right,0.7,Solid nodule 6-8 mm (single),over-call,low,True,,Solid nodule 6-8 mm (single),over-call,low,True,True,patient_risk: gold=high pred=low
+T108,liver,unknown,2.9,Liver lesion >1.5 cm with suspicious features,concordant,none,True,,Liver lesion >1.5 cm with suspicious features,concordant,none,True,True,appearance: gold=suspicious pred=None
+T109,pancreas,unknown,3.7,Pancreatic cyst with worrisome features,under-call,high,True,,Pancreatic cyst with worrisome features,concordant,none,True,False,"stated_actions: gold=[NO_FOLLOWUP] pred=[NO_FOLLOWUP,SPECIALIST_REFERRAL]"
+T110,lung,right,0.3,Multiple subsolid nodules <6 mm,concordant,none,True,,Part-solid nodule <6 mm,over-call,low,False,False,multiple: gold=True pred=False
+T111,lung,right,0.8,"Multiple subsolid nodules, one or more ≥6 mm",concordant,none,True,,Solid nodule 6-8 mm (single),concordant,none,False,True,nodule_type: gold=ground-glass pred=None; multiple: gold=True pred=False
+T112,bone,unknown,3.6,Bone-RADS 1,concordant,none,True,,Bone-RADS 1,concordant,none,True,True,
+T112,adrenal,left,1.1,Indeterminate adrenal mass,under-call,medium,True,,Indeterminate adrenal mass,under-call,medium,True,True,"stated_actions: gold=[NO_FOLLOWUP] pred=[NO_FOLLOWUP,HORMONAL_WORKUP]"
+T113,pituitary,unknown,0.8,Pituitary microincidentaloma (<1 cm),concordant,none,True,,Pituitary microincidentaloma (<1 cm),concordant,none,True,True,
+T114,bone,right,0.8,Bone-RADS 1,concordant,none,True,,Bone-RADS 1,concordant,none,True,True,bone_density: gold=lucent pred=None
+T115,bone,right,3.6,Bone-RADS 1,concordant,none,True,,Bone-RADS 1,concordant,none,True,True,bone_density: gold=lucent pred=sclerotic
+T116,bone,unknown,2.3,Bone-RADS 1,concordant,none,True,,Bone-RADS 1,concordant,none,True,True,
+T116,liver,unknown,2.7,Indeterminate liver lesion >1.5 cm,concordant,none,True,,Indeterminate liver lesion >1.5 cm,concordant,none,True,True,
+T116,thyroid,right,0.5,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,,"Thyroid nodule ≥1.5 cm, age ≥35",under-call,medium,False,False,size_cm: gold=0.5 pred=5.0
+T117,liver,unknown,1.0,Flash-filling liver lesion 1-1.5 cm,concordant,none,True,,Flash-filling liver lesion >1.5 cm,concordant,none,False,True,size_cm: gold=1.0 pred=10.0
+T118,pancreas,unknown,2.1,Pancreatic cyst with worrisome features,concordant,none,True,,Pancreatic cyst with worrisome features,over-call,low,True,False,"stated_actions: gold=[SPECIALIST_REFERRAL] pred=[CHARACTERIZATION_IMAGING,SPECIALIST_REFERRAL]"
+T119,thyroid,right,0.7,"Thyroid nodule <1 cm, age <35",concordant,none,True,,"Thyroid nodule ≥1 cm, age <35",under-call,medium,False,False,size_cm: gold=0.7 pred=7.0
+T120,thyroid,right,1.4,Thyroid nodule with suspicious features,concordant,none,True,,Thyroid nodule with suspicious features,concordant,none,True,True,
+T121,brain,left,2.1,Growing or symptomatic meningioma,concordant,none,True,,Growing or symptomatic meningioma,concordant,none,True,True,
+T122,thyroid,right,1.0,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,True,
+T122,bone,right,1.9,Bone-RADS 3,concordant,none,True,,Bone-RADS 3,concordant,none,True,True,
+T123,kidney,left,0.5,Bosniak II (too small to characterize),concordant,none,True,,Bosniak II (too small to characterize),concordant,none,True,True,size_cm: gold=0.5 pred=5.0
+T124,lung,left,1.4,Solid nodules >8 mm (multiple),over-call,low,True,,Solid nodule >8 mm (single),concordant,none,False,False,multiple: gold=True pred=False
+T124,thyroid,left,1.0,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,True,
+T125,pancreas,unknown,3.2,Pancreatic cyst ≥3 cm,concordant,none,True,,Pancreatic cyst ≥3 cm,concordant,none,True,True,
+T126,pituitary,unknown,1.4,Pituitary lesion abutting/compressing the chiasm,concordant,none,True,,Pituitary macroincidentaloma (≥1 cm),over-call,low,False,False,chiasm_contact: gold=True pred=False
+T127,kidney,right,1.8,Solid enhancing mass (suspicious for RCC),under-call,high,True,,"Solid mass, enhancement not assessed",under-call,medium,False,True,enhanced_hu: gold=105.0 pred=None
+T128,pancreas,unknown,3.2,Pancreatic cyst ≥3 cm,concordant,none,True,,Pancreatic cyst ≥3 cm,concordant,none,True,True,
+T129,pituitary,unknown,0.8,Pituitary microincidentaloma (<1 cm),concordant,none,True,,Pituitary microincidentaloma (<1 cm),concordant,none,True,True,
+T130,lung,left,0.9,Solid nodule 6-8 mm (single),concordant,none,True,,Solid nodule 6-8 mm (single),concordant,none,True,True,size_cm: gold=0.9 pred=0.7; short_axis_cm: gold=0.7 pred=None
+T131,adrenal,right,3.2,Indeterminate adrenal mass,concordant,none,True,,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",under-call,high,False,False,size_cm: gold=3.2 pred=32.0
+T132,kidney,left,2.2,Bosniak IIF,concordant,none,True,,Bosniak IIF,concordant,none,True,True,
+T133,liver,unknown,0.8,Liver lesion <1 cm,concordant,none,True,,Flash-filling liver lesion >1.5 cm,concordant,none,False,True,size_cm: gold=0.8 pred=8.0; homogeneous: gold=None pred=True
+T134,adrenal,left,0.5,Sub-centimetre adrenal nodule,concordant,none,True,,Sub-centimetre adrenal nodule,concordant,none,True,True,
+T134,thyroid,left,3.4,"Thyroid nodule ≥1.5 cm, age ≥35",concordant,none,True,,"Thyroid nodule ≥1.5 cm, age ≥35",concordant,none,True,True,
+T135,brain,left,3.3,Growing or symptomatic meningioma,concordant,none,True,,Growing or symptomatic meningioma,concordant,none,True,True,
+T136,adrenal,left,3.0,Lipid-rich adenoma (benign imaging),under-call,medium,True,,Indeterminate adrenal mass,under-call,medium,False,True,unenhanced_hu: gold=-3.0 pred=None
+T136,lung,left,1.1,Solid nodules >8 mm (multiple),concordant,none,True,,Solid nodule >8 mm (single),concordant,none,False,True,multiple: gold=True pred=False
+T137,brain,right,1.1,Incidental asymptomatic meningioma,concordant,none,True,,Incidental asymptomatic meningioma,concordant,none,True,True,
+T138,pituitary,unknown,2.3,Pituitary macroincidentaloma (≥1 cm),concordant,none,True,,Pituitary macroincidentaloma (≥1 cm),concordant,none,True,True,
+T139,brain,left,3.4,Incidental asymptomatic meningioma,concordant,none,True,,Incidental asymptomatic meningioma,concordant,none,True,True,
+T140,brain,right,2.5,Growing or symptomatic meningioma,concordant,none,True,,Growing or symptomatic meningioma,concordant,none,True,True,size_cm: gold=2.5 pred=25.0
+T141,pituitary,unknown,1.5,Pituitary macroincidentaloma (≥1 cm),concordant,none,True,,Pituitary macroincidentaloma (≥1 cm),concordant,none,True,True,
+T142,adrenal,right,2.5,Myelolipoma,over-call,low,True,,Myelolipoma,over-call,low,True,True,
+T143,pituitary,unknown,0.8,Pituitary microincidentaloma (<1 cm),under-call,medium,True,,Pituitary microincidentaloma (<1 cm),under-call,medium,True,True,
+T144,adrenal,left,1.9,Lipid-rich adenoma (benign imaging),concordant,none,True,,Lipid-rich adenoma (benign imaging),concordant,none,True,True,unenhanced_hu: gold=-3.0 pred=3.0
+T144,thyroid,right,1.2,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,True,
+T145,adrenal,left,0.7,Sub-centimetre adrenal nodule,concordant,none,True,,"Indeterminate adrenal mass, ≥4 cm or heterogeneous",under-call,high,False,False,"size_cm: gold=0.7 pred=7.0; stated_actions: gold=[NO_FOLLOWUP] pred=[NO_FOLLOWUP,HORMONAL_WORKUP]"
+T145,thyroid,right,0.6,"Thyroid nodule <1 cm, age <35",concordant,none,True,,"Thyroid nodule <1 cm, age <35",concordant,none,True,True,
+T146,adrenal,right,1.2,Indeterminate adrenal mass,concordant,none,True,,Indeterminate adrenal mass,concordant,none,True,True,
+T147,lung,left,0.8,Solid nodule 6-8 mm (single),concordant,none,True,,Part-solid nodule ≥6 mm,concordant,none,False,True,size_cm: gold=0.8 pred=8.0; short_axis_cm: gold=0.7 pred=7.0; nodule_type: gold=None pred=part-solid
+T148,pituitary,unknown,0.4,Pituitary microincidentaloma (<1 cm),concordant,none,True,,Pituitary macroincidentaloma (≥1 cm),concordant,none,False,True,size_cm: gold=0.4 pred=4.0
+T149,brain,right,2.2,Growing or symptomatic meningioma,under-call,high,True,,Growing or symptomatic meningioma,under-call,high,True,True,
+T150,kidney,left,4.1,Bosniak II (non-enhancing),concordant,none,True,,Bosniak II (non-enhancing),concordant,none,True,True,
