@@ -36,7 +36,8 @@ ORGAN_FIELDS = {
 }
 ALL_FIELDS = list(dict.fromkeys(f for v in ORGAN_FIELDS.values() for f in v))
 
-SPLITS = {"dev": "reports.json", "holdout": "reports_holdout.json", "synth_test": "synthetic_test.json"}
+SPLITS = {"dev": "reports.json", "holdout": "reports_holdout.json", "holdout_all": "reports_holdout_all.json",
+          "synth_test": "synthetic_test.json"}
 
 
 def load_reports(split: str = "dev") -> List[dict]:
@@ -47,7 +48,7 @@ def _match(gold: List[Finding], pred: List[Finding]):
     pairs, used = [], set()
     for gi, g in enumerate(gold):
         cands = [(abs((p.size_cm or 0) - (g.size_cm or 0)), pi) for pi, p in enumerate(pred)
-                 if pi not in used and p.organ == g.organ and p.side in (g.side, "unknown")]
+                 if pi not in used and p.organ == g.organ and (g.side == "unknown" or p.side in (g.side, "unknown"))]
         if cands:
             _, pi = min(cands)
             used.add(pi)

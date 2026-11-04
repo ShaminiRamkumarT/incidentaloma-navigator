@@ -380,14 +380,16 @@ def classify_thyroid(f: Finding) -> GuidelineResult:
     size, age = f.size_cm, f.patient_age
     if f.appearance == "suspicious":
         return GuidelineResult("Thyroid nodule with suspicious features", CHAR,
-                               "Local invasion or abnormal lymph nodes: dedicated thyroid ultrasound.", ACR_THYROID)
+                               "Local invasion or abnormal lymph nodes: dedicated thyroid ultrasound "
+                               "(ultrasound with FNA also acceptable).", ACR_THYROID, alternatives=[CHAR + REF])
     if f.limited_life_expectancy:
         return GuidelineResult("Thyroid nodule, limited life expectancy", NONE_,
                                "Limited life expectancy or serious comorbidity: no further evaluation.", ACR_THYROID)
     if f.fdg_avid:
-        return GuidelineResult("FDG-avid thyroid nodule", CHAR,
-                               "Focal FDG uptake is highly suspicious: thyroid ultrasound and FNA.", ACR_THYROID,
-                               alternatives=[REF])
+        return GuidelineResult("FDG-avid thyroid nodule", CHAR + REF,
+                               "Focal FDG uptake is highly suspicious: thyroid ultrasound and FNA "
+                               "(ultrasound first, with FNA decided afterwards, is also accepted).", ACR_THYROID,
+                               alternatives=[CHAR])
     if size is None:
         return GuidelineResult("Thyroid nodule, size not stated", CHAR,
                                "Size is needed; thyroid ultrasound is the safe default.", ACR_THYROID)
