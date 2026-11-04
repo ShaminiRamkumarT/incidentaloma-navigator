@@ -275,7 +275,7 @@ Left renal cystic lesion. <mark>Recommend follow-up ultrasound in 12 months.</ma
     <p>Load a sample or paste your own. Nothing you paste leaves your browser.</p></div></div>
   <div class="tabs" role="tablist">
     <button role="tab" id="t-check" aria-selected="true" aria-controls="p-check">Check a report</button>
-    <button role="tab" id="t-batch" aria-selected="false" aria-controls="p-batch">Worklist (46 reports)</button>
+    <button role="tab" id="t-batch" aria-selected="false" aria-controls="p-batch">Worklist (73 reports)</button>
     <button role="tab" id="t-ml" aria-selected="false" aria-controls="p-ml">All organs: trained model</button>
     <button role="tab" id="t-rules" aria-selected="false" aria-controls="p-rules">Guideline rules</button>
   </div>
@@ -290,7 +290,7 @@ Left renal cystic lesion. <mark>Recommend follow-up ultrasound in 12 months.</ma
         <button class="btn" id="run">Check report</button>
         <button class="btn ghost" id="clear">Clear</button>
       </div>
-      <p class="hint">Results update as you type. Try editing a number: in the first sample, change <code>7 mm mural nodule</code> to <code>thin wall</code>, or change a recommendation to <code>Urology referral</code>.</p>
+      <p class="hint">Works for all nine organs on CT, MRI and PET-CT reports. Results update as you type. Try editing a number: in the first sample, change <code>7 mm mural nodule</code> to <code>thin wall</code>, or change a recommendation to <code>Urology referral</code>.</p>
     </div>
     <div class="panel" aria-live="polite">
       <div class="summary" id="summary"></div>
@@ -307,7 +307,7 @@ Left renal cystic lesion. <mark>Recommend follow-up ultrasound in 12 months.</ma
   </section>
 
   <section id="p-ml" role="tabpanel" aria-labelledby="t-ml" class="panel" hidden>
-    <p class="hint">150 held-out synthetic reports across all nine organs, read by the trained model (a token-labelling model trained on 600 other synthetic reports) and checked against the guidelines. The model runs in Python; these results were generated offline. Select a row to see the report and what the model extracted. The "Check a report" tab runs a browser copy of the first-version keyword reader, which covers kidney and adrenal only.</p>
+    <p class="hint">150 held-out synthetic reports across all nine organs, read by the trained model (a token-labelling model trained on 600 other synthetic reports) and checked against the guidelines. The model runs in Python; these results were generated offline. Select a row to see the report and what the model extracted. The "Check a report" tab uses the keyword reader instead, which runs in your browser.</p>
     <div class="stats" id="mlstats"></div>
     <div class="mlview" id="mlview"></div>
     <div class="tbl"><table>
@@ -407,299 +407,24 @@ Left renal cystic lesion. <mark>Recommend follow-up ultrasound in 12 months.</ma
   </section>
 
 </section>
-  <footer>"Check a report" uses the keyword reader (kidney and adrenal only). It works best on reports written like the samples, and runs entirely in your browser: nothing you paste is sent anywhere. The all-organ results come from the trained model, run offline on synthetic reports.</footer>
+  <footer>"Check a report" uses the keyword (regex) reader for all nine organs. It runs entirely in your browser, so nothing you paste is sent anywhere, and it works best on reports written in a similar style to the samples. The trained model's results come from Python, run offline on the synthetic test reports.</footer>
   <div class="foot2"><span>Built by Shamini Ramkumar T, 2026 · Code and fictional reports: MIT license · Real test sentences: CC BY, their original authors (<a href="https://github.com/ShaminiRamkumarT/incidentaloma-navigator#author-and-license">details</a>)</span><a href="https://github.com/ShaminiRamkumarT/incidentaloma-navigator">Code and full write-up on GitHub</a></div>
 </div>
-<script>
-// JavaScript port of navigator/extract_rules.py + navigator/guidelines.py, for the browser demo.
-// Keep in step with the Python; web/parity_check.js compares both on every sample report.
-(function (root) {
-  "use strict";
-
-  const A = {
-    NO_FOLLOWUP: "NO_FOLLOWUP",
-    IMAGING_SURVEILLANCE: "IMAGING_SURVEILLANCE",
-    CHARACTERIZATION_IMAGING: "CHARACTERIZATION_IMAGING",
-    SPECIALIST_REFERRAL: "SPECIALIST_REFERRAL",
-    HORMONAL_WORKUP: "HORMONAL_WORKUP",
-  };
-  const ORDER = Object.values(A);
-  const LABELS = {
-    NO_FOLLOWUP: "No follow-up",
-    IMAGING_SURVEILLANCE: "Interval imaging surveillance",
-    CHARACTERIZATION_IMAGING: "Dedicated characterization imaging",
-    SPECIALIST_REFERRAL: "Specialist referral",
-    HORMONAL_WORKUP: "Hormonal work-up",
-  };
-
-  // ------------------------------------------------------------------ reader
-  const SIZE_RE = /(\d+(?:\.\d+)?)\s*cm\b/i;
-  const HU_RE = /(-?\d+(?:\.\d+)?)\s*HU\b/g;
-  const LESION_RE = /\b(lesion|cyst|mass|nodule|hypodensity|angiomyolipoma|myelolipoma)/i;
-  const UNENH_RE = /unenhanced|non-?contrast|pre-?contrast|\bpre\b|without contrast/i;
-  const ENH_RE = /nephrographic|portal|post-?contrast|\bpost\b|after contrast|enhanced phase|arterial/i;
-  const SPLIT_IMPRESSION = /\n\s*(?:IMPRESSION|IMP)\s*:/i;
-  const COUNT_WORDS = { a: 1, an: 1, one: 1, single: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
-    few: 2, several: 4, multiple: 4, many: 4 };
-  const SEPTA_COUNT_RE = new RegExp(
-    "\\b(a|an|one|single|two|three|four|five|six|few|several|multiple|many)\\b(\\s*\\((\\d+)\\))?" +
-    "((?:[\\s,]+(?:thin|thick|thickened|smooth|irregular|enhancing|minimally|\\(?\\d+(?:\\.\\d+)?\\s*mm\\)?))*)[\\s,]+sept", "i");
-  const ACTION_PATTERNS = [
-    [A.SPECIALIST_REFERRAL, /urolog|referr|\brefer\b|surgical (consult|evaluation)|multidisciplinary|\bMDT\b/i],
-    [A.HORMONAL_WORKUP, /dexamethasone|\bDST\b|biochemical|hormonal|metanephrine|aldosterone|endocrin/i],
-    [A.IMAGING_SURVEILLANCE, /follow[- ]?up (CT|MRI|ultrasound|imaging|US)\b|in \d+ months|surveillance|repeat (CT|MRI|imaging)/i],
-    [A.CHARACTERIZATION_IMAGING, /protocol (CT|MRI)|mass protocol|adrenal protocol|dedicated|further evaluat|\bMRI\b|characteri[sz]ation/i],
-  ];
-  const EXPLICIT_CHAR = /protocol|dedicated/i;
-  const NO_FU_RE = /no (further )?(follow[- ]?up|imaging)|no further (imaging|evaluation|work)/i;
-
-  function newFinding(organ, side, size) {
-    return { organ, side, size_cm: size, composition: "indeterminate", unenhanced_hu: null, enhanced_hu: null,
-      homogeneous: null, wall_mm: null, septa_count: null, septa_mm: null, irregular_wall_or_septa: false,
-      enhancing_nodule: false, macroscopic_fat: false, too_small_to_characterize: false, stated_actions: [],
-      reported_category: null };
-  }
-
-  const lines = (t) => t.split(/\r\n|\r|\n/);
-  function sentences(text) {
-    const out = [];
-    for (const line of lines(text)) {
-      for (const s of line.split(/(?<=[.;])\s+/)) if (s.trim()) out.push(s.trim());
-    }
-    return out;
-  }
-  function organOf(s) {
-    if (/adrenal/i.test(s)) return "adrenal";
-    if (/kidney|renal/i.test(s)) return "kidney";
-    return null;
-  }
-  function sideOf(s) {
-    let m = s.match(/\b(left|right)\b/i);
-    if (m) return m[1].toLowerCase();
-    m = s.match(/\b([LR])\b/);
-    if (m) return m[1] === "L" ? "left" : "right";
-    return "unknown";
-  }
-  function examPhase(header) {
-    if (/with and without|without and with|w\/wo|multiphase|renal (mass )?protocol/i.test(header)) return null;
-    if (/without (iv )?contrast|non-?contrast|stone protocol/i.test(header)) return "unenhanced";
-    if (/contrast|portal venous/i.test(header)) return "enhanced";
-    return null;
-  }
-  function mmFeatures(s, f) {
-    const re = /(\d+(?:\.\d+)?)\s*mm\b/g;
-    let m;
-    while ((m = re.exec(s))) {
-      const val = parseFloat(m[1]);
-      const end = m.index + m[0].length;
-      const after = s.slice(end, end + 35).toLowerCase();
-      const before = s.slice(Math.max(0, m.index - 30), m.index).toLowerCase();
-      const keys = ["wall", "sept", "nodul"];
-      let hits = keys.filter((k) => after.indexOf(k) >= 0).map((k) => [after.indexOf(k), k]);
-      if (!hits.length) hits = keys.filter((k) => before.lastIndexOf(k) >= 0).map((k) => [before.length - before.lastIndexOf(k), k]);
-      if (!hits.length) continue;
-      hits.sort((x, y) => x[0] - y[0] || (x[1] < y[1] ? -1 : 1));
-      const kind = hits[0][1];
-      if (kind === "wall") f.wall_mm = val;
-      else if (kind === "sept") f.septa_mm = Math.max(val, f.septa_mm || 0);
-    }
-  }
-  function features(s, f, phase) {
-    const low = s.toLowerCase();
-    if (/\bcyst/.test(low)) f.composition = "cystic";
-    else if (/\bsolid\b/.test(low)) f.composition = "solid";
-    if (low.includes("heterogeneous")) f.homogeneous = false;
-    else if (low.includes("homogeneous")) f.homogeneous = true;
-    if (low.includes("irregular")) f.irregular_wall_or_septa = true;
-    if (low.includes("too small to characterize")) f.too_small_to_characterize = true;
-    if (/macroscopic fat|fat[- ]containing|containing fat/.test(low)) f.macroscopic_fat = true;
-    if (f.organ === "kidney" && /(enhancing|mural|soft[- ]tissue)\s+(\d+\s*mm\s+)?(mural\s+)?nodul/.test(low)) f.enhancing_nodule = true;
-    const m = s.match(SEPTA_COUNT_RE);
-    if (m) f.septa_count = m[3] ? parseInt(m[3], 10) : COUNT_WORDS[m[1].toLowerCase()];
-    mmFeatures(s, f);
-    const hus = [...s.matchAll(HU_RE)];
-    hus.forEach((h, i) => {
-      const hend = h.index + h[0].length;
-      const end = i + 1 < hus.length ? hus[i + 1].index : s.length;
-      const after = s.slice(hend, Math.min(end, hend + 40));
-      let kind;
-      if (UNENH_RE.test(after)) kind = "unenhanced";
-      else if (ENH_RE.test(after)) kind = "enhanced";
-      else kind = phase || "enhanced";
-      f[kind + "_hu"] = parseFloat(h[1]);
-    });
-  }
-
-  function extract(text) {
-    const sm = SPLIT_IMPRESSION.exec(text);
-    const body = sm ? text.slice(0, sm.index) : text;
-    const impression = sm ? text.slice(sm.index + sm[0].length) : "";
-    const header = body.includes("FINDINGS") ? body.split("FINDINGS")[0] : lines(body)[0];
-    const phase = examPhase(header);
-    const findings = [];
-    for (const line of lines(body)) {
-      const headerOrgan = line.includes(":") ? organOf(line.split(":")[0]) : null;
-      let current = null;
-      for (const s of sentences(line)) {
-        const organ = organOf(s) || headerOrgan;
-        if (organ && SIZE_RE.test(s) && LESION_RE.test(s)) {
-          current = newFinding(organ, sideOf(s), parseFloat(s.match(SIZE_RE)[1]));
-          findings.push(current);
-          features(s, current, phase);
-        } else if (current && !/^no\b/i.test(s) && organOf(s) === null) {
-          features(s, current, phase);
-        }
-      }
-    }
-    const bm = impression.match(/Bosniak\s+(IIF|IV|III|II|I)\b/);
-    if (bm) findings.forEach((f) => { if (f.organ === "kidney") f.reported_category = "Bosniak " + bm[1]; });
-    assignActions(impression, findings);
-    return findings;
-  }
-
-  function assignActions(impression, findings) {
-    const items = ("\n" + impression).split(/\n\s*\d+[.)]\s*/);
-    for (const item of items) {
-      let ctxOrgan = null, ctxSide = "unknown";
-      for (const s of sentences(item)) {
-        const organ = organOf(s);
-        if (organ) {
-          ctxOrgan = organ;
-          ctxSide = /bilateral/i.test(s) ? "unknown" : sideOf(s);
-        }
-        let actions = ACTION_PATTERNS.filter(([, rx]) => rx.test(s)).map(([a]) => a);
-        if (actions.includes(A.IMAGING_SURVEILLANCE) && actions.includes(A.CHARACTERIZATION_IMAGING) && !EXPLICIT_CHAR.test(s))
-          actions = actions.filter((a) => a !== A.CHARACTERIZATION_IMAGING);
-        if (NO_FU_RE.test(s)) {
-          actions = actions.filter((a) => a !== A.IMAGING_SURVEILLANCE && a !== A.CHARACTERIZATION_IMAGING);
-          actions.unshift(A.NO_FOLLOWUP);
-        }
-        if (!actions.length) continue;
-        const targets = findings.filter((f) => ctxOrgan === null || f.organ === ctxOrgan);
-        const sided = targets.filter((f) => ctxSide !== "unknown" && f.side === ctxSide);
-        for (const f of (sided.length ? sided : targets))
-          for (const a of actions) if (!f.stated_actions.includes(a)) f.stated_actions.push(a);
-      }
-    }
-  }
-
-  // ------------------------------------------------------------------ guidelines
-  const BOSNIAK = "Bosniak v2019 (Radiology 2019)";
-  const ACR_RENAL = "ACR renal mass white paper (JACR 2018)";
-  const ESE = "ESE/ENSAT adrenal incidentaloma guideline (EJE 2023)";
-  const R = (category, actions, rationale, source) => ({ category, actions, rationale, source });
-  const fluid = (hu) => hu !== null && hu !== undefined && hu >= -9 && hu <= 20;
-  const enhancement = (f) => (f.unenhanced_hu === null || f.enhanced_hu === null ? null : f.enhanced_hu - f.unenhanced_hu);
-
-  function classifyRenal(f) {
-    const enh = enhancement(f), size = f.size_cm;
-    if (f.macroscopic_fat) {
-      if (size !== null && size >= 4)
-        return R("Angiomyolipoma ≥4 cm", [A.SPECIALIST_REFERRAL], "Macroscopic fat indicates angiomyolipoma; ≥4 cm carries haemorrhage risk, so urology review is advised.", ACR_RENAL);
-      return R("Angiomyolipoma", [A.NO_FOLLOWUP], "Macroscopic fat without calcification indicates a benign angiomyolipoma.", ACR_RENAL);
-    }
-    if (f.composition === "cystic") {
-      if (f.enhancing_nodule)
-        return R("Bosniak IV", [A.SPECIALIST_REFERRAL], "Enhancing nodule in a cystic mass (~90% malignant): urology referral.", BOSNIAK);
-      const vals = [f.wall_mm, f.septa_mm].filter((x) => x !== null);
-      const thick = vals.length ? Math.max(...vals) : null;
-      if (f.irregular_wall_or_septa || (thick !== null && thick >= 4))
-        return R("Bosniak III", [A.SPECIALIST_REFERRAL], "Thick (≥4 mm) or irregular enhancing wall/septa (~50% malignant): urology referral.", BOSNIAK);
-      if ((thick !== null && thick >= 3) || (f.septa_count || 0) >= 4)
-        return R("Bosniak IIF", [A.IMAGING_SURVEILLANCE], "Minimally thickened (3 mm) wall/septa or ≥4 thin septa: imaging at 6 and 12 months, then yearly to 5 years.", BOSNIAK);
-      if ((f.septa_count || 0) >= 1 && (f.septa_count || 0) <= 3)
-        return R("Bosniak II", [A.NO_FOLLOWUP], "Few (1-3) thin septa: benign, no follow-up.", BOSNIAK);
-      const hu = f.enhanced_hu !== null ? f.enhanced_hu : f.unenhanced_hu;
-      if (hu === null || fluid(hu))
-        return R("Bosniak I", [A.NO_FOLLOWUP], "Thin smooth wall, no septa, simple fluid attenuation: benign, no follow-up.", BOSNIAK);
-    }
-    if (f.too_small_to_characterize)
-      return R("Bosniak II (too small to characterize)", [A.NO_FOLLOWUP], "Homogeneous low-attenuation lesion too small to characterize: presumed benign.", BOSNIAK);
-    const solidEnh = enh !== null && enh >= 20;
-    if (f.composition === "solid" || solidEnh) {
-      if (solidEnh) {
-        if (size !== null && size < 1)
-          return R("Solid enhancing mass <1 cm", [A.IMAGING_SURVEILLANCE], "Very small enhancing solid mass: follow-up imaging is a reasonable option.", ACR_RENAL);
-        return R("Solid enhancing mass (suspicious for RCC)", [A.SPECIALIST_REFERRAL], "Enhancement ≥20 HU without macroscopic fat: suspicious for renal cell carcinoma, urology referral.", ACR_RENAL);
-      }
-      if (enh === null)
-        return R("Solid mass, enhancement not assessed", [A.CHARACTERIZATION_IMAGING], "Solid-appearing mass without pre- and post-contrast measurements: renal mass protocol CT or MRI.", ACR_RENAL);
-    }
-    if (f.homogeneous !== false) {
-      if (f.unenhanced_hu !== null && f.unenhanced_hu >= 70)
-        return R("Bosniak II (hyperattenuating)", [A.NO_FOLLOWUP], "Homogeneous ≥70 HU on non-contrast CT: benign hyperdense cyst.", BOSNIAK);
-      if (enh !== null && enh < 10 && (f.unenhanced_hu || 0) > 20)
-        return R("Bosniak II (non-enhancing)", [A.NO_FOLLOWUP], "Homogeneous, >20 HU and non-enhancing on renal mass protocol CT.", BOSNIAK);
-      if (f.enhanced_hu === null && fluid(f.unenhanced_hu))
-        return R("Bosniak II", [A.NO_FOLLOWUP], "Homogeneous -9 to 20 HU on non-contrast CT: benign.", BOSNIAK);
-      if (f.unenhanced_hu === null && f.enhanced_hu !== null) {
-        if (fluid(f.enhanced_hu))
-          return R("Bosniak I/II (fluid attenuation)", [A.NO_FOLLOWUP], "Homogeneous fluid attenuation on post-contrast CT: benign.", BOSNIAK);
-        if (f.enhanced_hu >= 21 && f.enhanced_hu <= 30)
-          return R("Bosniak II", [A.NO_FOLLOWUP], "Homogeneous 21-30 HU on portal venous phase: benign.", BOSNIAK);
-      }
-    }
-    return R("Indeterminate renal mass", [A.CHARACTERIZATION_IMAGING], "Cannot be classified from available phases: renal mass protocol CT or MRI.", BOSNIAK);
-  }
-
-  function classifyAdrenal(f) {
-    const size = f.size_cm;
-    if (size !== null && size < 1)
-      return R("Sub-centimetre adrenal nodule", [A.NO_FOLLOWUP], "Guideline applies to masses ≥1 cm; no work-up needed.", ESE);
-    if (f.macroscopic_fat)
-      return R("Myelolipoma", [A.NO_FOLLOWUP], "Macroscopic fat indicates a benign myelolipoma.", ESE);
-    if (f.unenhanced_hu !== null && f.unenhanced_hu <= 10 && f.homogeneous !== false)
-      return R("Lipid-rich adenoma (benign imaging)", [A.HORMONAL_WORKUP],
-        "Homogeneous ≤10 HU on non-contrast CT: benign, no further imaging; every patient still needs a 1 mg dexamethasone suppression test (plus aldosterone/renin if hypertensive or hypokalaemic).", ESE);
-    if ((size !== null && size >= 4) || f.homogeneous === false)
-      return R("Indeterminate adrenal mass, ≥4 cm or heterogeneous", [A.SPECIALIST_REFERRAL, A.HORMONAL_WORKUP],
-        "Indeterminate mass that is large or heterogeneous: discuss in an expert multidisciplinary team (surgery usually considered) and complete hormonal work-up including metanephrines.", ESE);
-    const why = f.unenhanced_hu === null ? "No non-contrast attenuation available" : `${f.unenhanced_hu} HU on non-contrast CT (>10 HU)`;
-    return R("Indeterminate adrenal mass", [A.CHARACTERIZATION_IMAGING, A.HORMONAL_WORKUP],
-      `${why}: further imaging (non-contrast/washout CT or chemical-shift MRI) or repeat imaging in 6-12 months, plus hormonal work-up including metanephrines.`, ESE);
-  }
-
-  const classify = (f) => (f.organ === "kidney" ? classifyRenal(f) : classifyAdrenal(f));
-  const IMAGING = [A.IMAGING_SURVEILLANCE, A.CHARACTERIZATION_IMAGING];
-
-  function concordance(f, g) {
-    const required = new Set(g.actions.filter((a) => a !== A.NO_FOLLOWUP));
-    const stated = new Set(f.stated_actions.filter((a) => a !== A.NO_FOLLOWUP));
-    const noRec = f.stated_actions.length === 0;
-    let missing = new Set([...required].filter((a) => !stated.has(a)));
-    let extra = new Set([...stated].filter((a) => !required.has(a)));
-    const has = (set, list) => list.some((a) => set.has(a));
-    if (has(missing, IMAGING) && has(stated, IMAGING)) { IMAGING.forEach((a) => { missing.delete(a); extra.delete(a); }); }
-    if (has(missing, IMAGING) && stated.has(A.SPECIALIST_REFERRAL)) IMAGING.forEach((a) => missing.delete(a));
-    const sort = (s) => [...s].sort((x, y) => ORDER.indexOf(x) - ORDER.indexOf(y));
-    const m = sort(missing), e = sort(extra);
-    const words = (l) => l.map((a) => a.replace(/_/g, " ").toLowerCase()).join(", ");
-    if (m.length) {
-      const severity = missing.has(A.SPECIALIST_REFERRAL) ? "high" : "medium";
-      const lead = noRec ? "No recommendation given" : "Recommendation falls short";
-      return { status: "under-call", severity, missing: m, extra: e, no_recommendation: noRec, message: `${lead}: guideline calls for ${words(m)}.` };
-    }
-    if (e.length)
-      return { status: "over-call", severity: "low", missing: m, extra: e, no_recommendation: noRec, message: `Guideline does not call for ${words(e)} (possible unnecessary follow-up).` };
-    return { status: "concordant", severity: "none", missing: [], extra: [], no_recommendation: noRec, message: "Recommendation matches the guideline." };
-  }
-
-  const api = { A, LABELS, extract, classify, concordance };
-  if (typeof module !== "undefined" && module.exports) module.exports = api;
-  else root.Navigator = api;
-})(typeof globalThis !== "undefined" ? globalThis : this);
-
-</script>
+<script src="engine.js"></script>
 <script src="model_results.js"></script>
 <script>
-const SAMPLES=[{"id": "R01", "text": "EXAM: CT abdomen and pelvis with IV contrast (portal venous phase).\nINDICATION: Right lower quadrant pain.\nFINDINGS:\nKidneys: 2.1 cm homogeneous lesion in the right kidney interpolar region measuring 8 HU, with an imperceptible wall and no septa or calcification. Left kidney unremarkable.\nAdrenals: Normal.\nAppendix: Normal.\nIMPRESSION:\n1. No acute abnormality.\n2. Simple right renal cyst (Bosniak I). No follow-up needed."}, {"id": "R02", "text": "EXAM: CT abdomen with IV contrast, portal venous phase.\nINDICATION: Weight loss.\nFINDINGS:\nKidneys: Left kidney lower pole cystic lesion measuring 3.4 cm with two thin (1 mm) septa and thin peripheral calcification. No enhancing soft tissue. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\nLeft renal cyst, Bosniak II. No follow-up imaging required."}, {"id": "R03", "text": "EXAM: CT chest, abdomen and pelvis with contrast.\nINDICATION: Lymphoma staging, follow-up.\nFINDINGS:\nAbdomen: Right kidney upper pole cystic lesion measuring 4.2 cm with a smooth, minimally thickened 3 mm enhancing wall. No septa or nodularity. Left kidney normal. Adrenal glands normal.\nIMPRESSION:\n1. No evidence of lymphoma recurrence.\n2. Right renal complex cyst, likely benign."}, {"id": "R04", "text": "EXAM: CT abdomen/pelvis with IV contrast.\nINDICATION: Diverticulitis.\nFINDINGS:\nKidneys: 2.8 cm cystic lesion in the left kidney containing multiple (5) thin, smooth enhancing septa, each less than 2 mm. No thickened wall or nodule.\nAdrenals: Unremarkable.\nIMPRESSION:\n1. Uncomplicated sigmoid diverticulitis.\n2. Left renal cystic lesion, Bosniak IIF. Recommend follow-up CT or MRI in 6 months."}, {"id": "R05", "text": "EXAM: CT abdomen with and without contrast (renal mass protocol).\nINDICATION: Hematuria.\nFINDINGS:\nRight kidney: 3.0 cm cystic lesion with an irregular, thick 5 mm enhancing septum. Left kidney normal.\nAdrenals: Normal.\nIMPRESSION:\nRight renal cystic mass, Bosniak III. Urology referral recommended."}, {"id": "R06", "text": "EXAM: CT abdomen and pelvis with IV contrast.\nINDICATION: Abdominal pain.\nFINDINGS:\nKidneys: Left kidney interpolar cystic lesion measuring 3.6 cm with an enhancing 7 mm mural nodule along the posterior wall. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\nLeft renal cystic lesion. Recommend follow-up ultrasound in 12 months."}, {"id": "R07", "text": "EXAM: CT abdomen, multiphase renal protocol.\nINDICATION: Microscopic hematuria.\nFINDINGS:\nRight kidney: 2.4 cm solid mass in the lower pole measuring 35 HU on unenhanced images and 120 HU in the nephrographic phase. No macroscopic fat.\nLeft kidney and adrenals: Normal.\nIMPRESSION:\nEnhancing solid right renal mass, suspicious for renal cell carcinoma. Urology referral."}, {"id": "R08", "text": "EXAM: CT abdomen with and without IV contrast.\nINDICATION: Right upper quadrant pain.\nFINDINGS:\nGallbladder: Multiple gallstones without wall thickening.\nKidneys: 1.9 cm exophytic solid lesion from the left upper pole measuring 28 HU pre-contrast and 95 HU post-contrast. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\n1. Cholelithiasis without cholecystitis.\n2. Small left renal lesion, likely cyst."}, {"id": "R09", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain, rule out stone.\nFINDINGS:\nKidneys: No hydronephrosis or calculi. 1.6 cm lesion in the right kidney containing macroscopic fat (-45 HU), consistent with angiomyolipoma.\nAdrenals: Normal.\nIMPRESSION:\n1. No urolithiasis.\n2. Small right renal angiomyolipoma. No follow-up needed."}, {"id": "R10", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Trauma, motor vehicle collision.\nFINDINGS:\nNo solid organ injury. Left kidney: 5.2 cm fat-containing lesion (-60 HU) in the lower pole without hemorrhage. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\n1. No traumatic injury.\n2. Left renal angiomyolipoma. No further imaging."}, {"id": "R11", "text": "EXAM: CT chest/abdomen with contrast.\nINDICATION: Pulmonary nodule follow-up.\nFINDINGS:\nUpper abdomen: 0.6 cm hypodense lesion in the right kidney, too small to characterize. Adrenals normal.\nIMPRESSION:\nStable 4 mm pulmonary nodule. Tiny right renal hypodensity, too small to characterize, likely cyst; no follow-up."}, {"id": "R12", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Pancreatitis.\nFINDINGS:\nPancreas: Mild peripancreatic stranding.\nKidneys: 0.7 cm hypodense left renal lesion too small to characterize.\nAdrenals: Normal.\nIMPRESSION:\n1. Mild acute interstitial pancreatitis.\n2. Subcentimeter left renal lesion. Recommend renal ultrasound to further evaluate."}, {"id": "R13", "text": "EXAM: CT abdomen and pelvis with contrast, portal venous phase only.\nINDICATION: Crohn disease flare.\nFINDINGS:\nKidneys: 2.2 cm homogeneous lesion in the right kidney measuring 45 HU. No unenhanced images available.\nAdrenals: Normal.\nIMPRESSION:\n1. Active terminal ileitis.\n2. Indeterminate right renal lesion. Recommend renal mass protocol CT or MRI."}, {"id": "R14", "text": "EXAM: CT abdomen with IV contrast (portal venous phase).\nINDICATION: Nausea and vomiting.\nFINDINGS:\nKidneys: 1.8 cm homogeneous left renal lesion measuring 52 HU.\nAdrenals: Normal.\nIMPRESSION:\n1. No bowel obstruction.\n2. Left renal lesion, likely hyperdense cyst."}, {"id": "R15", "text": "EXAM: CT abdomen and pelvis without contrast (stone protocol).\nINDICATION: Left flank pain.\nFINDINGS:\nKidneys: 3 mm non-obstructing left lower pole calculus. 1.5 cm homogeneous right renal lesion measuring 78 HU.\nAdrenals: Normal.\nIMPRESSION:\n1. Non-obstructing left nephrolithiasis.\n2. Hyperdense right renal cyst, Bosniak II. No follow-up."}, {"id": "R16", "text": "EXAM: CT abdomen with contrast, portal venous phase.\nINDICATION: Elevated liver enzymes.\nFINDINGS:\nKidneys: 2.5 cm homogeneous right renal lesion measuring 26 HU, likely cyst.\nAdrenals: Normal.\nIMPRESSION:\n1. Hepatic steatosis.\n2. Right renal lesion, likely cyst. Recommend follow-up ultrasound in 6 months."}, {"id": "R17", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Hematuria, stone protocol.\nFINDINGS:\nKidneys: No calculi.\nAdrenals: 2.1 cm homogeneous left adrenal nodule measuring 4 HU.\nIMPRESSION:\nLeft adrenal nodule consistent with lipid-rich adenoma. No further imaging. Recommend biochemical evaluation for autonomous cortisol secretion (1 mg dexamethasone suppression test)."}, {"id": "R18", "text": "EXAM: CT abdomen and pelvis without contrast.\nINDICATION: Renal colic.\nFINDINGS:\nKidneys: 4 mm obstructing right UVJ stone with mild hydronephrosis.\nAdrenals: 1.8 cm right adrenal nodule measuring -2 HU.\nIMPRESSION:\n1. Obstructing right UVJ calculus.\n2. Right adrenal adenoma, no follow-up."}, {"id": "R19", "text": "EXAM: CT abdomen with contrast, portal venous phase.\nINDICATION: Abdominal pain.\nFINDINGS:\nAdrenals: 2.6 cm homogeneous left adrenal nodule measuring 60 HU.\nKidneys: Normal.\nIMPRESSION:\nIndeterminate left adrenal nodule. Recommend dedicated adrenal protocol CT and endocrine evaluation."}, {"id": "R20", "text": "EXAM: CT abdomen without and with contrast.\nINDICATION: Back pain.\nFINDINGS:\nAdrenals: 4.8 cm heterogeneous right adrenal mass measuring 38 HU on unenhanced images.\nKidneys: Normal.\nIMPRESSION:\nRight adrenal mass. Recommend follow-up CT in 12 months."}, {"id": "R21", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Colitis.\nFINDINGS:\nAdrenals: 0.8 cm left adrenal nodule.\nKidneys: Normal.\nIMPRESSION:\n1. Mild colitis.\n2. Subcentimeter left adrenal nodule, no follow-up."}, {"id": "R22", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Abdominal distension.\nFINDINGS:\nAdrenals: 3.2 cm right adrenal mass containing macroscopic fat (-80 HU), consistent with myelolipoma.\nKidneys: Normal.\nIMPRESSION:\nRight adrenal myelolipoma. No follow-up."}, {"id": "R23", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Constipation.\nFINDINGS:\nAdrenals: 1.4 cm homogeneous left adrenal nodule measuring 18 HU.\nKidneys: Normal.\nIMPRESSION:\n1. Moderate stool burden.\n2. Left adrenal nodule."}, {"id": "R24", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nAdrenals: 1.2 cm left adrenal nodule measuring 6 HU.\nKidneys: No calculi.\nIMPRESSION:\nLeft adrenal adenoma. Recommend follow-up CT in 12 months and hormonal workup."}, {"id": "R25", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nKidneys: 3.1 cm simple right renal cyst measuring 5 HU with no septa.\nAdrenals: 2.4 cm homogeneous left adrenal nodule measuring 8 HU.\nIMPRESSION:\n1. Bosniak I right renal cyst, no follow-up.\n2. Left adrenal adenoma; recommend 1 mg dexamethasone suppression test."}, {"id": "R26", "text": "EXAM: CT abdomen with and without contrast.\nINDICATION: Anemia.\nFINDINGS:\nKidneys: 2.0 cm solid left renal mass measuring 40 HU unenhanced and 130 HU after contrast.\nAdrenals: 1.6 cm right adrenal nodule measuring 25 HU on unenhanced images.\nIMPRESSION:\n1. Left renal mass suspicious for renal cell carcinoma; urology referral.\n2. Right adrenal nodule, likely adenoma."}, {"id": "R27", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Pelvic pain.\nFINDINGS:\nKidneys: 1.2 cm simple cyst in the right kidney measuring 3 HU. 3.8 cm cyst in the left kidney with a 3 mm thickened enhancing septum.\nAdrenals: Normal.\nIMPRESSION:\nBilateral renal cysts, benign. No follow-up."}, {"id": "R28", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Abdominal pain.\nFINDINGS:\nKidneys: Normal in size and enhancement. No masses or hydronephrosis.\nAdrenals: Normal.\nIMPRESSION:\nNo acute abnormality."}, {"id": "R29", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Gastroenteritis.\nFINDINGS:\nKidneys: 2.7 cm right renal cystic lesion with a thin 2 mm wall and two thin septa.\nAdrenals: Normal.\nIMPRESSION:\nRight renal cystic lesion, Bosniak IIF. Recommend follow-up imaging in 6 months."}, {"id": "R30", "text": "CT A/P w/wo contrast for hematuria.\nIncidental 2.3cm enhancing solid lesion arising from the lower pole of the R kidney (32 HU pre / 110 HU post). L kidney and both adrenals unremarkable.\nIMP: R renal lesion. Recommend dedicated renal MRI."}, {"id": "H01", "text": "EXAM: CT abdomen/pelvis with IV contrast.\nINDICATION: Left lower quadrant pain.\nFINDINGS:\nThere is a 31 mm cystic lesion in the left kidney with numerous thin septations. Adrenal glands unremarkable.\nIMPRESSION:\nBosniak IIF left renal cyst. Recommend surveillance imaging at 6 and 12 months."}, {"id": "H02", "text": "EXAM: CT urogram (unenhanced, nephrographic and excretory phases).\nINDICATION: Gross hematuria.\nFINDINGS:\nRight renal mass: 2.9 x 2.5 cm, heterogeneously enhancing, HU 30 (precontrast) and 105 (nephrographic).\nIMPRESSION:\nConcerning for renal cell carcinoma. Refer to urology."}, {"id": "H03", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Hypertension, flank pain.\nFINDINGS:\nNo renal masses or stones. Left adrenal: 2.3 cm nodule with attenuation of 7 Hounsfield units on noncontrast images.\nIMPRESSION:\nLeft adrenal adenoma. Clinical correlation for hormonal hypersecretion recommended."}, {"id": "H04", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Fever.\nFINDINGS:\nExophytic 1.4 cm hyperdense lesion off the right kidney, 58 HU on venous phase only; cannot exclude solid lesion.\nIMPRESSION:\nIndeterminate right renal lesion; consider renal MRI for characterization."}, {"id": "H05", "text": "EXAM: CT abdomen without and with contrast.\nINDICATION: Abdominal fullness.\nFINDINGS:\nThe left adrenal gland demonstrates a 4.4 cm homogeneous mass measuring 32 HU unenhanced.\nIMPRESSION:\nLarge indeterminate left adrenal mass. Recommend endocrine surgery referral and biochemical work-up including plasma metanephrines."}, {"id": "H06", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Epigastric pain.\nFINDINGS:\nSimple-appearing 5.5 cm cyst, upper pole left kidney, fluid attenuation, no septations.\nIMPRESSION:\nBenign left renal cyst. Recommend follow-up ultrasound in one year."}, {"id": "H07", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Back pain.\nFINDINGS:\nKidneys: 2.2 cm right interpolar lesion with internal macroscopic fat consistent with AML.\nAdrenals: 1.1 cm left adrenal nodule, 22 HU.\nIMPRESSION:\n1. Right renal AML.\n2. Indeterminate 1.1 cm left adrenal nodule; adrenal washout CT recommended."}, {"id": "H08", "text": "EXAM: CT abdomen, renal mass protocol.\nINDICATION: Follow-up of complex cyst.\nFINDINGS:\n4.0 cm right renal cystic mass with a nodular enhancing soft tissue component measuring 9 mm.\nIMPRESSION:\nRight renal cystic mass with enhancing nodular component, Bosniak IV. Urologic consultation advised."}, {"id": "H09", "text": "EXAM: CT chest with contrast.\nINDICATION: Cough.\nFINDINGS:\nLungs clear. Upper abdomen: partially imaged 1.7 cm hypoattenuating right adrenal nodule (Hounsfield units 41, contrast-enhanced).\nIMPRESSION:\nNo acute cardiopulmonary process."}, {"id": "H10", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Urinary tract infection.\nFINDINGS:\nKidneys: 3.3 cm left renal cyst with a 4 mm irregular enhancing wall.\nIMPRESSION:\nComplex left renal cyst; recommend follow-up CT in 6 months."}, {"id": "H11", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Abdominal pain.\nFINDINGS:\nSeveral subcentimeter hypodensities in both kidneys, too small to characterize.\nIMPRESSION:\nNo follow-up needed for tiny renal hypodensities."}, {"id": "H12", "text": "EXAM: CT abdomen with contrast, portal venous phase.\nINDICATION: Weight loss.\nFINDINGS:\nAdrenals: 3.0 cm right adrenal mass with heterogeneous enhancement, 85 HU. No unenhanced images.\nIMPRESSION:\nRight adrenal mass, likely adenoma. No further follow up."}, {"id": "H13", "text": "EXAM: CT abdomen without and with contrast.\nINDICATION: Hematuria.\nFINDINGS:\n8 mm enhancing solid nodule in the left kidney (25 HU unenhanced, 90 HU nephrographic).\nIMPRESSION:\nTiny enhancing left renal nodule; recommend follow-up renal mass protocol CT in 6-12 months."}, {"id": "H14", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nBilateral adrenal nodules: right 1.5 cm (−5 HU), left 2.0 cm (3 HU).\nIMPRESSION:\nBilateral adrenal adenomas. Recommend 1 mg overnight dexamethasone suppression test."}, {"id": "H15", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Surveillance after left nephrectomy.\nFINDINGS:\nKidneys: Status post left nephrectomy. Right kidney normal without masses.\nAdrenals: No nodules.\nIMPRESSION:\nNo evidence of recurrence."}, {"id": "H16", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Pain.\nFINDINGS:\n2.0 cm left renal cyst with one thin septum and a fleck of calcification.\nIMPRESSION:\nMinimally complex left renal cyst (Bosniak IIF). Follow-up CT in 6 months recommended."}];
+const SAMPLES=[{"id": "R01", "text": "EXAM: CT abdomen and pelvis with IV contrast (portal venous phase).\nINDICATION: Right lower quadrant pain.\nFINDINGS:\nKidneys: 2.1 cm homogeneous lesion in the right kidney interpolar region measuring 8 HU, with an imperceptible wall and no septa or calcification. Left kidney unremarkable.\nAdrenals: Normal.\nAppendix: Normal.\nIMPRESSION:\n1. No acute abnormality.\n2. Simple right renal cyst (Bosniak I). No follow-up needed."}, {"id": "R02", "text": "EXAM: CT abdomen with IV contrast, portal venous phase.\nINDICATION: Weight loss.\nFINDINGS:\nKidneys: Left kidney lower pole cystic lesion measuring 3.4 cm with two thin (1 mm) septa and thin peripheral calcification. No enhancing soft tissue. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\nLeft renal cyst, Bosniak II. No follow-up imaging required."}, {"id": "R03", "text": "EXAM: CT chest, abdomen and pelvis with contrast.\nINDICATION: Lymphoma staging, follow-up.\nFINDINGS:\nAbdomen: Right kidney upper pole cystic lesion measuring 4.2 cm with a smooth, minimally thickened 3 mm enhancing wall. No septa or nodularity. Left kidney normal. Adrenal glands normal.\nIMPRESSION:\n1. No evidence of lymphoma recurrence.\n2. Right renal complex cyst, likely benign."}, {"id": "R04", "text": "EXAM: CT abdomen/pelvis with IV contrast.\nINDICATION: Diverticulitis.\nFINDINGS:\nKidneys: 2.8 cm cystic lesion in the left kidney containing multiple (5) thin, smooth enhancing septa, each less than 2 mm. No thickened wall or nodule.\nAdrenals: Unremarkable.\nIMPRESSION:\n1. Uncomplicated sigmoid diverticulitis.\n2. Left renal cystic lesion, Bosniak IIF. Recommend follow-up CT or MRI in 6 months."}, {"id": "R05", "text": "EXAM: CT abdomen with and without contrast (renal mass protocol).\nINDICATION: Hematuria.\nFINDINGS:\nRight kidney: 3.0 cm cystic lesion with an irregular, thick 5 mm enhancing septum. Left kidney normal.\nAdrenals: Normal.\nIMPRESSION:\nRight renal cystic mass, Bosniak III. Urology referral recommended."}, {"id": "R06", "text": "EXAM: CT abdomen and pelvis with IV contrast.\nINDICATION: Abdominal pain.\nFINDINGS:\nKidneys: Left kidney interpolar cystic lesion measuring 3.6 cm with an enhancing 7 mm mural nodule along the posterior wall. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\nLeft renal cystic lesion. Recommend follow-up ultrasound in 12 months."}, {"id": "R07", "text": "EXAM: CT abdomen, multiphase renal protocol.\nINDICATION: Microscopic hematuria.\nFINDINGS:\nRight kidney: 2.4 cm solid mass in the lower pole measuring 35 HU on unenhanced images and 120 HU in the nephrographic phase. No macroscopic fat.\nLeft kidney and adrenals: Normal.\nIMPRESSION:\nEnhancing solid right renal mass, suspicious for renal cell carcinoma. Urology referral."}, {"id": "R08", "text": "EXAM: CT abdomen with and without IV contrast.\nINDICATION: Right upper quadrant pain.\nFINDINGS:\nGallbladder: Multiple gallstones without wall thickening.\nKidneys: 1.9 cm exophytic solid lesion from the left upper pole measuring 28 HU pre-contrast and 95 HU post-contrast. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\n1. Cholelithiasis without cholecystitis.\n2. Small left renal lesion, likely cyst."}, {"id": "R09", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain, rule out stone.\nFINDINGS:\nKidneys: No hydronephrosis or calculi. 1.6 cm lesion in the right kidney containing macroscopic fat (-45 HU), consistent with angiomyolipoma.\nAdrenals: Normal.\nIMPRESSION:\n1. No urolithiasis.\n2. Small right renal angiomyolipoma. No follow-up needed."}, {"id": "R10", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Trauma, motor vehicle collision.\nFINDINGS:\nNo solid organ injury. Left kidney: 5.2 cm fat-containing lesion (-60 HU) in the lower pole without hemorrhage. Right kidney normal.\nAdrenals: Normal.\nIMPRESSION:\n1. No traumatic injury.\n2. Left renal angiomyolipoma. No further imaging."}, {"id": "R11", "text": "EXAM: CT chest/abdomen with contrast.\nINDICATION: Pulmonary nodule follow-up.\nFINDINGS:\nUpper abdomen: 0.6 cm hypodense lesion in the right kidney, too small to characterize. Adrenals normal.\nIMPRESSION:\nStable 4 mm pulmonary nodule. Tiny right renal hypodensity, too small to characterize, likely cyst; no follow-up."}, {"id": "R12", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Pancreatitis.\nFINDINGS:\nPancreas: Mild peripancreatic stranding.\nKidneys: 0.7 cm hypodense left renal lesion too small to characterize.\nAdrenals: Normal.\nIMPRESSION:\n1. Mild acute interstitial pancreatitis.\n2. Subcentimeter left renal lesion. Recommend renal ultrasound to further evaluate."}, {"id": "R13", "text": "EXAM: CT abdomen and pelvis with contrast, portal venous phase only.\nINDICATION: Crohn disease flare.\nFINDINGS:\nKidneys: 2.2 cm homogeneous lesion in the right kidney measuring 45 HU. No unenhanced images available.\nAdrenals: Normal.\nIMPRESSION:\n1. Active terminal ileitis.\n2. Indeterminate right renal lesion. Recommend renal mass protocol CT or MRI."}, {"id": "R14", "text": "EXAM: CT abdomen with IV contrast (portal venous phase).\nINDICATION: Nausea and vomiting.\nFINDINGS:\nKidneys: 1.8 cm homogeneous left renal lesion measuring 52 HU.\nAdrenals: Normal.\nIMPRESSION:\n1. No bowel obstruction.\n2. Left renal lesion, likely hyperdense cyst."}, {"id": "R15", "text": "EXAM: CT abdomen and pelvis without contrast (stone protocol).\nINDICATION: Left flank pain.\nFINDINGS:\nKidneys: 3 mm non-obstructing left lower pole calculus. 1.5 cm homogeneous right renal lesion measuring 78 HU.\nAdrenals: Normal.\nIMPRESSION:\n1. Non-obstructing left nephrolithiasis.\n2. Hyperdense right renal cyst, Bosniak II. No follow-up."}, {"id": "R16", "text": "EXAM: CT abdomen with contrast, portal venous phase.\nINDICATION: Elevated liver enzymes.\nFINDINGS:\nKidneys: 2.5 cm homogeneous right renal lesion measuring 26 HU, likely cyst.\nAdrenals: Normal.\nIMPRESSION:\n1. Hepatic steatosis.\n2. Right renal lesion, likely cyst. Recommend follow-up ultrasound in 6 months."}, {"id": "R17", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Hematuria, stone protocol.\nFINDINGS:\nKidneys: No calculi.\nAdrenals: 2.1 cm homogeneous left adrenal nodule measuring 4 HU.\nIMPRESSION:\nLeft adrenal nodule consistent with lipid-rich adenoma. No further imaging. Recommend biochemical evaluation for autonomous cortisol secretion (1 mg dexamethasone suppression test)."}, {"id": "R18", "text": "EXAM: CT abdomen and pelvis without contrast.\nINDICATION: Renal colic.\nFINDINGS:\nKidneys: 4 mm obstructing right UVJ stone with mild hydronephrosis.\nAdrenals: 1.8 cm right adrenal nodule measuring -2 HU.\nIMPRESSION:\n1. Obstructing right UVJ calculus.\n2. Right adrenal adenoma, no follow-up."}, {"id": "R19", "text": "EXAM: CT abdomen with contrast, portal venous phase.\nINDICATION: Abdominal pain.\nFINDINGS:\nAdrenals: 2.6 cm homogeneous left adrenal nodule measuring 60 HU.\nKidneys: Normal.\nIMPRESSION:\nIndeterminate left adrenal nodule. Recommend dedicated adrenal protocol CT and endocrine evaluation."}, {"id": "R20", "text": "EXAM: CT abdomen without and with contrast.\nINDICATION: Back pain.\nFINDINGS:\nAdrenals: 4.8 cm heterogeneous right adrenal mass measuring 38 HU on unenhanced images.\nKidneys: Normal.\nIMPRESSION:\nRight adrenal mass. Recommend follow-up CT in 12 months."}, {"id": "R21", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Colitis.\nFINDINGS:\nAdrenals: 0.8 cm left adrenal nodule.\nKidneys: Normal.\nIMPRESSION:\n1. Mild colitis.\n2. Subcentimeter left adrenal nodule, no follow-up."}, {"id": "R22", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Abdominal distension.\nFINDINGS:\nAdrenals: 3.2 cm right adrenal mass containing macroscopic fat (-80 HU), consistent with myelolipoma.\nKidneys: Normal.\nIMPRESSION:\nRight adrenal myelolipoma. No follow-up."}, {"id": "R23", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Constipation.\nFINDINGS:\nAdrenals: 1.4 cm homogeneous left adrenal nodule measuring 18 HU.\nKidneys: Normal.\nIMPRESSION:\n1. Moderate stool burden.\n2. Left adrenal nodule."}, {"id": "R24", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nAdrenals: 1.2 cm left adrenal nodule measuring 6 HU.\nKidneys: No calculi.\nIMPRESSION:\nLeft adrenal adenoma. Recommend follow-up CT in 12 months and hormonal workup."}, {"id": "R25", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nKidneys: 3.1 cm simple right renal cyst measuring 5 HU with no septa.\nAdrenals: 2.4 cm homogeneous left adrenal nodule measuring 8 HU.\nIMPRESSION:\n1. Bosniak I right renal cyst, no follow-up.\n2. Left adrenal adenoma; recommend 1 mg dexamethasone suppression test."}, {"id": "R26", "text": "EXAM: CT abdomen with and without contrast.\nINDICATION: Anemia.\nFINDINGS:\nKidneys: 2.0 cm solid left renal mass measuring 40 HU unenhanced and 130 HU after contrast.\nAdrenals: 1.6 cm right adrenal nodule measuring 25 HU on unenhanced images.\nIMPRESSION:\n1. Left renal mass suspicious for renal cell carcinoma; urology referral.\n2. Right adrenal nodule, likely adenoma."}, {"id": "R27", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Pelvic pain.\nFINDINGS:\nKidneys: 1.2 cm simple cyst in the right kidney measuring 3 HU. 3.8 cm cyst in the left kidney with a 3 mm thickened enhancing septum.\nAdrenals: Normal.\nIMPRESSION:\nBilateral renal cysts, benign. No follow-up."}, {"id": "R28", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Abdominal pain.\nFINDINGS:\nKidneys: Normal in size and enhancement. No masses or hydronephrosis.\nAdrenals: Normal.\nIMPRESSION:\nNo acute abnormality."}, {"id": "R29", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Gastroenteritis.\nFINDINGS:\nKidneys: 2.7 cm right renal cystic lesion with a thin 2 mm wall and two thin septa.\nAdrenals: Normal.\nIMPRESSION:\nRight renal cystic lesion, Bosniak IIF. Recommend follow-up imaging in 6 months."}, {"id": "R30", "text": "CT A/P w/wo contrast for hematuria.\nIncidental 2.3cm enhancing solid lesion arising from the lower pole of the R kidney (32 HU pre / 110 HU post). L kidney and both adrenals unremarkable.\nIMP: R renal lesion. Recommend dedicated renal MRI."}, {"id": "H01", "text": "EXAM: CT abdomen/pelvis with IV contrast.\nINDICATION: Left lower quadrant pain.\nFINDINGS:\nThere is a 31 mm cystic lesion in the left kidney with numerous thin septations. Adrenal glands unremarkable.\nIMPRESSION:\nBosniak IIF left renal cyst. Recommend surveillance imaging at 6 and 12 months."}, {"id": "H02", "text": "EXAM: CT urogram (unenhanced, nephrographic and excretory phases).\nINDICATION: Gross hematuria.\nFINDINGS:\nRight renal mass: 2.9 x 2.5 cm, heterogeneously enhancing, HU 30 (precontrast) and 105 (nephrographic).\nIMPRESSION:\nConcerning for renal cell carcinoma. Refer to urology."}, {"id": "H03", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Hypertension, flank pain.\nFINDINGS:\nNo renal masses or stones. Left adrenal: 2.3 cm nodule with attenuation of 7 Hounsfield units on noncontrast images.\nIMPRESSION:\nLeft adrenal adenoma. Clinical correlation for hormonal hypersecretion recommended."}, {"id": "H04", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Fever.\nFINDINGS:\nExophytic 1.4 cm hyperdense lesion off the right kidney, 58 HU on venous phase only; cannot exclude solid lesion.\nIMPRESSION:\nIndeterminate right renal lesion; consider renal MRI for characterization."}, {"id": "H05", "text": "EXAM: CT abdomen without and with contrast.\nINDICATION: Abdominal fullness.\nFINDINGS:\nThe left adrenal gland demonstrates a 4.4 cm homogeneous mass measuring 32 HU unenhanced.\nIMPRESSION:\nLarge indeterminate left adrenal mass. Recommend endocrine surgery referral and biochemical work-up including plasma metanephrines."}, {"id": "H06", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Epigastric pain.\nFINDINGS:\nSimple-appearing 5.5 cm cyst, upper pole left kidney, fluid attenuation, no septations.\nIMPRESSION:\nBenign left renal cyst. Recommend follow-up ultrasound in one year."}, {"id": "H07", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Back pain.\nFINDINGS:\nKidneys: 2.2 cm right interpolar lesion with internal macroscopic fat consistent with AML.\nAdrenals: 1.1 cm left adrenal nodule, 22 HU.\nIMPRESSION:\n1. Right renal AML.\n2. Indeterminate 1.1 cm left adrenal nodule; adrenal washout CT recommended."}, {"id": "H08", "text": "EXAM: CT abdomen, renal mass protocol.\nINDICATION: Follow-up of complex cyst.\nFINDINGS:\n4.0 cm right renal cystic mass with a nodular enhancing soft tissue component measuring 9 mm.\nIMPRESSION:\nRight renal cystic mass with enhancing nodular component, Bosniak IV. Urologic consultation advised."}, {"id": "H09", "text": "EXAM: CT chest with contrast.\nINDICATION: Cough.\nFINDINGS:\nLungs clear. Upper abdomen: partially imaged 1.7 cm hypoattenuating right adrenal nodule (Hounsfield units 41, contrast-enhanced).\nIMPRESSION:\nNo acute cardiopulmonary process."}, {"id": "H10", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Urinary tract infection.\nFINDINGS:\nKidneys: 3.3 cm left renal cyst with a 4 mm irregular enhancing wall.\nIMPRESSION:\nComplex left renal cyst; recommend follow-up CT in 6 months."}, {"id": "H11", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Abdominal pain.\nFINDINGS:\nSeveral subcentimeter hypodensities in both kidneys, too small to characterize.\nIMPRESSION:\nNo follow-up needed for tiny renal hypodensities."}, {"id": "H12", "text": "EXAM: CT abdomen with contrast, portal venous phase.\nINDICATION: Weight loss.\nFINDINGS:\nAdrenals: 3.0 cm right adrenal mass with heterogeneous enhancement, 85 HU. No unenhanced images.\nIMPRESSION:\nRight adrenal mass, likely adenoma. No further follow up."}, {"id": "H13", "text": "EXAM: CT abdomen without and with contrast.\nINDICATION: Hematuria.\nFINDINGS:\n8 mm enhancing solid nodule in the left kidney (25 HU unenhanced, 90 HU nephrographic).\nIMPRESSION:\nTiny enhancing left renal nodule; recommend follow-up renal mass protocol CT in 6-12 months."}, {"id": "H14", "text": "EXAM: CT abdomen without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nBilateral adrenal nodules: right 1.5 cm (−5 HU), left 2.0 cm (3 HU).\nIMPRESSION:\nBilateral adrenal adenomas. Recommend 1 mg overnight dexamethasone suppression test."}, {"id": "H15", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Surveillance after left nephrectomy.\nFINDINGS:\nKidneys: Status post left nephrectomy. Right kidney normal without masses.\nAdrenals: No nodules.\nIMPRESSION:\nNo evidence of recurrence."}, {"id": "H16", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Pain.\nFINDINGS:\n2.0 cm left renal cyst with one thin septum and a fleck of calcification.\nIMPRESSION:\nMinimally complex left renal cyst (Bosniak IIF). Follow-up CT in 6 months recommended."}, {"id": "A01", "text": "EXAM: CT chest with contrast.\nINDICATION: 58-year-old man, 30 pack-year smoker, persistent cough.\nFINDINGS:\nLungs: There is a 7 x 5 mm solid nodule in the right middle lobe. No consolidation or effusion.\nMediastinum: No lymphadenopathy.\nIMPRESSION:\n6 mm right middle lobe nodule. No follow-up required."}, {"id": "A02", "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Never smoker. Right lower quadrant pain.\nFINDINGS:\nLung bases: 4 mm solid nodule in the left lower lobe.\nAppendix: Normal.\nIMPRESSION:\n1. No acute abdominal process.\n2. Tiny left basal lung nodule; recommend chest CT in 12 months."}, {"id": "A03", "text": "EXAM: CT chest without contrast.\nINDICATION: Dyspnoea.\nFINDINGS:\nLungs: 16 mm part-solid nodule in the left upper lobe with an 8 mm solid component.\nIMPRESSION:\nPart-solid left upper lobe nodule. Short-interval CT in 3 months."}, {"id": "A04", "text": "EXAM: CT chest with contrast.\nINDICATION: Chest pain.\nFINDINGS:\nLungs: Scattered ground-glass nodules in both upper lobes, the largest 9 mm on the right.\nHeart: Normal size.\nIMPRESSION:\nMultiple ground-glass nodules, likely inflammatory. No follow-up."}, {"id": "A05", "text": "EXAM: CT chest, abdomen and pelvis with contrast.\nINDICATION: Staging, known colon cancer.\nFINDINGS:\nLiver: 7 mm hypoattenuating lesion in segment 8, too small to characterise.\nLungs: Clear.\nIMPRESSION:\nSubcentimetre liver lesion, likely a cyst. No further imaging."}, {"id": "A06", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Right upper quadrant pain.\nFINDINGS:\nLiver: 2.4 cm lesion in segment 6 with peripheral nodular enhancement and progressive centripetal fill-in, consistent with a haemangioma.\nGallbladder: Normal.\nIMPRESSION:\nHepatic haemangioma. No follow-up."}, {"id": "A07", "text": "EXAM: CT abdomen with contrast.\nINDICATION: Hepatitis C, abdominal discomfort.\nFINDINGS:\nLiver: 1.8 cm ill-defined, heterogeneously enhancing lesion in segment 4.\nSpleen: Normal.\nIMPRESSION:\nHepatic lesion, likely benign."}, {"id": "A08", "text": "EXAM: MRI abdomen with gadolinium.\nINDICATION: No history of malignancy or liver disease. Back pain.\nFINDINGS:\nLiver: 1.2 cm lesion in segment 7 showing uniform arterial hyperenhancement and isointensity on portal venous and delayed phases (flash-filling).\nIMPRESSION:\nFlash-filling liver lesion, likely benign. Recommend MRI liver in 6 months."}, {"id": "A09", "text": "EXAM: CT abdomen with contrast.\nINDICATION: 71-year-old woman. Abdominal pain.\nFINDINGS:\nPancreas: 9 mm simple-appearing cyst in the pancreatic body. Main duct is not dilated (2 mm).\nIMPRESSION:\nSmall pancreatic cyst, likely side-branch IPMN. Follow-up MRI in 2 years."}, {"id": "A10", "text": "EXAM: CT abdomen with contrast.\nINDICATION: 64-year-old man. Weight loss.\nFINDINGS:\nPancreas: 2.8 cm cystic lesion in the pancreatic head with a 5 mm enhancing mural nodule. Main pancreatic duct 4 mm.\nIMPRESSION:\nPancreatic head cyst. Follow-up MRI in 12 months."}, {"id": "A11", "text": "EXAM: MRI abdomen with and without contrast.\nINDICATION: 55-year-old woman. Incidental finding on ultrasound.\nFINDINGS:\nPancreas: 3.4 cm unilocular cyst in the tail. No mural nodule; the main duct measures 3 mm.\nIMPRESSION:\nPancreatic tail cyst. Recommend EUS with fine-needle aspiration."}, {"id": "A12", "text": "EXAM: CT abdomen with contrast.\nINDICATION: 84-year-old man. Fall.\nFINDINGS:\nPancreas: 1.6 cm cyst in the uncinate process.\nBones: No fracture.\nIMPRESSION:\nPancreatic cyst; given the patient's age, no further imaging is recommended."}, {"id": "A13", "text": "EXAM: CT neck with contrast.\nINDICATION: 29-year-old woman. Neck pain after a fall.\nFINDINGS:\nThyroid: 1.2 cm hypodense nodule in the left lobe.\nAirway: Patent.\nIMPRESSION:\nLeft thyroid nodule. No further evaluation needed."}, {"id": "A14", "text": "EXAM: CT chest with contrast.\nINDICATION: 62-year-old man. Cough.\nFINDINGS:\nThyroid: 1.1 cm nodule in the right lobe.\nLungs: Clear.\nIMPRESSION:\nIncidental right thyroid nodule; recommend thyroid ultrasound."}, {"id": "A15", "text": "EXAM: FDG PET-CT skull base to mid-thigh.\nINDICATION: 67-year-old woman. Lymphoma staging.\nFINDINGS:\nThyroid: 1.4 cm nodule in the right lobe with intense focal FDG uptake (SUVmax 9.2).\nIMPRESSION:\nFDG-avid right thyroid nodule. Recommend thyroid ultrasound and FNA."}, {"id": "A16", "text": "EXAM: CT neck with contrast.\nINDICATION: 45-year-old man. Hoarseness.\nFINDINGS:\nThyroid: 2.6 cm left thyroid nodule with extrathyroidal extension and enlarged level IV lymph nodes.\nIMPRESSION:\nLeft thyroid mass with suspicious nodes. Recommend thyroid ultrasound with FNA."}, {"id": "A17", "text": "EXAM: MRI pituitary with and without gadolinium.\nINDICATION: Headache.\nFINDINGS:\nSella: 6 mm hypoenhancing lesion in the left side of the adenohypophysis, consistent with a microadenoma. The stalk is midline.\nIMPRESSION:\nPituitary microadenoma. Repeat MRI in 12 months."}, {"id": "A18", "text": "EXAM: MRI brain with contrast.\nINDICATION: Dizziness.\nFINDINGS:\nSella: 1.8 cm sellar and suprasellar mass elevating and compressing the optic chiasm.\nBrain: No infarct.\nIMPRESSION:\nPituitary macroadenoma compressing the chiasm. Recommend neurosurgical referral, visual field testing and pituitary hormone evaluation."}, {"id": "A19", "text": "EXAM: CT head without contrast.\nINDICATION: Minor head injury.\nFINDINGS:\nSella: Incidental 1.3 cm sellar mass, likely a pituitary macroadenoma; no suprasellar extension.\nIMPRESSION:\nProbable pituitary macroadenoma. Recommend dedicated pituitary MRI and endocrine evaluation."}, {"id": "A20", "text": "EXAM: MRI brain with gadolinium.\nINDICATION: Migraine.\nFINDINGS:\nBrain: 1.4 cm extra-axial, dural-based enhancing lesion along the right frontal convexity with a dural tail, in keeping with a meningioma. No oedema.\nIMPRESSION:\nSmall right frontal meningioma. No follow-up required."}, {"id": "A21", "text": "EXAM: MRI brain with gadolinium.\nINDICATION: Follow-up of known meningioma.\nCOMPARISON: MRI 2 years ago.\nFINDINGS:\nBrain: The left parasagittal meningioma now measures 3.1 cm, previously 2.4 cm.\nIMPRESSION:\nInterval growth of left parasagittal meningioma. Follow-up MRI in 12 months."}, {"id": "A22", "text": "EXAM: CT head without contrast.\nINDICATION: Fall.\nFINDINGS:\nBrain: 2.0 cm calcified extra-axial mass along the falx, likely a meningioma. No haemorrhage.\nIMPRESSION:\nProbable falcine meningioma. Recommend MRI with contrast."}, {"id": "A23", "text": "EXAM: CT abdomen and pelvis without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nBones: 1.1 cm sclerotic focus in the left iliac bone measuring 1050 HU, consistent with a bone island.\nKidneys: No stones.\nIMPRESSION:\nBone island. No follow-up."}, {"id": "A24", "text": "EXAM: CT chest with contrast.\nINDICATION: Known breast cancer, staging.\nFINDINGS:\nBones: 1.5 cm lytic lesion in the T8 vertebral body without cortical breach.\nIMPRESSION:\nIndeterminate lytic T8 lesion. No follow-up."}, {"id": "A25", "text": "EXAM: CT pelvis without contrast.\nINDICATION: Hip pain.\nFINDINGS:\nBones: 3.2 cm lytic lesion in the right proximal femur with endosteal scalloping and cortical breakthrough.\nIMPRESSION:\nLytic femoral lesion. Follow-up CT in 6 months."}, {"id": "A26", "text": "EXAM: MRI lumbar spine without contrast.\nINDICATION: Back pain.\nFINDINGS:\nBones: 1.2 cm lesion in the L2 vertebral body, hyperintense on T1 and T2 and following fat signal on all sequences, consistent with a typical haemangioma.\nDiscs: Mild degeneration at L4-5.\nIMPRESSION:\nVertebral haemangioma; no further imaging required."}, {"id": "A27", "text": "EXAM: CT chest with contrast.\nINDICATION: 52-year-old woman. Shortness of breath.\nFINDINGS:\nLungs: 3 mm solid nodule in the right upper lobe.\nThyroid: 0.8 cm nodule in the left lobe.\nIMPRESSION:\n1. Tiny right upper lobe nodule, no follow-up needed.\n2. Subcentimetre left thyroid nodule, no further workup."}];
 const N = window.Navigator;
-const FEATURED = {R06:"Cystic kidney mass with a nodule",R26:"Kidney mass plus adrenal nodule",R10:"Large angiomyolipoma",R20:"Large heterogeneous adrenal mass",
-  R12:"Tiny kidney spot",R17:"Adrenal adenoma",R04:"Bosniak IIF cyst",R30:"Short dictation style"};
+const FEATURED = {R06:"Kidney: cystic mass with a nodule",R20:"Adrenal: large heterogeneous mass",A01:"Lung: 7 mm nodule in a smoker",
+  A07:"Liver: suspicious lesion, hepatitis C",A10:"Pancreas: cyst with enhancing nodule",A13:"Thyroid: 1.2 cm nodule, age 29",
+  A17:"Pituitary: microadenoma",A21:"Brain: growing meningioma",A25:"Bone: aggressive femoral lesion",A27:"Lung and thyroid in one report"};
 const STATUS = {"concordant":"Concordant","under-call":"Under-call","over-call":"Over-call"};
 const SEV = {high:0,medium:1,low:2,none:3};
 const FIELD = {composition:"composition",unenhanced_hu:"unenhanced HU",enhanced_hu:"enhanced HU",homogeneous:"homogeneous",wall_mm:"wall mm",septa_count:"septa",
-  septa_mm:"septa mm",irregular_wall_or_septa:"irregular",enhancing_nodule:"enhancing nodule",macroscopic_fat:"macroscopic fat",too_small_to_characterize:"too small to characterize",reported_category:"report's category"};
+  septa_mm:"septa mm",irregular_wall_or_septa:"irregular/thick wall",enhancing_nodule:"enhancing nodule",macroscopic_fat:"macroscopic fat",too_small_to_characterize:"too small to characterize",reported_category:"report's category",
+  modality:"modality",short_axis_cm:"short axis cm",nodule_type:"nodule type",solid_component_mm:"solid part mm",multiple:"multiple",patient_age:"age",
+  appearance:"appearance",fdg_avid:"FDG uptake",duct_mm:"main duct mm",mural_nodule:"non-enhancing nodule",limited_life_expectancy:"limited life expectancy",
+  chiasm_contact:"touches chiasm",growth:"growing",symptomatic:"symptomatic",bone_density:"density",patient_risk:"patient risk"};
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const labels = (acts) => { const a = acts.filter((x) => x !== "NO_FOLLOWUP"); return (a.length ? a : ["NO_FOLLOWUP"]).map((x) => N.LABELS[x]).join(", "); };
@@ -710,16 +435,16 @@ function analyse(text) {
 }
 
 function card({ f, g, c }) {
-  const fields = Object.keys(FIELD).filter((k) => f[k] !== null && f[k] !== false && f[k] !== "indeterminate")
+  const fields = Object.keys(FIELD).filter((k) => f[k] !== null && f[k] !== false && f[k] !== "indeterminate" && f[k] !== "unknown")
     .map((k) => `<span>${FIELD[k]}${f[k] === true ? "" : ": " + esc(f[k])}</span>`).join("") || "<span>no extra features</span>";
   const sev = c.severity !== "none" ? " · " + c.severity : "";
   const side = f.side === "unknown" ? "" : f.side[0].toUpperCase() + f.side.slice(1) + " ";
   return `<article class="lesion ${c.status}">
-    <div class="lesion-top"><h3><span class="org ${f.organ}">${f.organ}</span>${side}${f.size_cm !== null ? " · " + f.size_cm + " cm" : ""}</h3><span class="pill ${c.status}">${STATUS[c.status]}${sev}</span></div>
+    <div class="lesion-top"><h3><span class="org ${f.organ}">${f.organ}</span>${[side.trim(), f.size_cm !== null ? f.size_cm + " cm" : ""].filter(Boolean).join(" · ")}</h3><span class="pill ${c.status}">${STATUS[c.status]}${sev}</span></div>
     <div class="vs"><div><span class="k">Guideline</span><span class="v">${esc(g.category)}</span><span>→ ${esc(labels(g.actions))}</span></div>
     <div><span class="k">Report says</span><span>→ ${f.stated_actions.length ? esc(labels(f.stated_actions)) : "<i>nothing recommended</i>"}</span></div></div>
     <p>${esc(c.message)}</p>
-    <p class="why">${esc(g.rationale)} Source: ${esc(g.source)}.</p>
+    <p class="why">${esc(g.rationale)} Source: ${esc(g.source)}.${g.notes && g.notes.length ? " " + esc(g.notes.join(" ")) : ""}</p>
     <details><summary>What the reader extracted</summary><div class="fields">${fields}</div></details></article>`;
 }
 
@@ -729,7 +454,7 @@ function render() {
   const res = analyse(text);
   if (!res.length) {
     $("summary").innerHTML = '<span class="chip">0 lesions</span>';
-    $("results").innerHTML = '<div class="empty">No kidney or adrenal lesion with a size in cm was found. The keyword reader needs a lesion word (lesion, cyst, mass, nodule) and a size such as "2.1 cm" in the findings.</div>';
+    $("results").innerHTML = '<div class="empty">No lesion with a size was found. The keyword reader needs an organ (for example kidney, lung, liver, thyroid, pituitary), a lesion word (lesion, cyst, mass, nodule) and a size such as "2.1 cm" or "7 mm" in the findings.</div>';
     return;
   }
   const count = (s) => res.filter((r) => r.c.status === s).length;
@@ -844,7 +569,7 @@ sel.value = "R06"; sel.onchange();
       text: "The tour has rewritten the last line to “Urology referral recommended.” The check runs again on every edit, and the lesion now matches the guideline.",
       before: () => { const r = $("report"); r.value = r.value.replace(EDIT_FROM, EDIT_TO); render(); } },
     { el: "#stats", title: "The whole worklist at once",
-      text: "All 46 sample reports go through the same checker. The counts show how often reports ask for too little follow-up, or for more than the guideline needs.",
+      text: "All 73 hand-written sample reports, across all nine organs, go through the same checker. The counts show how often reports ask for too little follow-up, or for more than the guideline needs.",
       before: () => showTab("t-batch") },
     { el: "#worklist tr", title: "Worst gaps first",
       text: "Rows are sorted by severity, so missed specialist referrals sit at the top. Clicking a row opens that report in the checker." },

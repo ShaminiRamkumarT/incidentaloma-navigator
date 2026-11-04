@@ -1,10 +1,11 @@
-// Usage: node web/parity_check.js <python_outputs.json>  -> compares JS port with Python outputs
+// Usage: python web/parity_export.py > py_out.json && node web/parity_check.js py_out.json
+// Compares the browser engine with the Python reader and rules on every report, field by field.
 const N = require("./engine.js");
 const data = require(require("path").resolve(process.argv[2]));
 let bad = 0, n = 0;
 for (const r of data) {
   const js = N.extract(r.text).map((f) => { const g = N.classify(f), c = N.concordance(f, g);
-    return { ...f, category: g.category, status: c.status, severity: c.severity, message: c.message, rationale: g.rationale }; });
+    return { ...f, category: g.category, actions: g.actions, status: c.status, severity: c.severity, message: c.message, rationale: g.rationale, notes: g.notes }; });
   if (js.length !== r.py.length) { bad++; console.log(r.id, "count", js.length, r.py.length); continue; }
   r.py.forEach((p, i) => { n++;
     for (const k of Object.keys(p)) {

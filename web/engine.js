@@ -1,5 +1,5 @@
-// JavaScript port of navigator/extract_rules.py + navigator/guidelines.py, for the browser demo.
-// Keep in step with the Python; web/parity_check.js compares both on every sample report.
+// JavaScript port of navigator/extract_rules.py + navigator/guidelines.py (all nine organs), for the browser demo.
+// Keep in step with the Python; web/parity_check.js compares both on every hand-written and synthetic test report.
 (function (root) {
   "use strict";
 
@@ -32,19 +32,22 @@
     "\\b(a|an|one|single|two|three|four|five|six|few|several|multiple|many)\\b(\\s*\\((\\d+)\\))?" +
     "((?:[\\s,]+(?:thin|thick|thickened|smooth|irregular|enhancing|minimally|\\(?\\d+(?:\\.\\d+)?\\s*mm\\)?))*)[\\s,]+sept", "i");
   const ACTION_PATTERNS = [
-    [A.SPECIALIST_REFERRAL, /urolog|referr|\brefer\b|surgical (consult|evaluation)|multidisciplinary|\bMDT\b/i],
-    [A.HORMONAL_WORKUP, /dexamethasone|\bDST\b|biochemical|hormonal|metanephrine|aldosterone|endocrin/i],
-    [A.IMAGING_SURVEILLANCE, /follow[- ]?up (CT|MRI|ultrasound|imaging|US)\b|in \d+ months|surveillance|repeat (CT|MRI|imaging)/i],
-    [A.CHARACTERIZATION_IMAGING, /protocol (CT|MRI)|mass protocol|adrenal protocol|dedicated|further evaluat|\bMRI\b|characteri[sz]ation/i],
+    [A.SPECIALIST_REFERRAL, /urolog|referr|\brefer\b|surgical (consult|evaluation)|multidisciplinary|\bMDT\b|neurosurg|\bEUS\b|\bFNA\b|fine[- ]needle|biopsy|oncolog|pulmonolog/i],
+    [A.HORMONAL_WORKUP, /dexamethasone|\bDST\b|biochemical|hormon|metanephrine|aldosterone|endocrin/i],
+    [A.IMAGING_SURVEILLANCE, /follow[- ]?up (CT|MRI|ultrasound|imaging|US)\b|in \d+ (months|years)|surveillance|repeat (CT|MRI|imaging)|short[- ]interval/i],
+    [A.CHARACTERIZATION_IMAGING, /protocol (CT|MRI)|mass protocol|adrenal protocol|dedicated|further evaluat|\bMRI\b|characteri[sz]ation|thyroid ultrasound|\bPET\b/i],
   ];
   const EXPLICIT_CHAR = /protocol|dedicated/i;
   const NO_FU_RE = /no (further )?(follow[- ]?up|imaging)|no further (imaging|evaluation|work)/i;
 
   function newFinding(organ, side, size) {
-    return { organ, side, size_cm: size, composition: "indeterminate", unenhanced_hu: null, enhanced_hu: null,
-      homogeneous: null, wall_mm: null, septa_count: null, septa_mm: null, irregular_wall_or_septa: false,
-      enhancing_nodule: false, macroscopic_fat: false, too_small_to_characterize: false, stated_actions: [],
-      reported_category: null };
+    return { organ, modality: "CT", side, size_cm: size, short_axis_cm: null, composition: "indeterminate",
+      unenhanced_hu: null, enhanced_hu: null, homogeneous: null, wall_mm: null, septa_count: null, septa_mm: null,
+      irregular_wall_or_septa: false, enhancing_nodule: false, macroscopic_fat: false, too_small_to_characterize: false,
+      nodule_type: null, solid_component_mm: null, multiple: false, patient_risk: "unknown", patient_age: null,
+      appearance: null, fdg_avid: null, duct_mm: null, mural_nodule: false, limited_life_expectancy: false,
+      chiasm_contact: false, growth: false, symptomatic: false, bone_density: null,
+      stated_actions: [], reported_category: null };
   }
 
   const lines = (t) => t.split(/\r\n|\r|\n/);
@@ -55,9 +58,16 @@
     }
     return out;
   }
+  const ORGAN_PATTERNS = [
+    ["adrenal", /adrenal/i], ["kidney", /kidney|renal/i],
+    ["pituitary", /pituitar|\bsella|adenohypophysis|macroadenoma|microadenoma/i], ["thyroid", /thyroid/i],
+    ["pancreas", /pancrea/i], ["liver", /liver|hepatic|\bsegment \d/i], ["lung", /\blungs?\b|pulmonary|\blobe\b|lingula/i],
+    ["brain", /meningioma|extra-?axial|dural/i],
+    ["bone", /\bbones?\b|osseous|vertebra|femur|femoral|humer|iliac|\bribs?\b|sacrum|calvari|\blytic\b|sclerotic/i],
+  ];
+  const NEW_ORGANS = new Set(["lung", "liver", "pancreas", "thyroid", "pituitary", "brain", "bone"]);
   function organOf(s) {
-    if (/adrenal/i.test(s)) return "adrenal";
-    if (/kidney|renal/i.test(s)) return "kidney";
+    for (const [organ, rx] of ORGAN_PATTERNS) if (rx.test(s)) return organ;
     return null;
   }
   function sideOf(s) {
@@ -117,18 +127,115 @@
     });
   }
 
+  // ---- readers for the seven organs added after the first version
+  const SIZE_ANY_RE = /(\d+(?:\.\d+)?)(?:\s*(?:x|×|by)\s*(\d+(?:\.\d+)?))?\s*(cm|mm)\b/gi;
+  const LESION_NEW_RE = /\b(lesion|cyst|mass|nodule|focus|adenoma|macroadenoma|microadenoma|meningioma|haemangioma|hemangioma|island)/i;
+  const r2 = (x) => Math.round(x * 100) / 100;
+  const negated = (s, start) => /\b(no|without|not)\b[^.;,]{0,25}$/i.test(s.slice(0, start));
+  function has(s, src) {
+    const m = new RegExp(src, "i").exec(s);
+    return !!m && !negated(s, m.index);
+  }
+  function sizeNew(s) {
+    for (const m of s.matchAll(SIZE_ANY_RE)) {
+      const end = m.index + m[0].length;
+      const after = s.slice(end, end + 30).toLowerCase();
+      if (/^\s*(solid component|wall|duct|septum)/.test(after) || s.slice(Math.max(0, m.index - 25), m.index).toLowerCase().includes("duct")) continue;
+      const k = m[3].toLowerCase() === "mm" ? 0.1 : 1.0;
+      const a = parseFloat(m[1]) * k, b = m[2] ? parseFloat(m[2]) * k : null;
+      return [r2(Math.max(a, b || 0)), b !== null ? r2(Math.min(a, b)) : null];
+    }
+    return [null, null];
+  }
+  function context(header) {
+    const ctx = { modality: /\bPET/.test(header) ? "PET-CT" : /\bMRI?\b/.test(header) ? "MRI" : "CT" };
+    const m = header.match(/(\d{1,3})[- ]year[- ]old|aged (\d{1,3})/i);
+    if (m) ctx.age = parseInt(m[1] || m[2], 10);
+    if (/never[- ]smoker|non-?smoker|no smoking/i.test(header)) ctx.lung_risk = "low";
+    else if (/smoker|pack[- ]year|smoking/i.test(header)) ctx.lung_risk = "high";
+    if (/cancer|carcinoma|malignan|melanoma|lymphoma|metasta/i.test(header) && !/no (known |history of )?(cancer|malignan)/i.test(header)) ctx.cancer = true;
+    if (/cirrhosis|hepatitis|NASH|alcohol/i.test(header)) ctx.liver_disease = true;
+    if (/no (history of |known )?(malignancy|cancer) or liver disease/i.test(header)) ctx.liver_low = true;
+    if (/limited life expectancy|palliative/i.test(header)) ctx.limited = true;
+    if (/seizure|weakness|deficit/i.test(header)) ctx.neuro = true;
+    return ctx;
+  }
+  function featuresNew(s, f) {
+    const low = s.toLowerCase(), o = f.organ;
+    if (o === "lung") {
+      if (has(s, "ground[- ]glass|non-?solid")) f.nodule_type = "ground-glass";
+      else if (has(s, "part[- ]solid|semi-?solid")) f.nodule_type = "part-solid";
+      if (/\b(multiple|several|scattered|numerous)\b/.test(low)) f.multiple = true;
+      const m = low.match(/(\d+(?:\.\d+)?)\s*mm solid component/);
+      if (m) f.solid_component_mm = parseFloat(m[1]);
+    } else if (o === "liver") {
+      if (has(s, "haemangioma|hemangioma|focal fat|\\bFNH\\b|peripheral nodular|simple cyst")) f.appearance = "benign";
+      else if (has(s, "ill-defined|heterogeneous|poorly marginated")) f.appearance = "suspicious";
+      else if (has(s, "flash[- ]filling|arterial hyperenhancement")) f.appearance = "flash-filling";
+      else if (has(s, "too small to characteri|indeterminate|incompletely characteri")) f.appearance = "indeterminate";
+    } else if (o === "pancreas") {
+      if (/\bcyst/.test(low)) f.composition = "cystic";
+      const m = low.match(/duct[^.;]{0,30}?(\d+(?:\.\d+)?)\s*mm/);
+      if (m) f.duct_mm = parseFloat(m[1]);
+      if (has(s, "non-?enhancing (mural )?nodule")) f.mural_nodule = true;
+      else if (has(s, "enhancing (mural nodule|nodule|solid)")) f.enhancing_nodule = true;
+      if (has(s, "thick(ened)?[^.;]{0,20}wall")) f.irregular_wall_or_septa = true;
+    } else if (o === "thyroid") {
+      if (has(s, "FDG (uptake|avid)|FDG-avid|focal uptake")) f.fdg_avid = true;
+      else if (/(no|without) (focal )?FDG/i.test(s)) f.fdg_avid = false;
+      if (has(s, "extrathyroidal|invasion|lymph node")) f.appearance = "suspicious";
+    } else if (o === "pituitary") {
+      if (/(abut|compress|contact|elevat|displac)\w*[^.;]{0,25}chiasm/.test(low)) f.chiasm_contact = true;
+    } else if (o === "brain") {
+      if (/\b(increased|grown|growth|enlarg)|previously \d/.test(low)) f.growth = true;
+    } else if (o === "bone") {
+      if (has(s, "\\blytic|lucent")) f.bone_density = "lucent";
+      else if (has(s, "sclerotic|blastic")) f.bone_density = "sclerotic";
+      if (has(s, "cortical (destruction|breach|breakthrough)|periosteal reaction|soft[- ]tissue (extension|mass)|pathologic(al)? fracture|endosteal scalloping")) f.appearance = "suspicious";
+      else if (has(s, "bone island|enostosis|haemangioma|hemangioma|non-?ossifying|macroscopic fat")) f.appearance = "benign";
+      const hus = [...s.matchAll(HU_RE)];
+      if (hus.length) f.unenhanced_hu = parseFloat(hus[0][1]);
+    }
+  }
+  function applyContext(f, ctx) {
+    f.modality = ctx.modality;
+    if (f.organ === "lung" && ctx.lung_risk) f.patient_risk = ctx.lung_risk;
+    if (f.organ === "liver") { if (ctx.cancer || ctx.liver_disease) f.patient_risk = "high"; else if (ctx.liver_low) f.patient_risk = "low"; }
+    if (f.organ === "bone" && ctx.cancer) f.patient_risk = "high";
+    if ((f.organ === "pancreas" || f.organ === "thyroid") && ctx.age !== undefined) f.patient_age = ctx.age;
+    if (f.organ === "thyroid" && ctx.limited) f.limited_life_expectancy = true;
+    if (f.organ === "brain" && ctx.neuro) f.symptomatic = true;
+  }
+
   function extract(text) {
     const sm = SPLIT_IMPRESSION.exec(text);
     const body = sm ? text.slice(0, sm.index) : text;
     const impression = sm ? text.slice(sm.index + sm[0].length) : "";
     const header = body.includes("FINDINGS") ? body.split("FINDINGS")[0] : lines(body)[0];
     const phase = examPhase(header);
+    const ctx = context(header);
     const findings = [];
+    let started = !body.includes("FINDINGS");
     for (const line of lines(body)) {
+      if (line.includes("FINDINGS")) { started = true; continue; }
+      if (!started) continue;
       const headerOrgan = line.includes(":") ? organOf(line.split(":")[0]) : null;
       let current = null;
       for (const s of sentences(line)) {
         const organ = organOf(s) || headerOrgan;
+        if (NEW_ORGANS.has(organ)) {
+          const [size, short] = sizeNew(s);
+          if (size !== null && LESION_NEW_RE.test(s)) {
+            current = newFinding(organ, sideOf(s), size);
+            if (organ === "lung" && short) current.short_axis_cm = short;
+            findings.push(current);
+            featuresNew(s, current);
+            applyContext(current, ctx);
+          } else if (current && NEW_ORGANS.has(current.organ) && !/^no\b/i.test(s)) {
+            featuresNew(s, current);
+          }
+          continue;
+        }
         if (organ && SIZE_RE.test(s) && LESION_RE.test(s)) {
           current = newFinding(organ, sideOf(s), parseFloat(s.match(SIZE_RE)[1]));
           findings.push(current);
@@ -174,7 +281,8 @@
   const BOSNIAK = "Bosniak v2019 (Radiology 2019)";
   const ACR_RENAL = "ACR renal mass white paper (JACR 2018)";
   const ESE = "ESE/ENSAT adrenal incidentaloma guideline (EJE 2023)";
-  const R = (category, actions, rationale, source) => ({ category, actions, rationale, source });
+  const R = (category, actions, rationale, source, notes, alternatives) =>
+    ({ category, actions, rationale, source, notes: notes || [], alternatives: alternatives || [] });
   const fluid = (hu) => hu !== null && hu !== undefined && hu >= -9 && hu <= 20;
   const enhancement = (f) => (f.unenhanced_hu === null || f.enhanced_hu === null ? null : f.enhanced_hu - f.unenhanced_hu);
 
@@ -246,11 +354,189 @@
       `${why}: further imaging (non-contrast/washout CT or chemical-shift MRI) or repeat imaging in 6-12 months, plus hormonal work-up including metanephrines.`, ESE);
   }
 
-  const classify = (f) => (f.organ === "kidney" ? classifyRenal(f) : classifyAdrenal(f));
+  // ---- seven organs added after the first version
+  const FLEISCHNER = "Fleischner Society 2017 (Radiology 2017)";
+  const ACR_LIVER = "ACR liver lesion white paper (JACR 2017)";
+  const ACR_PANCREAS = "ACR pancreatic cyst white paper (JACR 2017)";
+  const ACR_THYROID = "ACR incidental thyroid nodule white paper (JACR 2015)";
+  const ES_PITUITARY = "Endocrine Society pituitary incidentaloma guideline (JCEM 2011)";
+  const EANO = "EANO meningioma guideline (Neuro-Oncology 2021)";
+  const BONE_RADS = "Bone-RADS, Society of Skeletal Radiology (Skeletal Radiol 2022)";
+  const NONE_ = [A.NO_FOLLOWUP], FU = [A.IMAGING_SURVEILLANCE], CHAR = [A.CHARACTERIZATION_IMAGING],
+    REF = [A.SPECIALIST_REFERRAL], HORM = [A.HORMONAL_WORKUP];
+  // Python's round(): halves go to the even number
+  const pyRound = (x) => { const r = Math.round(x); return Math.abs(x % 1) === 0.5 && r % 2 !== 0 ? r - 1 : r; };
+  const g = (x) => String(+x);
+
+  function classifyLung(f) {
+    const mm = f.size_cm === null ? null : pyRound(f.short_axis_cm !== null ? (f.size_cm + f.short_axis_cm) / 2 * 10 : f.size_cm * 10);
+    const n = f.multiple ? "multiple" : "single";
+    const notes = f.short_axis_cm ? ["Size = mean of long and short axis, rounded to the nearest mm."] : [];
+    if (f.modality === "MRI") notes.push("Fleischner applies to CT; MRI-reported nodule handled as if on CT.");
+    if (mm === null) return R("Lung nodule, size not stated", FU, "Size is needed to apply Fleischner; follow-up CT is the safe default.", FLEISCHNER, notes);
+    const kind = f.nodule_type || "solid";
+    if (kind === "solid") {
+      if (mm < 6) {
+        const cat = `Solid nodule <6 mm (${n})`;
+        if (f.patient_risk === "low") return R(cat, NONE_, "Low-risk patient: no routine follow-up.", FLEISCHNER, notes);
+        if (f.patient_risk === "high") return R(cat, FU, "High-risk patient: optional CT at 12 months.", FLEISCHNER, notes, [NONE_]);
+        return R(cat, NONE_, "Risk not stated: no follow-up (low risk) or optional CT at 12 months (high risk) are both acceptable.", FLEISCHNER, notes, [FU]);
+      }
+      if (mm <= 8) {
+        const when = f.multiple ? "3-6 months" : "6-12 months";
+        return R(`Solid nodule 6-8 mm (${n})`, FU, `CT at ${when}, then consider (low risk) or perform (high risk) CT at 18-24 months.`, FLEISCHNER, notes);
+      }
+      if (f.multiple) return R("Solid nodules >8 mm (multiple)", FU, "CT at 3-6 months, then consider CT at 18-24 months.", FLEISCHNER, notes);
+      return R("Solid nodule >8 mm (single)", FU, "Consider CT at 3 months, PET-CT or tissue sampling.", FLEISCHNER, notes, [REF]);
+    }
+    if (f.multiple) {
+      if (mm < 6) return R("Multiple subsolid nodules <6 mm", FU, "CT at 3-6 months; if stable, consider CT at 2 and 4 years.", FLEISCHNER, notes);
+      return R("Multiple subsolid nodules, one or more ≥6 mm", FU, "CT at 3-6 months; further management based on the most suspicious nodule.", FLEISCHNER, notes);
+    }
+    if (kind === "ground-glass") {
+      if (mm < 6) return R("Ground-glass nodule <6 mm", NONE_, "No routine follow-up.", FLEISCHNER, notes);
+      return R("Ground-glass nodule ≥6 mm", FU, "CT at 6-12 months to confirm persistence, then every 2 years until 5 years.", FLEISCHNER, notes);
+    }
+    if (mm < 6) return R("Part-solid nodule <6 mm", NONE_, "No routine follow-up.", FLEISCHNER, notes);
+    if ((f.solid_component_mm || 0) >= 6)
+      return R("Part-solid nodule ≥6 mm, solid part ≥6 mm", FU, "CT at 3-6 months to confirm persistence; a persistent solid part ≥6 mm is highly suspicious, so referral or biopsy is also acceptable.", FLEISCHNER, notes, [REF]);
+    return R("Part-solid nodule ≥6 mm", FU, "CT at 3-6 months to confirm persistence; if unchanged and solid part <6 mm, yearly CT for 5 years.", FLEISCHNER, notes);
+  }
+
+  function liverAppearance(f, notes) {
+    if (f.modality === "PET-CT" && f.fdg_avid) {
+      notes.push("FDG uptake above normal liver treated as a suspicious feature (IncidentaLens rule, not part of the ACR CT white paper).");
+      return "suspicious";
+    }
+    if (f.appearance) return f.appearance;
+    const enh = enhancement(f);
+    if ((enh !== null && enh > 20) || f.homogeneous === false) return "suspicious";
+    const hu = f.enhanced_hu !== null ? f.enhanced_hu : f.unenhanced_hu;
+    if (hu !== null && f.homogeneous !== false && hu <= 20) return "benign";
+    if (f.enhanced_hu !== null && f.enhanced_hu > 20) return "suspicious";
+    return "indeterminate";
+  }
+
+  function classifyLiver(f) {
+    const notes = [];
+    if (f.modality === "MRI") notes.push("ACR white paper covers CT; the same feature rules are applied to this MRI finding.");
+    const look = liverAppearance(f, notes);
+    const size = f.size_cm, risk = f.patient_risk;
+    if (look === "benign" && (size === null || size >= 1))
+      return R("Liver lesion with benign features", NONE_, "Distinctly benign features: no further work-up, regardless of patient risk.", ACR_LIVER, notes);
+    if (size === null) return R("Liver lesion, size not stated", CHAR, "Size is needed to apply the ACR algorithm; MRI is the safe default.", ACR_LIVER, notes);
+    if (size < 1) {
+      const cat = "Liver lesion <1 cm";
+      if (risk === "high") {
+        const alts = look === "benign" ? [NONE_] : [];
+        return R(cat, FU, "High-risk patient: MRI in 3-6 months to characterise and check for growth" + (alts.length ? " (benign features: no work-up also acceptable)." : "."), ACR_LIVER, notes, alts);
+      }
+      if (risk === "low")
+        return R(cat, NONE_, "Low-risk patient: can be considered benign, no work-up" + (look === "suspicious" ? "; MRI may be considered as features are suspicious." : "."), ACR_LIVER, notes, look === "suspicious" ? [CHAR] : []);
+      return R(cat, NONE_, "Risk not stated: no work-up (low risk) or MRI in 3-6 months (high risk) are both acceptable.", ACR_LIVER, notes, [FU]);
+    }
+    const band = size <= 1.5 ? "1-1.5 cm" : ">1.5 cm";
+    if (look === "flash-filling") {
+      const cat = `Flash-filling liver lesion ${band}`;
+      if (size > 1.5 || risk === "high") return R(cat, CHAR, "Prompt MRI is advised.", ACR_LIVER, notes);
+      if (risk === "low") return R(cat, NONE_, "Low-risk patient, ≤1.5 cm: no further work-up.", ACR_LIVER, notes);
+      return R(cat, NONE_, "Risk not stated: no work-up (low risk) or prompt MRI (high risk) are both acceptable.", ACR_LIVER, notes, [CHAR]);
+    }
+    if (look === "suspicious") {
+      const biopsyOk = size > 1.5 && risk !== "low";
+      return R(`Liver lesion ${band} with suspicious features`, CHAR, "Prompt MRI is advised" + (biopsyOk ? "; direct biopsy may be considered for a large, highly suspicious lesion in a high-risk patient." : "."), ACR_LIVER, notes, biopsyOk ? [REF] : []);
+    }
+    return R(`Indeterminate liver lesion ${band}`, CHAR, "Features cannot be assessed on this scan: MRI is advised.", ACR_LIVER, notes);
+  }
+
+  function classifyPancreas(f) {
+    const size = f.size_cm, age = f.patient_age;
+    if (f.enhancing_nodule || (f.duct_mm !== null && f.duct_mm >= 10))
+      return R("Pancreatic cyst with high-risk stigmata", REF, "Enhancing solid component or main duct ≥10 mm: EUS-FNA and surgical consultation.", ACR_PANCREAS);
+    const worrisome = [["thickened/enhancing wall", f.irregular_wall_or_septa], ["non-enhancing mural nodule", f.mural_nodule],
+      ["main duct ≥7 mm", f.duct_mm !== null && f.duct_mm >= 7]].filter(([, hit]) => hit).map(([w]) => w);
+    if (worrisome.length)
+      return R("Pancreatic cyst with worrisome features", REF, `Worrisome feature (${worrisome.join(", ")}): EUS-FNA and surgical consultation.`, ACR_PANCREAS);
+    if (age !== null && age >= 80)
+      return R("Pancreatic cyst, patient ≥80", NONE_, "Age ≥80: surveillance is generally not advised; a single follow-up may be chosen depending on health and patient preference.", ACR_PANCREAS, [], [FU]);
+    if (size === null) return R("Pancreatic cyst, size not stated", FU, "Size is needed to set the schedule; imaging follow-up is the safe default.", ACR_PANCREAS);
+    if (size >= 3)
+      return R("Pancreatic cyst ≥3 cm", REF, "Size ≥3 cm is a worrisome feature: EUS-FNA and surgical consultation; a cyst with no other feature can alternatively be followed.", ACR_PANCREAS, [], [FU]);
+    if (size >= 1.5)
+      return R(`Pancreatic cyst ${size <= 2.5 ? "1.5-2.5" : "2.5-3"} cm`, FU, "Imaging follow-up (6-12 monthly at first, depending on size and duct communication); EUS-FNA is an accepted alternative.", ACR_PANCREAS, [], [REF]);
+    const when = (age || 0) >= 65 ? "every 2 years" : "yearly";
+    return R("Pancreatic cyst <1.5 cm", FU, `Imaging follow-up ${age !== null ? when : "yearly (<65) or every 2 years (65-79)"}, stopping after 9-10 years or at age 80.`, ACR_PANCREAS);
+  }
+
+  function classifyThyroid(f) {
+    const size = f.size_cm, age = f.patient_age;
+    if (f.appearance === "suspicious")
+      return R("Thyroid nodule with suspicious features", CHAR, "Local invasion or abnormal lymph nodes: dedicated thyroid ultrasound (ultrasound with FNA also acceptable).", ACR_THYROID, [], [CHAR.concat(REF)]);
+    if (f.limited_life_expectancy)
+      return R("Thyroid nodule, limited life expectancy", NONE_, "Limited life expectancy or serious comorbidity: no further evaluation.", ACR_THYROID);
+    if (f.fdg_avid)
+      return R("FDG-avid thyroid nodule", CHAR.concat(REF), "Focal FDG uptake is highly suspicious: thyroid ultrasound and FNA (ultrasound first, with FNA decided afterwards, is also accepted).", ACR_THYROID, [], [CHAR]);
+    if (size === null) return R("Thyroid nodule, size not stated", CHAR, "Size is needed; thyroid ultrasound is the safe default.", ACR_THYROID);
+    if (age === null) {
+      if (size < 1) return R("Thyroid nodule <1 cm", NONE_, "Below the size threshold at any age.", ACR_THYROID);
+      if (size < 1.5) return R("Thyroid nodule 1-1.5 cm, age not stated", NONE_, "Ultrasound if age <35, none if ≥35; age not stated, so both are accepted.", ACR_THYROID, [], [CHAR]);
+      return R("Thyroid nodule ≥1.5 cm", CHAR, "Dedicated thyroid ultrasound.", ACR_THYROID);
+    }
+    const limit = age < 35 ? 1.0 : 1.5;
+    const band = `age ${age < 35 ? "<35" : "≥35"}`;
+    if (size >= limit) return R(`Thyroid nodule ≥${g(limit)} cm, ${band}`, CHAR, "Dedicated thyroid ultrasound.", ACR_THYROID);
+    return R(`Thyroid nodule <${g(limit)} cm, ${band}`, NONE_, "Below the size threshold: no work-up.", ACR_THYROID);
+  }
+
+  function classifyPituitary(f) {
+    const notes = [];
+    if (f.chiasm_contact || f.symptomatic)
+      return R("Pituitary lesion abutting/compressing the chiasm", REF.concat(HORM), "Formal visual field testing and surgical referral, plus hormonal evaluation.", ES_PITUITARY);
+    let imaging = FU;
+    if (f.modality !== "MRI") { imaging = CHAR; notes.push("Found on CT/PET-CT: dedicated pituitary MRI first."); }
+    if (f.size_cm !== null && f.size_cm < 1)
+      return R("Pituitary microincidentaloma (<1 cm)", imaging.concat(HORM), "Hormonal evaluation for hypersecretion and hypopituitarism; repeat MRI at 1 year, then every 1-2 years.", ES_PITUITARY, notes);
+    if (f.size_cm === null) notes.push("Size not stated; handled as a macroincidentaloma.");
+    return R("Pituitary macroincidentaloma (≥1 cm)", imaging.concat(HORM), "Hormonal evaluation for hypersecretion and hypopituitarism; repeat MRI at 6 months, then yearly for 3 years.", ES_PITUITARY, notes);
+  }
+
+  function classifyBrain(f) {
+    if (f.growth || f.symptomatic)
+      return R("Growing or symptomatic meningioma", REF, "Surgical resection is the first option for growing or symptomatic tumours: neurosurgical referral.", EANO);
+    return R("Incidental asymptomatic meningioma", FU, "Observation: MRI yearly for 5 years, then every 2 years.", EANO, f.modality === "MRI" ? [] : ["Seen on CT/PET-CT: MRI is the follow-up modality."]);
+  }
+
+  function classifyBone(f) {
+    let look = f.appearance;
+    const hu = f.unenhanced_hu !== null ? f.unenhanced_hu : f.enhanced_hu;
+    if (look === null && f.macroscopic_fat) look = "benign";
+    if (look === null && hu !== null) {
+      if (f.bone_density === "sclerotic" && hu > 885) look = "benign";
+      else if (f.bone_density === "lucent" && hu < -10) look = "benign";
+    }
+    if (look === "suspicious") return R("Bone-RADS 4", REF, "Suspicious for malignancy or needs treatment: biopsy and/or orthopaedic oncology referral.", BONE_RADS);
+    if (f.patient_risk === "high") return R("Bone-RADS 2/3 (known cancer)", CHAR, "Known cancer that spreads to bone: PET, bone scan or MRI, or follow-up imaging.", BONE_RADS, [], [FU]);
+    if (look === "benign") return R("Bone-RADS 1", NONE_, "Likely benign: leave alone.", BONE_RADS);
+    return R("Bone-RADS 3", FU, "Indeterminate: follow-up imaging at 6, 6 and 12 months (or a different modality, Bone-RADS 2).", BONE_RADS, [], [CHAR]);
+  }
+
+  const CLASSIFIERS = { kidney: classifyRenal, adrenal: classifyAdrenal, lung: classifyLung, liver: classifyLiver,
+    pancreas: classifyPancreas, thyroid: classifyThyroid, pituitary: classifyPituitary, brain: classifyBrain, bone: classifyBone };
+  const classify = (f) => CLASSIFIERS[f.organ](f);
   const IMAGING = [A.IMAGING_SURVEILLANCE, A.CHARACTERIZATION_IMAGING];
 
-  function concordance(f, g) {
-    const required = new Set(g.actions.filter((a) => a !== A.NO_FOLLOWUP));
+  function concordance(f, gr) {
+    const first = concordanceOne(f, gr.actions);
+    if (first.status === "concordant") return first;
+    for (const alt of gr.alternatives || []) {
+      const c = concordanceOne(f, alt);
+      if (c.status === "concordant") { c.message = "Recommendation matches an option the guideline accepts."; return c; }
+    }
+    return first;
+  }
+
+  function concordanceOne(f, actions) {
+    const required = new Set(actions.filter((a) => a !== A.NO_FOLLOWUP));
     const stated = new Set(f.stated_actions.filter((a) => a !== A.NO_FOLLOWUP));
     const noRec = f.stated_actions.length === 0;
     let missing = new Set([...required].filter((a) => !stated.has(a)));
