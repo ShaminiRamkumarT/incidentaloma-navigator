@@ -1,0 +1,21 @@
+{
+  "extractor": "ml (trained token model)",
+  "sentences": 51,
+  "with_target_lesion": 44,
+  "lesions_found": 0.818,
+  "side_correct_where_stated": 0.957,
+  "size_correct": 0.614,
+  "found_by_organ": {
+    "adrenal": 1.0,
+    "bone": 0.0,
+    "brain": 1.0,
+    "kidney": 1.0,
+    "liver": 1.0,
+    "lung": 0.75,
+    "pancreas": 0.5,
+    "pituitary": 0.83,
+    "thyroid": 0.75
+  },
+  "false_alarms_on_negatives": "1/7",
+  "extra_findings_on_positives": 3
+}

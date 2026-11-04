@@ -1,0 +1,52 @@
+id,pmcid,gold_organ,gold_side,gold_size_cm,pred,detected,side_ok,size_ok,false_alarms
+P01,PMC13046212,kidney,right,6.8,,False,,False,0
+P02,PMC13713323,kidney,left,6.8,,False,,False,0
+P03,PMC13046509,kidney,unknown,2.4,kidney unknown 2.1,True,,False,0
+P04,PMC11376425,kidney,left,15.0,kidney left 15.0,True,True,True,0
+P05,PMC12424197,kidney,left,9.0,,False,,False,0
+P06,PMC13391280,kidney,left,4.0,kidney right 12.0,True,False,False,0
+P07,PMC13375148,adrenal,right,4.0,adrenal right 4.0,True,True,True,0
+P08,PMC13389709,adrenal,left,9.1,adrenal left 8.3,True,True,False,0
+P09,PMC13012397,adrenal,left,6.0,adrenal left 6.0,True,True,True,0
+P10,PMC4031973,adrenal,left,7.1,,False,,False,0
+P11,PMC12448940,adrenal,right,3.1,,False,,False,0
+P12,PMC13233115,adrenal,left,3.5,,False,,False,0
+P13,PMC11929149,adrenal,left,5.0,adrenal left 5.0,True,True,True,0
+P14,PMC11595551,adrenal,left,3.0,adrenal left 3.0,True,True,True,0
+P15,PMC10838197,lung,unknown,1.9,,False,,False,0
+P16,PMC8877732,lung,left,3.6,,False,,False,0
+P17,PMC13251046,lung,left,3.2,,False,,False,0
+P18,PMC13043216,lung,unknown,0.8,,False,,False,0
+P19,PMC12229246,lung,left,1.2,,False,,False,0
+P20,PMC12583920,lung,left,2.4,,False,,False,0
+P21,PMC12223788,lung,right,1.1,,False,,False,0
+P22,PMC13218942,lung,right,2.3,,False,,False,0
+P23,PMC13281640,liver,unknown,5.8,,False,,False,0
+P24,PMC12613024,liver,unknown,3.0,,False,,False,0
+P25,PMC12788885,liver,unknown,8.2,,False,,False,0
+P26,PMC13240968,liver,unknown,12.5,,False,,False,0
+P27,PMC13695697,pancreas,unknown,2.1,,False,,False,0
+P28,PMC13723721,pancreas,unknown,7.4,,False,,False,0
+P29,PMC12419928,pancreas,unknown,3.5,,False,,False,0
+P30,PMC10924709,pancreas,unknown,16.0,,False,,False,0
+P31,PMC3964670,thyroid,left,3.0,,False,,False,0
+P32,PMC13477678,thyroid,right,1.5,,False,,False,0
+P33,PMC12774523,thyroid,left,4.0,,False,,False,0
+P34,PMC4895081,thyroid,unknown,4.0,,False,,False,0
+P35,PMC6708967,pituitary,unknown,1.4,,False,,False,0
+P36,PMC13521552,pituitary,unknown,1.6,,False,,False,0
+P37,PMC13557997,pituitary,unknown,1.1,,False,,False,0
+P38,PMC12832130,pituitary,unknown,1.9,,False,,False,0
+P39,PMC13316851,pituitary,unknown,0.8,,False,,False,0
+P40,PMC13463908,pituitary,unknown,3.4,,False,,False,0
+P41,PMC11972430,brain,right,3.3,,False,,False,0
+P42,PMC12670719,brain,unknown,3.7,,False,,False,0
+P43,PMC12963672,bone,unknown,5.0,,False,,False,0
+P44,PMC10509817,bone,left,6.0,,False,,False,0
+P45,PMC13314417,,,,,,,,0
+P46,PMC12619651,,,,,,,,0
+P47,PMC12966777,,,,,,,,0
+P48,PMC12685626,,,,,,,,0
+P49,PMC13386390,,,,,,,,0
+P50,PMC13067294,,,,,,,,0
+P51,PMC11826100,,,,,,,,0
