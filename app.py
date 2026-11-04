@@ -28,27 +28,34 @@ def labels(actions):
 
 # ---------------------------------------------------------------- sidebar
 st.sidebar.title("🩻 IncidentaLens")
-st.sidebar.caption("Renal & adrenal incidental findings on CT: does the report's follow-up match the guidelines?")
+st.sidebar.caption("Incidental findings in 9 organs on CT, MRI and PET-CT: does the report's follow-up match the guidelines?")
 has_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
 mode = st.sidebar.radio(
-    "Extractor", ["Rules (regex baseline)", "Claude (LLM)"],
+    "Extractor", ["Trained model (all organs)", "Rules (regex baseline)", "Claude (LLM)"],
     help="The extractor reads the report. The guideline decision is always the same deterministic engine.")
 if mode.startswith("Claude") and not has_key:
     st.sidebar.warning("Set ANTHROPIC_API_KEY to use the Claude extractor. Falling back to rules.")
-    mode = "Rules (regex baseline)"
+    mode = "Trained model (all organs)"
 st.sidebar.divider()
 st.sidebar.markdown(
     "**Guidelines encoded**\n"
     "- Bosniak v2019 (Silverman, *Radiology* 2019)\n"
     "- ACR renal mass white paper (Herts, *JACR* 2018)\n"
-    "- ESE/ENSAT adrenal incidentaloma (Fassnacht, *EJE* 2023)")
+    "- ESE/ENSAT adrenal incidentaloma (Fassnacht, *EJE* 2023)\n"
+    "- Fleischner lung nodules (MacMahon, *Radiology* 2017)\n"
+    "- ACR liver lesions (Gore, *JACR* 2017)\n"
+    "- ACR pancreatic cysts (Megibow, *JACR* 2017)\n"
+    "- ACR thyroid nodules (Hoang, *JACR* 2015)\n"
+    "- Pituitary incidentaloma (Freda, *JCEM* 2011)\n"
+    "- EANO meningioma (Goldbrunner, *Neuro-Oncology* 2021)\n"
+    "- Bone-RADS (Chang, *Skeletal Radiol* 2022)")
 st.sidebar.info("Portfolio prototype on synthetic reports. Not a medical device; not for clinical use.")
 
 
 @st.cache_data
 def all_reports():
     out = {}
-    for split in ("dev", "holdout"):
+    for split in ("dev", "holdout", "synth_test"):
         for r in load_reports(split):
             out[f"{r['id']} ({split})"] = r
     return out
@@ -58,6 +65,9 @@ def run_extractor(text):
     if mode.startswith("Claude"):
         from navigator import extract_llm
         return extract_llm.extract(text)
+    if mode.startswith("Trained"):
+        from navigator import extract_ml
+        return extract_ml.extract(text)
     return extract_rules.extract(text)
 
 
@@ -117,8 +127,10 @@ with tab_check:
 # ---------------------------------------------------------------- tab 2
 with tab_dash:
     st.subheader("How well does the extractor work?")
-    st.caption("Dev set (30 reports) was used to build the regex rules. The held-out set (16 reports) was written "
-               "afterwards in different phrasing, so it is the honest test.")
+    st.caption("Dev set (30 reports) was used to build the regex rules and to debug the trained model. The held-out "
+               "set (16 reports) was written afterwards in different phrasing and never used for tuning, so it is the "
+               "honest test. synth_test is 150 generated reports across all nine organs, including wordings the "
+               "model never saw in training.")
     summaries = []
     for p in sorted((ROOT / "results").glob("summary_*.json")):
         summaries.append(json.loads(p.read_text()))

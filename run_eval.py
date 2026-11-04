@@ -1,4 +1,4 @@
-"""Usage: python run_eval.py [rules|llm|both] [dev|holdout|all]   (llm needs ANTHROPIC_API_KEY)"""
+"""Usage: python run_eval.py [rules|ml|llm|both] [dev|holdout|synth_test|all]   (llm needs ANTHROPIC_API_KEY)"""
 import json
 import sys
 
@@ -7,11 +7,14 @@ from navigator.evaluate import evaluate, save
 
 
 def main(which: str, split: str):
-    splits = ["dev", "holdout"] if split == "all" else [split]
+    splits = ["dev", "holdout", "synth_test"] if split == "all" else [split]
     extractors = []
     if which in ("rules", "both"):
         extractors.append(("rules", "rules (regex baseline)", extract_rules.extract))
-    if which in ("llm", "both"):
+    if which in ("ml", "both"):
+        from navigator import extract_ml
+        extractors.append(("ml", "ml (trained token model)", extract_ml.extract))
+    if which in ("llm",):
         from navigator import extract_llm
         extractors.append(("llm", f"llm ({extract_llm.MODEL})", extract_llm.extract))
     for tag, name, fn in extractors:
