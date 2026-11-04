@@ -112,20 +112,150 @@ tr.sev-high td:first-child{box-shadow:inset 4px 0 0 var(--bad)} tr.sev-medium td
 .tour-pop .nav .btn{padding:7px 13px;font-size:.85rem}
 .tour-pop .nav .skip{margin-right:auto;background:none;border:0;color:var(--muted);font:500 .82rem var(--body);cursor:pointer;padding:6px 0}
 @media (prefers-reduced-motion:reduce){.tour-spot,.tour-pop{transition:none}}
+/* ---------- product page ---------- */
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0}
+.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:18px}
+.logo{font:800 1.1rem var(--display);color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:9px}
+.logo i{width:22px;height:22px;border-radius:50%;border:3px solid var(--brand-2);position:relative;display:inline-block}
+.logo i::after{content:"";position:absolute;width:8px;height:3px;background:var(--brand-2);right:-7px;bottom:-4px;transform:rotate(45deg);border-radius:2px}
+.nav-links{display:flex;gap:18px;margin-left:auto}
+.nav-links a{color:var(--muted);text-decoration:none;font-weight:500;font-size:.92rem}
+.nav-links a:hover{color:var(--ink)}
+.nav .btn{padding:8px 14px;font-size:.88rem;text-decoration:none}
+.land{display:grid;gap:72px;padding-block:56px 24px}
+.hero2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:center}
+.eyebrow{font:500 .76rem/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--brand-2)}
+.hero2 h1{font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.05;letter-spacing:-.02em;margin:12px 0 18px}
+.hero2 h1 em{font-style:normal;color:var(--brand-2)}
+.lede{font-size:1.12rem;color:var(--muted);max-width:52ch}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px;align-items:center}
+.cta .btn{padding:12px 20px;font-size:.98rem;text-decoration:none;border-radius:10px}
+.cta .demo-btn{background:var(--surface);color:var(--ink);border:1px solid var(--line);padding:12px 18px;border-radius:10px}
+.fine{margin-top:18px;font-size:.82rem;color:var(--muted)}
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 24px 60px -24px rgba(14,90,110,.35);display:grid;gap:12px}
+.mock pre{margin:0;font:12.5px/1.6 var(--mono);background:var(--film);color:var(--film-ink);border-radius:10px;padding:14px 16px;white-space:pre-wrap}
+.mock mark{background:color-mix(in srgb,var(--bad) 30%,transparent);color:inherit;border-radius:3px;padding:0 2px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}
+.kpi{padding:22px 24px;display:grid;gap:4px;border-left:1px solid var(--line)}
+.kpi:first-child{border-left:0}
+.kpi b{font:800 2.2rem/1 var(--display);letter-spacing:-.02em}
+.kpi span{color:var(--muted);font-size:.9rem}
+.sec{display:grid;gap:22px}
+.sec-head{display:grid;gap:8px;max-width:64ch}
+.sec-head h2{font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.01em}
+.sec-head p{color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.step-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:8px;align-content:start}
+.step-card .n{font:700 .8rem var(--mono);color:var(--brand-2)}
+.step-card p{color:var(--muted);font-size:.94rem}
+.organs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.organ{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:2px}
+.organ b{font-family:var(--display)}
+.organ span{color:var(--muted);font-size:.86rem}
+.res{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:start}
+.res .tbl table td:not(:first-child),.res .tbl table th:not(:first-child){text-align:right}
+.res ul{margin:0;padding-left:18px;display:grid;gap:10px;color:var(--muted)}
+.res ul b{color:var(--ink)}
+.app-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px;padding-top:12px;border-top:1px solid var(--line)}
+.foot2{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:.84rem;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
+.foot2 a{color:var(--accent)}
+@media (max-width:860px){.hero2,.res{grid-template-columns:minmax(0,1fr)}.steps{grid-template-columns:minmax(0,1fr)}
+  .organs{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi:nth-child(3){border-left:0}.kpi:nth-child(n+3){border-top:1px solid var(--line)}.nav-links{display:none}.land{gap:56px;padding-top:36px}}
+@media (max-width:460px){.organs{grid-template-columns:minmax(0,1fr)}.kpi b{font-size:1.8rem}}
 </style>
-<div class="wrap">
-  <div class="hero">
-    <div style="display:grid;gap:6px">
-      <h1>IncidentaLens</h1>
-      <p class="sub">Incidental findings follow-up checker · 9 organs · CT, MRI and PET-CT</p>
-      <p>Reads an imaging report, finds incidental lesions in the kidney, adrenal, lung, liver, pancreas, thyroid, pituitary, brain and bone, applies the published guideline for each, and flags follow-up advice that is too weak or more than needed.</p>
+<nav class="nav"><div class="nav-in">
+  <a class="logo" href="#top"><i aria-hidden="true"></i>IncidentaLens</a>
+  <div class="nav-links"><a href="#how">How it works</a><a href="#organs">Coverage</a><a href="#evidence">Results</a><a href="https://github.com/ShaminiRamkumarT/incidentaloma-navigator">GitHub</a></div>
+  <a class="btn" href="#app">Try it</a>
+</div></nav>
+<div class="wrap" id="top">
+<div class="land">
+  <section class="hero2">
+    <div>
+      <span class="eyebrow">Incidental findings · CT, MRI, PET-CT</span>
+      <h1>Find the follow-up advice that <em>misses the guideline</em>.</h1>
+      <p class="lede">IncidentaLens reads a radiology report, finds the incidental lesions in it, applies the published guideline for each organ and flags recommendations that ask for too little or too much.</p>
+      <div class="cta">
+        <a class="btn" href="#app">Try the checker</a>
+        <button class="demo-btn" id="demo" type="button">Take the 1-minute tour</button>
+      </div>
+      <p class="fine">Portfolio prototype on fictional reports. Not a medical device and not for clinical use.</p>
     </div>
-    <div class="hero-actions">
-      <span class="badge">Prototype · fictional data · not for clinical use</span>
-      <button class="demo-btn" id="demo" type="button">Demo tour</button>
+    <div class="mock" aria-label="Example result">
+      <pre>FINDINGS:
+Kidneys: Left kidney cystic lesion measuring 3.6 cm with an <mark>enhancing 7 mm mural nodule</mark>.
+IMPRESSION:
+Left renal cystic lesion. <mark>Recommend follow-up ultrasound in 12 months.</mark></pre>
+      <div class="lesion under-call">
+        <div class="lesion-top"><b>Left kidney · 3.6 cm · Bosniak IV</b><span class="pill under-call">Under-call · high</span></div>
+        <div class="vs"><div><span class="k">Guideline</span><span class="v">Urology referral</span></div>
+        <div><span class="k">Report says</span><span class="v">Imaging in 12 months</span></div></div>
+      </div>
     </div>
-  </div>
+  </section>
 
+  <section class="kpis" aria-label="Key numbers">
+    <div class="kpi"><b>9</b><span>organs covered</span></div>
+    <div class="kpi"><b>10</b><span>published guidelines, cited</span></div>
+    <div class="kpi"><b>100%</b><span>of lesions found in 150 test reports</span></div>
+    <div class="kpi"><b>85%</b><span>same flag as the answer key</span></div>
+  </section>
+
+  <section class="sec" id="how">
+    <div class="sec-head"><span class="eyebrow">How it works</span>
+      <h2>A trained reader, then rules you can audit</h2>
+      <p>Most incidental findings are harmless, but each organ has its own guideline with its own size cut-offs and risk rules. The decision part is deliberately not a black box.</p></div>
+    <div class="steps">
+      <div class="step-card"><span class="n">01 · Read</span><h3>Pull out the lesions</h3><p>A model trained on 600 synthetic reports labels each word: organ, size, density, features, and what the radiologist recommended.</p></div>
+      <div class="step-card"><span class="n">02 · Apply</span><h3>Run the guideline</h3><p>A rules engine applies Bosniak, Fleischner, ACR, Bone-RADS and the others. Every verdict points to a threshold and a paper.</p></div>
+      <div class="step-card"><span class="n">03 · Flag</span><h3>Compare with the report</h3><p>Under-calls (too little follow-up) and over-calls (too much) are ranked by severity, with missed specialist referrals at the top.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="organs">
+    <div class="sec-head"><span class="eyebrow">Coverage</span><h2>Nine organs, one guideline each</h2></div>
+    <div class="organs">
+      <div class="organ"><b>Kidney</b><span>Bosniak v2019 · ACR 2018</span></div>
+      <div class="organ"><b>Adrenal</b><span>ESE/ENSAT 2023</span></div>
+      <div class="organ"><b>Lung</b><span>Fleischner Society 2017</span></div>
+      <div class="organ"><b>Liver</b><span>ACR white paper 2017</span></div>
+      <div class="organ"><b>Pancreas</b><span>ACR white paper 2017</span></div>
+      <div class="organ"><b>Thyroid</b><span>ACR white paper 2015</span></div>
+      <div class="organ"><b>Pituitary</b><span>Endocrine Society 2011</span></div>
+      <div class="organ"><b>Brain (meningioma)</b><span>EANO 2021</span></div>
+      <div class="organ"><b>Bone</b><span>Bone-RADS 2022</span></div>
+    </div>
+  </section>
+
+  <section class="sec" id="evidence">
+    <div class="sec-head"><span class="eyebrow">Results</span><h2>What the numbers say, including the misses</h2>
+      <p>The trained model against a keyword (regex) baseline on reports neither was tuned on.</p></div>
+    <div class="res">
+      <div class="tbl"><table>
+        <thead><tr><th>Test set</th><th>Regex</th><th>Model</th></tr></thead><tbody>
+        <tr><td>150 synthetic reports, 9 organs: same flag</td><td class="num">2%</td><td class="num">85%</td></tr>
+        <tr><td>150 synthetic reports: high-severity caught</td><td class="num">1/12</td><td class="num">9/12</td></tr>
+        <tr><td>16 hand-written reports: lesions found</td><td class="num">76%</td><td class="num">88%</td></tr>
+        <tr><td>16 hand-written reports: same flag</td><td class="num">59%</td><td class="num">53%</td></tr>
+        <tr><td>16 hand-written reports: high-severity caught</td><td class="num">2/2</td><td class="num">0/2</td></tr>
+      </tbody></table></div>
+      <ul>
+        <li><b>The regex only knows kidney and adrenal,</b> so the fair comparison is the 16 hand-written reports.</li>
+        <li><b>The model finds more lesions</b> in unfamiliar sentences but reads some details less accurately.</li>
+        <li><b>It missed both dangerous cases</b> in the hand-written set. That is why severe cases need their own metric.</li>
+        <li><b>Next:</b> wider training wording, a radiologist-written test set, and real anonymised reports.</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<section id="app" class="sec">
+  <div class="app-head"><div class="sec-head"><span class="eyebrow">Try it</span><h2>Check a report yourself</h2>
+    <p>Load a sample or paste your own. Nothing you paste leaves your browser.</p></div></div>
   <div class="tabs" role="tablist">
     <button role="tab" id="t-check" aria-selected="true" aria-controls="p-check">Check a report</button>
     <button role="tab" id="t-batch" aria-selected="false" aria-controls="p-batch">Worklist (46 reports)</button>
@@ -259,7 +389,9 @@ tr.sev-high td:first-child{box-shadow:inset 4px 0 0 var(--bad)} tr.sev-medium td
     </ol>
   </section>
 
+</section>
   <footer>"Check a report" uses the keyword reader (kidney and adrenal only). It works best on reports written like the samples, and runs entirely in your browser: nothing you paste is sent anywhere. The all-organ results come from the trained model, run offline on synthetic reports.</footer>
+  <div class="foot2"><span>Built by Shamini Ramkumar T, 2026 · MIT license</span><a href="https://github.com/ShaminiRamkumarT/incidentaloma-navigator">Code and full write-up on GitHub</a></div>
 </div>
 <script>
 // JavaScript port of navigator/extract_rules.py + navigator/guidelines.py, for the browser demo.
