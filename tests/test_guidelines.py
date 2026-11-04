@@ -154,7 +154,10 @@ def test_thyroid_age_size_thresholds():
     assert classify(T(size_cm=1.2, patient_age=30)).actions == [Action.CHARACTERIZATION_IMAGING]
     assert classify(T(size_cm=1.2, patient_age=50)).actions == [Action.NO_FOLLOWUP]
     assert classify(T(size_cm=1.5, patient_age=50)).actions == [Action.CHARACTERIZATION_IMAGING]
-    assert classify(T(size_cm=0.8, modality="PET-CT", fdg_avid=True)).actions == [Action.CHARACTERIZATION_IMAGING]
+    assert classify(T(size_cm=0.8, modality="PET-CT", fdg_avid=True)).actions == [Action.CHARACTERIZATION_IMAGING, Action.SPECIALIST_REFERRAL]
+    both = [Action.CHARACTERIZATION_IMAGING, Action.SPECIALIST_REFERRAL]
+    assert _status(T(size_cm=1.4, modality="PET-CT", fdg_avid=True, stated_actions=both)) == "concordant"
+    assert _status(T(size_cm=2.6, appearance="suspicious", stated_actions=both)) == "concordant"
     assert classify(T(size_cm=2.5, patient_age=88, limited_life_expectancy=True)).actions == [Action.NO_FOLLOWUP]
     assert classify(T(size_cm=0.8, appearance="suspicious", limited_life_expectancy=True)).actions == [Action.CHARACTERIZATION_IMAGING]
     assert _status(T(size_cm=1.2, stated_actions=[Action.CHARACTERIZATION_IMAGING])) == "concordant"
@@ -183,3 +186,14 @@ def test_bone_rads():
     assert classify(B(bone_density="sclerotic", unenhanced_hu=1100, patient_risk="high")).category == "Bone-RADS 2/3 (known cancer)"
     assert classify(B(bone_density="lucent", unenhanced_hu=40)).category == "Bone-RADS 3"
     assert _status(B(appearance="suspicious", stated_actions=[Action.IMAGING_SURVEILLANCE])) == "under-call"
+
+
+# every hand-written held-out report for the seven newer organs lands where its author expected
+ALL = [(r["id"], x) for r in json.loads((DATA / "reports_holdout_all.json").read_text()) for x in r["findings"]]
+
+
+@pytest.mark.parametrize("rid,case", ALL, ids=[c[0] for c in ALL])
+def test_holdout_all_expected(rid, case):
+    f = Finding(**case["gold"])
+    g = classify(f)
+    assert (g.category, concordance(f, g).status) == (case["expected_category"], case["expected_status"])
