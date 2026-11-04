@@ -1,0 +1,572 @@
+[
+ {
+  "id": "A01",
+  "text": "EXAM: CT chest with contrast.\nINDICATION: 58-year-old man, 30 pack-year smoker, persistent cough.\nFINDINGS:\nLungs: There is a 7 x 5 mm solid nodule in the right middle lobe. No consolidation or effusion.\nMediastinum: No lymphadenopathy.\nIMPRESSION:\n6 mm right middle lobe nodule. No follow-up required.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "lung",
+     "side": "right",
+     "size_cm": 0.7,
+     "modality": "CT",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ],
+     "short_axis_cm": 0.5,
+     "patient_risk": "high"
+    },
+    "expected_category": "Solid nodule 6-8 mm (single)",
+    "expected_status": "under-call"
+   }
+  ]
+ },
+ {
+  "id": "A02",
+  "text": "EXAM: CT abdomen and pelvis with contrast.\nINDICATION: Never smoker. Right lower quadrant pain.\nFINDINGS:\nLung bases: 4 mm solid nodule in the left lower lobe.\nAppendix: Normal.\nIMPRESSION:\n1. No acute abdominal process.\n2. Tiny left basal lung nodule; recommend chest CT in 12 months.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "lung",
+     "side": "left",
+     "size_cm": 0.4,
+     "modality": "CT",
+     "stated_actions": [
+      "IMAGING_SURVEILLANCE"
+     ],
+     "patient_risk": "low"
+    },
+    "expected_category": "Solid nodule <6 mm (single)",
+    "expected_status": "over-call"
+   }
+  ]
+ },
+ {
+  "id": "A03",
+  "text": "EXAM: CT chest without contrast.\nINDICATION: Dyspnoea.\nFINDINGS:\nLungs: 16 mm part-solid nodule in the left upper lobe with an 8 mm solid component.\nIMPRESSION:\nPart-solid left upper lobe nodule. Short-interval CT in 3 months.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "lung",
+     "side": "left",
+     "size_cm": 1.6,
+     "modality": "CT",
+     "stated_actions": [
+      "IMAGING_SURVEILLANCE"
+     ],
+     "nodule_type": "part-solid",
+     "solid_component_mm": 8
+    },
+    "expected_category": "Part-solid nodule ≥6 mm, solid part ≥6 mm",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A04",
+  "text": "EXAM: CT chest with contrast.\nINDICATION: Chest pain.\nFINDINGS:\nLungs: Scattered ground-glass nodules in both upper lobes, the largest 9 mm on the right.\nHeart: Normal size.\nIMPRESSION:\nMultiple ground-glass nodules, likely inflammatory. No follow-up.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "lung",
+     "side": "right",
+     "size_cm": 0.9,
+     "modality": "CT",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ],
+     "nodule_type": "ground-glass",
+     "multiple": true
+    },
+    "expected_category": "Multiple subsolid nodules, one or more ≥6 mm",
+    "expected_status": "under-call"
+   }
+  ]
+ },
+ {
+  "id": "A05",
+  "text": "EXAM: CT chest, abdomen and pelvis with contrast.\nINDICATION: Staging, known colon cancer.\nFINDINGS:\nLiver: 7 mm hypoattenuating lesion in segment 8, too small to characterise.\nLungs: Clear.\nIMPRESSION:\nSubcentimetre liver lesion, likely a cyst. No further imaging.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "liver",
+     "side": "unknown",
+     "size_cm": 0.7,
+     "modality": "CT",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ],
+     "patient_risk": "high",
+     "appearance": "indeterminate"
+    },
+    "expected_category": "Liver lesion <1 cm",
+    "expected_status": "under-call"
+   }
+  ]
+ },
+ {
+  "id": "A06",
+  "text": "EXAM: CT abdomen with contrast.\nINDICATION: Right upper quadrant pain.\nFINDINGS:\nLiver: 2.4 cm lesion in segment 6 with peripheral nodular enhancement and progressive centripetal fill-in, consistent with a haemangioma.\nGallbladder: Normal.\nIMPRESSION:\nHepatic haemangioma. No follow-up.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "liver",
+     "side": "unknown",
+     "size_cm": 2.4,
+     "modality": "CT",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ],
+     "appearance": "benign"
+    },
+    "expected_category": "Liver lesion with benign features",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A07",
+  "text": "EXAM: CT abdomen with contrast.\nINDICATION: Hepatitis C, abdominal discomfort.\nFINDINGS:\nLiver: 1.8 cm ill-defined, heterogeneously enhancing lesion in segment 4.\nSpleen: Normal.\nIMPRESSION:\nHepatic lesion, likely benign.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "liver",
+     "side": "unknown",
+     "size_cm": 1.8,
+     "modality": "CT",
+     "stated_actions": [],
+     "patient_risk": "high",
+     "appearance": "suspicious"
+    },
+    "expected_category": "Liver lesion >1.5 cm with suspicious features",
+    "expected_status": "under-call"
+   }
+  ]
+ },
+ {
+  "id": "A08",
+  "text": "EXAM: MRI abdomen with gadolinium.\nINDICATION: No history of malignancy or liver disease. Back pain.\nFINDINGS:\nLiver: 1.2 cm lesion in segment 7 showing uniform arterial hyperenhancement and isointensity on portal venous and delayed phases (flash-filling).\nIMPRESSION:\nFlash-filling liver lesion, likely benign. Recommend MRI liver in 6 months.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "liver",
+     "side": "unknown",
+     "size_cm": 1.2,
+     "modality": "MRI",
+     "stated_actions": [
+      "IMAGING_SURVEILLANCE"
+     ],
+     "patient_risk": "low",
+     "appearance": "flash-filling"
+    },
+    "expected_category": "Flash-filling liver lesion 1-1.5 cm",
+    "expected_status": "over-call"
+   }
+  ]
+ },
+ {
+  "id": "A09",
+  "text": "EXAM: CT abdomen with contrast.\nINDICATION: 71-year-old woman. Abdominal pain.\nFINDINGS:\nPancreas: 9 mm simple-appearing cyst in the pancreatic body. Main duct is not dilated (2 mm).\nIMPRESSION:\nSmall pancreatic cyst, likely side-branch IPMN. Follow-up MRI in 2 years.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "pancreas",
+     "side": "unknown",
+     "size_cm": 0.9,
+     "modality": "CT",
+     "stated_actions": [
+      "IMAGING_SURVEILLANCE"
+     ],
+     "patient_age": 71,
+     "duct_mm": 2,
+     "composition": "cystic"
+    },
+    "expected_category": "Pancreatic cyst <1.5 cm",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A10",
+  "text": "EXAM: CT abdomen with contrast.\nINDICATION: 64-year-old man. Weight loss.\nFINDINGS:\nPancreas: 2.8 cm cystic lesion in the pancreatic head with a 5 mm enhancing mural nodule. Main pancreatic duct 4 mm.\nIMPRESSION:\nPancreatic head cyst. Follow-up MRI in 12 months.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "pancreas",
+     "side": "unknown",
+     "size_cm": 2.8,
+     "modality": "CT",
+     "stated_actions": [
+      "IMAGING_SURVEILLANCE"
+     ],
+     "patient_age": 64,
+     "duct_mm": 4,
+     "enhancing_nodule": true,
+     "composition": "cystic"
+    },
+    "expected_category": "Pancreatic cyst with high-risk stigmata",
+    "expected_status": "under-call"
+   }
+  ]
+ },
+ {
+  "id": "A11",
+  "text": "EXAM: MRI abdomen with and without contrast.\nINDICATION: 55-year-old woman. Incidental finding on ultrasound.\nFINDINGS:\nPancreas: 3.4 cm unilocular cyst in the tail. No mural nodule; the main duct measures 3 mm.\nIMPRESSION:\nPancreatic tail cyst. Recommend EUS with fine-needle aspiration.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "pancreas",
+     "side": "unknown",
+     "size_cm": 3.4,
+     "modality": "MRI",
+     "stated_actions": [
+      "SPECIALIST_REFERRAL"
+     ],
+     "patient_age": 55,
+     "duct_mm": 3,
+     "composition": "cystic"
+    },
+    "expected_category": "Pancreatic cyst ≥3 cm",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A12",
+  "text": "EXAM: CT abdomen with contrast.\nINDICATION: 84-year-old man. Fall.\nFINDINGS:\nPancreas: 1.6 cm cyst in the uncinate process.\nBones: No fracture.\nIMPRESSION:\nPancreatic cyst; given the patient's age, no further imaging is recommended.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "pancreas",
+     "side": "unknown",
+     "size_cm": 1.6,
+     "modality": "CT",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ],
+     "patient_age": 84,
+     "composition": "cystic"
+    },
+    "expected_category": "Pancreatic cyst, patient ≥80",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A13",
+  "text": "EXAM: CT neck with contrast.\nINDICATION: 29-year-old woman. Neck pain after a fall.\nFINDINGS:\nThyroid: 1.2 cm hypodense nodule in the left lobe.\nAirway: Patent.\nIMPRESSION:\nLeft thyroid nodule. No further evaluation needed.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "thyroid",
+     "side": "left",
+     "size_cm": 1.2,
+     "modality": "CT",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ],
+     "patient_age": 29
+    },
+    "expected_category": "Thyroid nodule ≥1 cm, age <35",
+    "expected_status": "under-call"
+   }
+  ]
+ },
+ {
+  "id": "A14",
+  "text": "EXAM: CT chest with contrast.\nINDICATION: 62-year-old man. Cough.\nFINDINGS:\nThyroid: 1.1 cm nodule in the right lobe.\nLungs: Clear.\nIMPRESSION:\nIncidental right thyroid nodule; recommend thyroid ultrasound.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "thyroid",
+     "side": "right",
+     "size_cm": 1.1,
+     "modality": "CT",
+     "stated_actions": [
+      "CHARACTERIZATION_IMAGING"
+     ],
+     "patient_age": 62
+    },
+    "expected_category": "Thyroid nodule <1.5 cm, age ≥35",
+    "expected_status": "over-call"
+   }
+  ]
+ },
+ {
+  "id": "A15",
+  "text": "EXAM: FDG PET-CT skull base to mid-thigh.\nINDICATION: 67-year-old woman. Lymphoma staging.\nFINDINGS:\nThyroid: 1.4 cm nodule in the right lobe with intense focal FDG uptake (SUVmax 9.2).\nIMPRESSION:\nFDG-avid right thyroid nodule. Recommend thyroid ultrasound and FNA.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "thyroid",
+     "side": "right",
+     "size_cm": 1.4,
+     "modality": "PET-CT",
+     "stated_actions": [
+      "CHARACTERIZATION_IMAGING",
+      "SPECIALIST_REFERRAL"
+     ],
+     "patient_age": 67,
+     "fdg_avid": true
+    },
+    "expected_category": "FDG-avid thyroid nodule",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A16",
+  "text": "EXAM: CT neck with contrast.\nINDICATION: 45-year-old man. Hoarseness.\nFINDINGS:\nThyroid: 2.6 cm left thyroid nodule with extrathyroidal extension and enlarged level IV lymph nodes.\nIMPRESSION:\nLeft thyroid mass with suspicious nodes. Recommend thyroid ultrasound with FNA.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "thyroid",
+     "side": "left",
+     "size_cm": 2.6,
+     "modality": "CT",
+     "stated_actions": [
+      "CHARACTERIZATION_IMAGING",
+      "SPECIALIST_REFERRAL"
+     ],
+     "patient_age": 45,
+     "appearance": "suspicious"
+    },
+    "expected_category": "Thyroid nodule with suspicious features",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A17",
+  "text": "EXAM: MRI pituitary with and without gadolinium.\nINDICATION: Headache.\nFINDINGS:\nSella: 6 mm hypoenhancing lesion in the left side of the adenohypophysis, consistent with a microadenoma. The stalk is midline.\nIMPRESSION:\nPituitary microadenoma. Repeat MRI in 12 months.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "pituitary",
+     "side": "unknown",
+     "size_cm": 0.6,
+     "modality": "MRI",
+     "stated_actions": [
+      "IMAGING_SURVEILLANCE"
+     ]
+    },
+    "expected_category": "Pituitary microincidentaloma (<1 cm)",
+    "expected_status": "under-call"
+   }
+  ]
+ },
+ {
+  "id": "A18",
+  "text": "EXAM: MRI brain with contrast.\nINDICATION: Dizziness.\nFINDINGS:\nSella: 1.8 cm sellar and suprasellar mass elevating and compressing the optic chiasm.\nBrain: No infarct.\nIMPRESSION:\nPituitary macroadenoma compressing the chiasm. Recommend neurosurgical referral, visual field testing and pituitary hormone evaluation.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "pituitary",
+     "side": "unknown",
+     "size_cm": 1.8,
+     "modality": "MRI",
+     "stated_actions": [
+      "SPECIALIST_REFERRAL",
+      "HORMONAL_WORKUP"
+     ],
+     "chiasm_contact": true
+    },
+    "expected_category": "Pituitary lesion abutting/compressing the chiasm",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A19",
+  "text": "EXAM: CT head without contrast.\nINDICATION: Minor head injury.\nFINDINGS:\nSella: Incidental 1.3 cm sellar mass, likely a pituitary macroadenoma; no suprasellar extension.\nIMPRESSION:\nProbable pituitary macroadenoma. Recommend dedicated pituitary MRI and endocrine evaluation.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "pituitary",
+     "side": "unknown",
+     "size_cm": 1.3,
+     "modality": "CT",
+     "stated_actions": [
+      "CHARACTERIZATION_IMAGING",
+      "HORMONAL_WORKUP"
+     ]
+    },
+    "expected_category": "Pituitary macroincidentaloma (≥1 cm)",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A20",
+  "text": "EXAM: MRI brain with gadolinium.\nINDICATION: Migraine.\nFINDINGS:\nBrain: 1.4 cm extra-axial, dural-based enhancing lesion along the right frontal convexity with a dural tail, in keeping with a meningioma. No oedema.\nIMPRESSION:\nSmall right frontal meningioma. No follow-up required.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "brain",
+     "side": "right",
+     "size_cm": 1.4,
+     "modality": "MRI",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ]
+    },
+    "expected_category": "Incidental asymptomatic meningioma",
+    "expected_status": "under-call"
+   }
+  ]
+ },
+ {
+  "id": "A21",
+  "text": "EXAM: MRI brain with gadolinium.\nINDICATION: Follow-up of known meningioma.\nCOMPARISON: MRI 2 years ago.\nFINDINGS:\nBrain: The left parasagittal meningioma now measures 3.1 cm, previously 2.4 cm.\nIMPRESSION:\nInterval growth of left parasagittal meningioma. Follow-up MRI in 12 months.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "brain",
+     "side": "left",
+     "size_cm": 3.1,
+     "modality": "MRI",
+     "stated_actions": [
+      "IMAGING_SURVEILLANCE"
+     ],
+     "growth": true
+    },
+    "expected_category": "Growing or symptomatic meningioma",
+    "expected_status": "under-call"
+   }
+  ]
+ },
+ {
+  "id": "A22",
+  "text": "EXAM: CT head without contrast.\nINDICATION: Fall.\nFINDINGS:\nBrain: 2.0 cm calcified extra-axial mass along the falx, likely a meningioma. No haemorrhage.\nIMPRESSION:\nProbable falcine meningioma. Recommend MRI with contrast.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "brain",
+     "side": "unknown",
+     "size_cm": 2.0,
+     "modality": "CT",
+     "stated_actions": [
+      "CHARACTERIZATION_IMAGING"
+     ]
+    },
+    "expected_category": "Incidental asymptomatic meningioma",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A23",
+  "text": "EXAM: CT abdomen and pelvis without contrast.\nINDICATION: Flank pain.\nFINDINGS:\nBones: 1.1 cm sclerotic focus in the left iliac bone measuring 1050 HU, consistent with a bone island.\nKidneys: No stones.\nIMPRESSION:\nBone island. No follow-up.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "bone",
+     "side": "left",
+     "size_cm": 1.1,
+     "modality": "CT",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ],
+     "bone_density": "sclerotic",
+     "unenhanced_hu": 1050
+    },
+    "expected_category": "Bone-RADS 1",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A24",
+  "text": "EXAM: CT chest with contrast.\nINDICATION: Known breast cancer, staging.\nFINDINGS:\nBones: 1.5 cm lytic lesion in the T8 vertebral body without cortical breach.\nIMPRESSION:\nIndeterminate lytic T8 lesion. No follow-up.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "bone",
+     "side": "unknown",
+     "size_cm": 1.5,
+     "modality": "CT",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ],
+     "bone_density": "lucent",
+     "patient_risk": "high"
+    },
+    "expected_category": "Bone-RADS 2/3 (known cancer)",
+    "expected_status": "under-call"
+   }
+  ]
+ },
+ {
+  "id": "A25",
+  "text": "EXAM: CT pelvis without contrast.\nINDICATION: Hip pain.\nFINDINGS:\nBones: 3.2 cm lytic lesion in the right proximal femur with endosteal scalloping and cortical breakthrough.\nIMPRESSION:\nLytic femoral lesion. Follow-up CT in 6 months.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "bone",
+     "side": "right",
+     "size_cm": 3.2,
+     "modality": "CT",
+     "stated_actions": [
+      "IMAGING_SURVEILLANCE"
+     ],
+     "bone_density": "lucent",
+     "appearance": "suspicious"
+    },
+    "expected_category": "Bone-RADS 4",
+    "expected_status": "under-call"
+   }
+  ]
+ },
+ {
+  "id": "A26",
+  "text": "EXAM: MRI lumbar spine without contrast.\nINDICATION: Back pain.\nFINDINGS:\nBones: 1.2 cm lesion in the L2 vertebral body, hyperintense on T1 and T2 and following fat signal on all sequences, consistent with a typical haemangioma.\nDiscs: Mild degeneration at L4-5.\nIMPRESSION:\nVertebral haemangioma; no further imaging required.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "bone",
+     "side": "unknown",
+     "size_cm": 1.2,
+     "modality": "MRI",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ],
+     "appearance": "benign"
+    },
+    "expected_category": "Bone-RADS 1",
+    "expected_status": "concordant"
+   }
+  ]
+ },
+ {
+  "id": "A27",
+  "text": "EXAM: CT chest with contrast.\nINDICATION: 52-year-old woman. Shortness of breath.\nFINDINGS:\nLungs: 3 mm solid nodule in the right upper lobe.\nThyroid: 0.8 cm nodule in the left lobe.\nIMPRESSION:\n1. Tiny right upper lobe nodule, no follow-up needed.\n2. Subcentimetre left thyroid nodule, no further workup.",
+  "findings": [
+   {
+    "gold": {
+     "organ": "lung",
+     "side": "right",
+     "size_cm": 0.3,
+     "modality": "CT",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ]
+    },
+    "expected_category": "Solid nodule <6 mm (single)",
+    "expected_status": "concordant"
+   },
+   {
+    "gold": {
+     "organ": "thyroid",
+     "side": "left",
+     "size_cm": 0.8,
+     "modality": "CT",
+     "stated_actions": [
+      "NO_FOLLOWUP"
+     ],
+     "patient_age": 52
+    },
+    "expected_category": "Thyroid nodule <1.5 cm, age ≥35",
+    "expected_status": "concordant"
+   }
+  ]
+ }
+]
