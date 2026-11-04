@@ -61,6 +61,80 @@ Guideline category agreement on the synthetic test, by organ: bone 100%, brain 1
 
 To see exactly where each reader went wrong, open `results/eval_ml_holdout.csv` or `results/eval_ml_synth_test.csv`. They have one row per lesion with the correct answer, what the reader produced and which details it got wrong. The same tables appear as "Error log" in the Validation dashboard tab of the Streamlit app (`streamlit run app.py`).
 
+## Real-wording check (published case reports)
+
+The synthetic test only shows how the model handles wording I generated. To see how it copes with real clinical language, I took 51 imaging sentences word for word from open-access case reports licensed CC BY (found through Europe PMC). 44 describe a lesion in one of the nine organs; 7 describe lesions elsewhere (spleen, mesentery, gallbladder and so on) to count false alarms. I wrote the answer key (organ, side where stated, largest size) from each sentence. No account, data agreement or credentialed access was needed, and every sentence is attributed below.
+
+These are case-report sentences, not radiology reports, so this checks the reading step only. It does not test the follow-up flag: case reports describe the treatment a patient got, not the follow-up a radiologist advised. The model was not retrained on any of them.
+
+| 51 real sentences | Regex baseline | Trained model |
+|---|---|---|
+| Lesions found (44) | 18% | 82% |
+| Side correct, where the sentence states it | 86% | 96% |
+| Largest size read correctly | 11% | 61% |
+| False alarms on the 7 negative sentences | 0/7 | 1/7 |
+
+Found by organ (trained model): adrenal, kidney, liver and brain 100%, pituitary 83%, lung and thyroid 75%, pancreas 50%, bone 0%.
+
+The misses follow a pattern. The model often reads the wrong number from a size like "8.2 x 6.4 cm" or "4.0 × 3.8 cm, SUVmax 3.4", and it doesn't know bone words such as "osteochondroma", "mandible" or "scapula", which never appear in its training data. Both are fixable with more varied training sentences. Per-sentence results are in `results/eval_ml_real.csv`; run it with `python data/build_real_snippets.py && python run_real_eval.py`.
+
+<details>
+<summary>Sources of the 51 sentences (all CC BY)</summary>
+
+1. N A, Suraj N, Anne D, et al. The Malignant Imposter: Cystic Renal Oncocytoma Challenging Bosniak Criteria. *Cureus*. 2026. doi:10.7759/cureus.104622 PMC13046212, CC BY.
+2. Wu Y, Zheng H, Pokhrel G, et al. Primary enteric-type adenocarcinoma of the renal parenchyma in a patient with bilateral renal malrotation: a case report and review of the literature. *Front Oncol*. 2026. doi:10.3389/fonc.2026.1977843 PMC13713323, CC BY.
+3. Jiang B, Zhang S, Luo H, et al. Robot-assisted partial nephrectomy for TFE3-rearranged renal cell carcinoma: a case report and literature review. *Front Oncol*. 2026. doi:10.3389/fonc.2026.1740901 PMC13046509, CC BY.
+4. Taur P, Kannan D, Penchala Reddy N, et al. Renal Hydatid Cyst: Diagnostic Quandaries and Surgical Strategies. *Cureus*. 2024. doi:10.7759/cureus.66289 PMC11376425, CC BY.
+5. Mehrabi M, Eslami M, Payandeh M Multimodal treatment approach with sunitinib, pembrolizumab, bevacizumab, sirolimus, and zoledronic acid for locally advanced clear cell renal cell carcinoma: a case report. *Croat Med J*. 2025. PMC12424197, CC BY.
+6. Maachi Y, Fadriq H, El Kacemi H, et al. Case Report: Fatal convergence of two confirmed and one radiologically suspected synchronous urological malignancies in a young patient. *Front Oncol*. 2026. doi:10.3389/fonc.2026.1852834 PMC13391280, CC BY.
+7. Badiani A, Siew S, Al-Ansari M Silent Phaeochromocytoma in a Young Normotensive Woman. *Cureus*. 2026. doi:10.7759/cureus.110981 PMC13375148, CC BY.
+8. Salzle M, Szafran-Swietlik A, LaRue M, et al. Large asymptomatic pheochromocytoma with incidental metastatic midgut carcinoid tumor. *JCEM Case Rep*. 2026. doi:10.1210/jcemcr/luag192 PMC13389709, CC BY.
+9. Che J, Dintakurti A, Rafii DC To Resect or Not to Resect: An Incidental Finding of an Adrenal Schwannoma. *Cureus*. 2026. doi:10.7759/cureus.104068 PMC13012397, CC BY.
+10. Adas M, Koc B, Adas G, et al. Ganglioneuroma presenting as an adrenal incidentaloma: a case report. *J Med Case Rep*. 2014. doi:10.1186/1752-1947-8-131 PMC4031973, CC BY.
+11. Jain A, Rana A, Nonglait PL, et al. Incidental Adrenal Hemangioma: A Diagnostic and Management Challenge. *JCEM Case Rep*. 2025. doi:10.1210/jcemcr/luaf209 PMC12448940, CC BY.
+12. Francisco Ferreira M, Valente F, Correia R, et al. A Challenging Diagnosis of Cushing's Syndrome in Primary Care: A Case Report. *Cureus*. 2026. doi:10.7759/cureus.108265 PMC13233115, CC BY.
+13. Sage H, Jones E, Neychev V Cavernous Hemangioma: A Rare Adrenal Tumor Associated With Hyperaldosteronism. *Cureus*. 2025. doi:10.7759/cureus.79251 PMC11929149, CC BY.
+14. Nistor C, Ciobica ML, Sima OC, et al. Ectopic Mediastinal Thyroid: A Crossroad Between a Multi-Layered Endocrine Perspective and a Contemporary Approach in Thoracic Surgery. *Life (Basel)*. 2024. doi:10.3390/life14111374 PMC11595551, CC BY.
+15. Magliochetti Cammarata TM, Gupta S, Rallabhandi SSH, et al. Pulmonary Langerhans Cell Histiocytosis: An Unusual Differential for a Solitary Lung Nodule. *Case Rep Pulmonol*. 2024. doi:10.1155/2024/1315222 PMC10838197, CC BY.
+16. Dessalegn N, Felux K, Seid E, et al. Primary Lung Adenocarcinoma Presenting as Cardiac Tamponade in a 40-Year-Old Non-Smoker. *Cureus*. 2022. doi:10.7759/cureus.21631 PMC8877732, CC BY.
+17. Ajai Mokan Dasan SL, Flores AP, Misbahuddin K Pulmonary sequestration in a septuagenarian: a rare congenital lung lesion diagnosed in adulthood. *J Cardiothorac Surg*. 2026. doi:10.1186/s13019-026-04098-6 PMC13251046, CC BY.
+18. Aberkane M, Karich N, Daoudi C, et al. Incidentally Discovered Pulmonary Hamartoma: A Case Report and Review of the Literature. *Cureus*. 2026. doi:10.7759/cureus.104563 PMC13043216, CC BY.
+19. Aluisio G, Ralston G, Saylors G Solitary Melanoma Lesion in a Pulmonary Nodule: A Case Report. *Cureus*. 2025. doi:10.7759/cureus.85472 PMC12229246, CC BY.
+20. Oki T, Iizuka S, Miwa H, et al. Combined Posterior and Interlobar Approaches Enable S10 Segmentectomy for a Centrally Located Intrapulmonary Schwannoma. *Surg Case Rep*. 2025. doi:10.70352/scrj.cr.25-0501 PMC12583920, CC BY.
+21. Nozaka Y, Ohtsuki Y, Horie Y, et al. Pulmonary Squamous Cell Carcinoma with Repeated Increases and Decreases in Size. *Surg Case Rep*. 2025. doi:10.70352/scrj.cr.25-0067 PMC12223788, CC BY.
+22. Fan C, Sang G, Liang Z, et al. Synchronous lung adenocarcinoma in situ and type B2-B3 thymoma in a frozen hemithorax: a case report and multidisciplinary approach. *Front Oncol*. 2026. doi:10.3389/fonc.2026.1846848 PMC13218942, CC BY.
+23. Liang B, Shi H, Zeng Q, et al. Laparoscopic partial hepatectomy for primary hepatic PEComa: a case report. *BMC Gastroenterol*. 2026. doi:10.1186/s12876-026-04884-5 PMC13281640, CC BY.
+24. Kamiya H, Yoshizawa E, Yamada A, et al. A case of hepatic segmental atrophy mimicking spontaneously necrotized hepatocellular carcinoma. *Radiol Case Rep*. 2026. doi:10.1016/j.radcr.2025.09.072 PMC12613024, CC BY.
+25. Khazar V, Escobar S, Huang A, et al. A Case of an 80-Year-Old Woman With Chronic Eosinophilic Pneumonia and Clinically Significant Giant Hepatic Hemangioma. *Cureus*. 2025. doi:10.7759/cureus.98917 PMC12788885, CC BY.
+26. Abdulkarim F, Kheruwala A, Erabia W, et al. Right-Sided Empyema Thoracis Mimicking Pulmonary Tuberculosis Secondary to a Complicated Hepatic Cyst: A Diagnostic Pitfall. *Cureus*. 2026. doi:10.7759/cureus.108362 PMC13240968, CC BY.
+27. Balderas-Ortega JC, Escandon-Espinoza Y, Lopez Garcia K, et al. Pancreatic Intraductal Papillary Mucinous Neoplasm in a Carrier of a Reported Pathogenic BRCA2 Variant. *Cureus*. 2026. doi:10.7759/cureus.116881 PMC13695697, CC BY.
+28. Pandian K, Priya S, Sivakumaran A, et al. Solid Pseudopapillary Neoplasm of the Pancreatic Tail With Splenic Hilar Involvement: A Case Report. *Cureus*. 2026. doi:10.7759/cureus.117340 PMC13723721, CC BY.
+29. da Costa AC, Kumar J, Chaouch MA, et al. Solid Serous Cystadenoma Mimicking Neuroendocrine Tumor of the Pancreas: A Case Report. *Case Rep Gastrointest Med*. 2025. doi:10.1155/crgm/4945872 PMC12419928, CC BY.
+30. Bland S, Thompson W III Microcystic serous cystadenoma of the pancreas causing biliary obstruction: a case report and review of the literature. *J Surg Case Rep*. 2024. doi:10.1093/jscr/rjae105 PMC10924709, CC BY.
+31. Goddard J, Gaunt A, Markham DH Positron emission tomography detected thyroid incidentaloma. *Ann R Coll Surg Engl*. 2013. doi:10.1308/003588413x13511609956732 PMC3964670, CC BY.
+32. Bravo Quiroz JG, Lizarraga Payan H, Prado Calleros HM, et al. Incidental Detection With 18F-PSMA-1007 PET/CT of Multifocal Papillary Thyroid Carcinoma During Staging of Very High-Risk Prostate Adenocarcinoma: A Case Report. *Cureus*. 2026. doi:10.7759/cureus.112857 PMC13477678, CC BY.
+33. Amalo RB, Tuti Y, Dewi AR Diagnostic Challenges in a Case of Suspected Breast Cancer with Low FDG Uptake and an Incidental Thyroid Lesion: A Case Report and Literature Review. *World J Nucl Med*. 2025. doi:10.1055/s-0045-1809310 PMC12774523, CC BY.
+34. Nicholas Z, Sughrue M, Battiste J, et al. When Evaluating a New Thyroid Mass and a Ring-Enhancing Brain Lesion (When Two Presentations Collide). *Cureus*. 2016. doi:10.7759/cureus.600 PMC4895081, CC BY.
+35. Lemelin A, Lapoirie M, Abeillon J, et al. Pheochromocytoma, paragangliomas, and pituitary adenoma: An unusual association in a patient with an SDHD mutation. Case report. *Medicine (Baltimore)*. 2019. doi:10.1097/md.0000000000016594 PMC6708967, CC BY.
+36. Rockwell S, Boley JS, Pulido N, et al. Acromegaly Discovered After Head Trauma: Multivessel Coronary Disease and Postoperative Meningitis Complicating a Pituitary Macroadenoma. *Cureus*. 2026. doi:10.7759/cureus.113532 PMC13521552, CC BY.
+37. Rozenek EB, Gurnell M, Kunicki J, et al. Case Report: Development of a thyrotropinoma in a patient with thyroid hemiagenesis. *Front Endocrinol (Lausanne)*. 2026. doi:10.3389/fendo.2026.1902011 PMC13557997, CC BY.
+38. Modi J, Ibrahim E, LaFoe K, et al. Craniofacial and Radiological Features as Diagnostic Clues to Unmask Acromegaly: A Case Report. *Cureus*. 2025. doi:10.7759/cureus.100144 PMC12832130, CC BY.
+39. De Sanctis SA, Chiloiro S, Giampietro A, et al. Acromegaly and Morris Syndrome: Description of a Clinical Case. *Endocr Metab Immune Disord Drug Targets*. 2026. doi:10.2174/0118715303424098250925063845 PMC13316851, CC BY.
+40. Chang C, Samlal KS, Maharaj ND, et al. Persistent Rhinosinusitis-Like Symptoms Revealing a Lactotroph Pituitary Neuroendocrine Tumour: A Case Report. *Cureus*. 2026. doi:10.7759/cureus.112575 PMC13463908, CC BY.
+41. Hashikata H, Futamura G, Maki Y, et al. Pitfalls of Preoperative Embolization for Meningiomas: A Case Report on Occult Anastomosis Between the Middle and Posterior Meningeal Arteries. *Cureus*. 2025. doi:10.7759/cureus.80182 PMC11972430, CC BY.
+42. Djukic M, Gossner J, Larsen J, et al. Foramen magnum meningioma: long-term follow up without neurosurgery - A case report. *J Med Case Rep*. 2025. doi:10.1186/s13256-025-05725-x PMC12670719, CC BY.
+43. Meiyappan SK, Reddy GM, Pushpasekaran N, et al. Reviving a Skewed Dyskinetic Scapula Secondary to Ventral Exostosis: A Case Report. *Cureus*. 2026. doi:10.7759/cureus.102928 PMC12963672, CC BY.
+44. Putro YAP, Magetsari R, Taroeno-Hariadi KW, et al. Classic and rare manifestations of multiple osteoma: A case report. *Int J Surg Case Rep*. 2023. doi:10.1016/j.ijscr.2023.108713 PMC10509817, CC BY.
+45. Lin H, Wang X, Zhang L Isolated splenic littoral cell angioma in a child: a case report. *Front Oncol*. 2026. doi:10.3389/fonc.2026.1770088 PMC13314417, CC BY.
+46. Monteiro DL, Eiró F, Contente H, et al. Mesenteric Cyst: A Case Report of a Rare Entity. *Cureus*. 2025. doi:10.7759/cureus.94731 PMC12619651, CC BY.
+47. Tran H, Nguyen KH, Nguyen TPC, et al. Gallbladder tuberculosis as an incidental calcified mass in an elderly male: a case report. *J Surg Case Rep*. 2026. doi:10.1093/jscr/rjag123 PMC12966777, CC BY.
+48. Hou Y, Yang Y, Li B, et al. Laparoscopic resection of an incidental retroperitoneal schwannoma in a 74-year-old male: a case report and literature review. *Front Oncol*. 2025. doi:10.3389/fonc.2025.1668644 PMC12685626, CC BY.
+49. Zubi AR, Moosa AS, Adam IM, et al. Lateral Abdominal Wall Hibernoma: A Rare Case From the Maldives. *Cureus*. 2026. doi:10.7759/cureus.111221 PMC13386390, CC BY.
+50. Touilite M, Zakaria Y, Chraa M, et al. Visual Epilepsy Mimicking Migraine Aura Leading to Delayed Diagnosis of an Occipital Cavernoma: A Case Report. *Cureus*. 2026. doi:10.7759/cureus.106768 PMC13067294, CC BY.
+51. Khor J, Nguk Chai D Intrathoracic Schwannoma With Horner Syndrome: A Rare Association. *Cureus*. 2025. doi:10.7759/cureus.77453 PMC11826100, CC BY.
+
+</details>
+
 ## Guideline logic (simplified)
 
 The engine checks the type of action (no follow-up, imaging, specialist referral or biopsy, hormonal work-up), not the exact interval. When a report doesn't state the patient's risk or age, any answer the guideline allows for some patient counts as concordant.
@@ -187,6 +261,7 @@ python train_model.py                 # trains the model (about 10 s) -> models/
 python run_eval.py both all           # score regex and trained model on dev, holdout and synthetic test
 ANTHROPIC_API_KEY=... python run_eval.py llm all   # optional: score the Claude reader
 python web/build_model_results.py     # refresh the demo's all-organ tab
+python data/build_real_snippets.py && python run_real_eval.py   # real-wording check
 python -m pytest -q tests             # 69 guideline tests
 streamlit run app.py
 ```
@@ -201,7 +276,8 @@ navigator/extract_ml.py      Trained token-labelling reader (all organs)
 navigator/extract_llm.py     Claude structured-output reader
 navigator/evaluate.py        Matching + three-level scoring, fields scored per organ
 data/generate_synthetic.py   Labelled report generator (train and test phrase banks)
-data/                        Hand-written and synthetic reports with gold labels
+data/build_real_snippets.py  Real CC BY sentences with sources and answer key
+data/                        Hand-written, synthetic and real-sentence data with gold labels
 results/                     Per-lesion CSVs and summary JSON per run
 train_model.py               Trains and saves the model
 app.py                       Streamlit app (report checker, validation dashboard, guideline tables)
