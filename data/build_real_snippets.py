@@ -11,6 +11,13 @@ test the follow-up check, because case reports describe treatment rather than a 
 Negatives are real sentences about lesions outside the nine covered organs (spleen, mesentery...),
 used to count false alarms.
 
+Label review: the author then checked all 51 labels one by one against the sentence. 41 were accepted
+as written and 10 were flagged. Each flagged snippet carries a "review" entry with the reviewer's
+comment and what was done about it (REVIEW below). Two labels changed (liver side now "right" in P23
+and P26, since a right hepatic lobe lesion is right-sided). The rest were clarified: a note on what
+the label leaves out and why, and the described appearance where the sentence gives one. Appearance
+is recorded for reference and is not scored.
+
 Usage:  python data/build_real_snippets.py
 """
 import json
@@ -96,10 +103,10 @@ SNIPPETS = [
     ("PMC12583920", "A 46-year-old non-smoking woman presented with an incidental 2.4 cm pulmonary nodule centrally located in segment 10 (S10) of the left lower lobe.", "lung", "left", 2.4),
     ("PMC12223788", "The scan also showed a 1.1 cm snowball-like shadow in the right lower lobe of the lung.", "lung", "right", 1.1),
     ("PMC13218942", "A 73-year-old woman with prior tuberculosis and stented coronary artery disease presented with a hypermetabolic right upper lobe (RUL) nodule (2.3 cm, SUVmax 5.0) and an anterior mediastinal mass (SUVmax 3.0) on PET/CT.", "lung", "right", 2.3),
-    ("PMC13281640", "Comprehensive imaging studies, including ultrasound, computed tomography (CT), and magnetic resonance imaging (MRI), revealed a 58 mm-diameter space-occupying lesion in segments V and VIII of the right hepatic lobe.", "liver", "unknown", 5.8),
+    ("PMC13281640", "Comprehensive imaging studies, including ultrasound, computed tomography (CT), and magnetic resonance imaging (MRI), revealed a 58 mm-diameter space-occupying lesion in segments V and VIII of the right hepatic lobe.", "liver", "right", 5.8),
     ("PMC12613024", "An 80-year-old man presented with a new 3 cm hepatic lesion that met LI-RADS-5 criteria.", "liver", "unknown", 3.0),
     ("PMC12788885", "Abdominal and pelvic CT scan showed a hepatic hemangioma, measuring approximately 8.2 x 6.4 cm.", "liver", "unknown", 8.2),
-    ("PMC13240968", "Thoracoabdominal computed tomography (CT) unexpectedly identified a large (12.5 x 9 cm), multiloculated cystic lesion in the right hepatic lobe exhibiting mass effect and transdiaphragmatic extension into the pleural space.", "liver", "unknown", 12.5),
+    ("PMC13240968", "Thoracoabdominal computed tomography (CT) unexpectedly identified a large (12.5 x 9 cm), multiloculated cystic lesion in the right hepatic lobe exhibiting mass effect and transdiaphragmatic extension into the pleural space.", "liver", "right", 12.5),
     ("PMC13695697", "In June 2025, during long-term oncologic follow-up, positron emission tomography-computed tomography incidentally identified a 21×21 mm pancreatic tail cyst.", "pancreas", "unknown", 2.1),
     ("PMC13723721", "Contrast-enhanced computed tomography revealed a 7.4 × 7.0 × 6.4 cm well-defined cystic lesion with solid components arising from the pancreatic tail, suggestive of SPEN.", "pancreas", "unknown", 7.4),
     ("PMC12419928", "Preoperative abdominal magnetic resonance imaging (MRI) with contrast demonstrated a solid, hypervascular lesion at the pancreas, measuring 3.5 × 2.2 × 1.9 cm, with marked enhancement on dynamic imaging.", "pancreas", "unknown", 3.5),
@@ -129,14 +136,57 @@ SNIPPETS = [
 ]
 
 
+# Reviewer flags on the first pass, keyed by snippet id: (verdict, reviewer comment, what was done)
+REVIEW = {
+    "P03": ("disagree", "Side", "Kept side as unknown: the sentence does not say left or right."),
+    "P05": ("unsure", "Involves adrenal and lymph nodes as well",
+            "Kept one lesion. The adrenal and lymph node involvement is spread of the kidney cancer, "
+            "not a separate incidental finding, so it gets no follow-up advice of its own."),
+    "P06": ("disagree", "Both left and right kidney",
+            "Kept the left renal mass as the only target. The 12 cm right-sided mass is a recurrence in "
+            "the nephrectomy bed after the right kidney was removed: known cancer, outside the incidental "
+            "lesion guidelines. Now stated in the label."),
+    "P08": ("disagree", "Why is it not mentioning the status/nature of the mass",
+            "Added the appearance: hyperenhancing, central necrosis, calcification, mass effect."),
+    "P10": ("unsure", "Why is it not mentioning the status/nature of the mass",
+            "Added the appearance: relatively homogeneous."),
+    "P23": ("disagree", "Right", "Changed side from unknown to right (right hepatic lobe)."),
+    "P26": ("disagree", "Right", "Changed side from unknown to right (right hepatic lobe)."),
+    "P28": ("unsure", "", "No change: pancreatic tail lesion, 7.4 cm, as stated."),
+    "P34": ("unsure", "What about brain?",
+            "Kept the thyroid lesion as the only target. The brain metastases are spread of the thyroid "
+            "cancer, with no size or location given, and not an incidental finding."),
+    "P50": ("disagree", "Brain",
+            "Kept as a negative, now with the reason stated: it is a brain lesion, but a cavernoma. The "
+            "brain rules here cover meningioma only, so a reader should not raise a finding for it."),
+}
+
+# Label notes and described appearance added after the review
+NOTES = {
+    "P05": {"note": "Adrenal and lymph node involvement is spread of the kidney cancer; not scored as separate lesions."},
+    "P06": {"note": "The 12 cm right nephrectomy-bed recurrence is known cancer, not an incidental lesion; not a target."},
+    "P08": {"appearance": "hyperenhancing, central necrosis, calcification, mass effect"},
+    "P10": {"appearance": "relatively homogeneous"},
+    "P34": {"note": "Brain metastases are spread of the thyroid cancer; not scored as a separate lesion."},
+    "P50": {"note": "Brain cavernoma: outside the meningioma-only brain rules, so it counts as a negative."},
+}
+
+
 def main():
     out = []
     for i, (pmcid, text, organ, side, size) in enumerate(SNIPPETS, 1):
         authors, title, journal, year, doi = SOURCES[pmcid]
+        sid = f"P{i:02d}"
+        gold = None if organ is None else {"organ": organ, "side": side, "size_cm": size}
+        if gold is not None:
+            gold.update(NOTES.get(sid, {}))
         out.append({
-            "id": f"P{i:02d}",
+            "id": sid,
             "text": text,
-            "gold": None if organ is None else {"organ": organ, "side": side, "size_cm": size},
+            "gold": gold,
+            **({"gold_note": NOTES[sid]["note"]} if gold is None and sid in NOTES else {}),
+            "review": ({"verdict": REVIEW[sid][0], "comment": REVIEW[sid][1], "action": REVIEW[sid][2]}
+                       if sid in REVIEW else {"verdict": "agree"}),
             "source": {"pmcid": pmcid, "doi": doi, "license": "CC BY", "authors": authors, "title": title,
                        "journal": journal, "year": year,
                        "url": f"https://europepmc.org/article/PMC/{pmcid}"},

@@ -7,6 +7,9 @@
    "side": "right",
    "size_cm": 6.8
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC13046212",
    "doi": "10.7759/cureus.104622",
@@ -25,6 +28,9 @@
    "organ": "kidney",
    "side": "left",
    "size_cm": 6.8
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC13713323",
@@ -45,6 +51,11 @@
    "side": "unknown",
    "size_cm": 2.4
   },
+  "review": {
+   "verdict": "disagree",
+   "comment": "Side",
+   "action": "Kept side as unknown: the sentence does not say left or right."
+  },
   "source": {
    "pmcid": "PMC13046509",
    "doi": "10.3389/fonc.2026.1740901",
@@ -64,6 +75,9 @@
    "side": "left",
    "size_cm": 15.0
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC11376425",
    "doi": "10.7759/cureus.66289",
@@ -81,7 +95,13 @@
   "gold": {
    "organ": "kidney",
    "side": "left",
-   "size_cm": 9.0
+   "size_cm": 9.0,
+   "note": "Adrenal and lymph node involvement is spread of the kidney cancer; not scored as separate lesions."
+  },
+  "review": {
+   "verdict": "unsure",
+   "comment": "Involves adrenal and lymph nodes as well",
+   "action": "Kept one lesion. The adrenal and lymph node involvement is spread of the kidney cancer, not a separate incidental finding, so it gets no follow-up advice of its own."
   },
   "source": {
    "pmcid": "PMC12424197",
@@ -100,7 +120,13 @@
   "gold": {
    "organ": "kidney",
    "side": "left",
-   "size_cm": 4.0
+   "size_cm": 4.0,
+   "note": "The 12 cm right nephrectomy-bed recurrence is known cancer, not an incidental lesion; not a target."
+  },
+  "review": {
+   "verdict": "disagree",
+   "comment": "Both left and right kidney",
+   "action": "Kept the left renal mass as the only target. The 12 cm right-sided mass is a recurrence in the nephrectomy bed after the right kidney was removed: known cancer, outside the incidental lesion guidelines. Now stated in the label."
   },
   "source": {
    "pmcid": "PMC13391280",
@@ -121,6 +147,9 @@
    "side": "right",
    "size_cm": 4.0
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC13375148",
    "doi": "10.7759/cureus.110981",
@@ -138,7 +167,13 @@
   "gold": {
    "organ": "adrenal",
    "side": "left",
-   "size_cm": 9.1
+   "size_cm": 9.1,
+   "appearance": "hyperenhancing, central necrosis, calcification, mass effect"
+  },
+  "review": {
+   "verdict": "disagree",
+   "comment": "Why is it not mentioning the status/nature of the mass",
+   "action": "Added the appearance: hyperenhancing, central necrosis, calcification, mass effect."
   },
   "source": {
    "pmcid": "PMC13389709",
@@ -159,6 +194,9 @@
    "side": "left",
    "size_cm": 6.0
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC13012397",
    "doi": "10.7759/cureus.104068",
@@ -176,7 +214,13 @@
   "gold": {
    "organ": "adrenal",
    "side": "left",
-   "size_cm": 7.1
+   "size_cm": 7.1,
+   "appearance": "relatively homogeneous"
+  },
+  "review": {
+   "verdict": "unsure",
+   "comment": "Why is it not mentioning the status/nature of the mass",
+   "action": "Added the appearance: relatively homogeneous."
   },
   "source": {
    "pmcid": "PMC4031973",
@@ -197,6 +241,9 @@
    "side": "right",
    "size_cm": 3.1
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC12448940",
    "doi": "10.1210/jcemcr/luaf209",
@@ -215,6 +262,9 @@
    "organ": "adrenal",
    "side": "left",
    "size_cm": 3.5
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC13233115",
@@ -235,6 +285,9 @@
    "side": "left",
    "size_cm": 5.0
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC11929149",
    "doi": "10.7759/cureus.79251",
@@ -253,6 +306,9 @@
    "organ": "adrenal",
    "side": "left",
    "size_cm": 3.0
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC11595551",
@@ -273,6 +329,9 @@
    "side": "unknown",
    "size_cm": 1.9
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC10838197",
    "doi": "10.1155/2024/1315222",
@@ -291,6 +350,9 @@
    "organ": "lung",
    "side": "left",
    "size_cm": 3.6
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC8877732",
@@ -311,6 +373,9 @@
    "side": "left",
    "size_cm": 3.2
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC13251046",
    "doi": "10.1186/s13019-026-04098-6",
@@ -329,6 +394,9 @@
    "organ": "lung",
    "side": "unknown",
    "size_cm": 0.8
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC13043216",
@@ -349,6 +417,9 @@
    "side": "left",
    "size_cm": 1.2
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC12229246",
    "doi": "10.7759/cureus.85472",
@@ -367,6 +438,9 @@
    "organ": "lung",
    "side": "left",
    "size_cm": 2.4
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC12583920",
@@ -387,6 +461,9 @@
    "side": "right",
    "size_cm": 1.1
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC12223788",
    "doi": "10.70352/scrj.cr.25-0067",
@@ -406,6 +483,9 @@
    "side": "right",
    "size_cm": 2.3
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC13218942",
    "doi": "10.3389/fonc.2026.1846848",
@@ -422,8 +502,13 @@
   "text": "Comprehensive imaging studies, including ultrasound, computed tomography (CT), and magnetic resonance imaging (MRI), revealed a 58 mm-diameter space-occupying lesion in segments V and VIII of the right hepatic lobe.",
   "gold": {
    "organ": "liver",
-   "side": "unknown",
+   "side": "right",
    "size_cm": 5.8
+  },
+  "review": {
+   "verdict": "disagree",
+   "comment": "Right",
+   "action": "Changed side from unknown to right (right hepatic lobe)."
   },
   "source": {
    "pmcid": "PMC13281640",
@@ -444,6 +529,9 @@
    "side": "unknown",
    "size_cm": 3.0
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC12613024",
    "doi": "10.1016/j.radcr.2025.09.072",
@@ -463,6 +551,9 @@
    "side": "unknown",
    "size_cm": 8.2
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC12788885",
    "doi": "10.7759/cureus.98917",
@@ -479,8 +570,13 @@
   "text": "Thoracoabdominal computed tomography (CT) unexpectedly identified a large (12.5 x 9 cm), multiloculated cystic lesion in the right hepatic lobe exhibiting mass effect and transdiaphragmatic extension into the pleural space.",
   "gold": {
    "organ": "liver",
-   "side": "unknown",
+   "side": "right",
    "size_cm": 12.5
+  },
+  "review": {
+   "verdict": "disagree",
+   "comment": "Right",
+   "action": "Changed side from unknown to right (right hepatic lobe)."
   },
   "source": {
    "pmcid": "PMC13240968",
@@ -501,6 +597,9 @@
    "side": "unknown",
    "size_cm": 2.1
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC13695697",
    "doi": "10.7759/cureus.116881",
@@ -519,6 +618,11 @@
    "organ": "pancreas",
    "side": "unknown",
    "size_cm": 7.4
+  },
+  "review": {
+   "verdict": "unsure",
+   "comment": "",
+   "action": "No change: pancreatic tail lesion, 7.4 cm, as stated."
   },
   "source": {
    "pmcid": "PMC13723721",
@@ -539,6 +643,9 @@
    "side": "unknown",
    "size_cm": 3.5
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC12419928",
    "doi": "10.1155/crgm/4945872",
@@ -557,6 +664,9 @@
    "organ": "pancreas",
    "side": "unknown",
    "size_cm": 16.0
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC10924709",
@@ -577,6 +687,9 @@
    "side": "left",
    "size_cm": 3.0
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC3964670",
    "doi": "10.1308/003588413x13511609956732",
@@ -595,6 +708,9 @@
    "organ": "thyroid",
    "side": "right",
    "size_cm": 1.5
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC13477678",
@@ -615,6 +731,9 @@
    "side": "left",
    "size_cm": 4.0
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC12774523",
    "doi": "10.1055/s-0045-1809310",
@@ -632,7 +751,13 @@
   "gold": {
    "organ": "thyroid",
    "side": "unknown",
-   "size_cm": 4.0
+   "size_cm": 4.0,
+   "note": "Brain metastases are spread of the thyroid cancer; not scored as a separate lesion."
+  },
+  "review": {
+   "verdict": "unsure",
+   "comment": "What about brain?",
+   "action": "Kept the thyroid lesion as the only target. The brain metastases are spread of the thyroid cancer, with no size or location given, and not an incidental finding."
   },
   "source": {
    "pmcid": "PMC4895081",
@@ -653,6 +778,9 @@
    "side": "unknown",
    "size_cm": 1.4
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC6708967",
    "doi": "10.1097/md.0000000000016594",
@@ -671,6 +799,9 @@
    "organ": "pituitary",
    "side": "unknown",
    "size_cm": 1.6
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC13521552",
@@ -691,6 +822,9 @@
    "side": "unknown",
    "size_cm": 1.1
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC13557997",
    "doi": "10.3389/fendo.2026.1902011",
@@ -709,6 +843,9 @@
    "organ": "pituitary",
    "side": "unknown",
    "size_cm": 1.9
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC12832130",
@@ -729,6 +866,9 @@
    "side": "unknown",
    "size_cm": 0.8
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC13316851",
    "doi": "10.2174/0118715303424098250925063845",
@@ -747,6 +887,9 @@
    "organ": "pituitary",
    "side": "unknown",
    "size_cm": 3.4
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC13463908",
@@ -767,6 +910,9 @@
    "side": "right",
    "size_cm": 3.3
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC11972430",
    "doi": "10.7759/cureus.80182",
@@ -785,6 +931,9 @@
    "organ": "brain",
    "side": "unknown",
    "size_cm": 3.7
+  },
+  "review": {
+   "verdict": "agree"
   },
   "source": {
    "pmcid": "PMC12670719",
@@ -805,6 +954,9 @@
    "side": "unknown",
    "size_cm": 5.0
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC12963672",
    "doi": "10.7759/cureus.102928",
@@ -824,6 +976,9 @@
    "side": "left",
    "size_cm": 6.0
   },
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC10509817",
    "doi": "10.1016/j.ijscr.2023.108713",
@@ -839,6 +994,9 @@
   "id": "P45",
   "text": "Abdominal computed tomography (CT) showed a round-like hypodense mass (4.8 cm×4.8 cm×5.3 cm) in the upper pole of the spleen (plain CT value: ~43 HU).",
   "gold": null,
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC13314417",
    "doi": "10.3389/fonc.2026.1770088",
@@ -854,6 +1012,9 @@
   "id": "P46",
   "text": "Cross-sectional imaging demonstrated a 56 mm cystic lesion within the mesentery, located adjacent to the celiac trunk, a previously unreported site.",
   "gold": null,
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC12619651",
    "doi": "10.7759/cureus.94731",
@@ -869,6 +1030,9 @@
   "id": "P47",
   "text": "Contrast-enhanced computed tomography (CT) demonstrated a 2 × 4 cm calcified fundal lesion with focal wall thickening, raising strong suspicion of malignancy.",
   "gold": null,
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC12966777",
    "doi": "10.1093/jscr/rjag123",
@@ -884,6 +1048,9 @@
   "id": "P48",
   "text": "The patient, a 74-year-old male with hypertension, presented with an incidental finding of a retroperitoneal mass (3.0 x 2.5 cm) on abdominal CT.",
   "gold": null,
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC12685626",
    "doi": "10.3389/fonc.2025.1668644",
@@ -899,6 +1066,9 @@
   "id": "P49",
   "text": "Magnetic resonance imaging (MRI) revealed a well-defined 9.7 × 6.6 × 5.7 cm soft tissue mass within the myofascial plane between the external and internal oblique muscles.",
   "gold": null,
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC13386390",
    "doi": "10.7759/cureus.111221",
@@ -914,6 +1084,12 @@
   "id": "P50",
   "text": "Brain magnetic resonance imaging (MRI) revealed a rounded left occipital cortico-subcortical lesion measuring 17 x 16.5 x 16 mm, with imaging features suggestive of a cavernoma and without significant mass effect or perilesional edema.",
   "gold": null,
+  "gold_note": "Brain cavernoma: outside the meningioma-only brain rules, so it counts as a negative.",
+  "review": {
+   "verdict": "disagree",
+   "comment": "Brain",
+   "action": "Kept as a negative, now with the reason stated: it is a brain lesion, but a cavernoma. The brain rules here cover meningioma only, so a reader should not raise a finding for it."
+  },
   "source": {
    "pmcid": "PMC13067294",
    "doi": "10.7759/cureus.106768",
@@ -929,6 +1105,9 @@
   "id": "P51",
   "text": "A contrast computed tomography (CT) of the thorax showed a large (8.1 x 7.3 x 7.3 cm), well-defined, heterogeneous enhancing mass over the left apical-posterior mediastinum.",
   "gold": null,
+  "review": {
+   "verdict": "agree"
+  },
   "source": {
    "pmcid": "PMC11826100",
    "doi": "10.7759/cureus.77453",
