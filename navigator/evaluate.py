@@ -21,7 +21,22 @@ FIELDS = ["size_cm", "composition", "unenhanced_hu", "enhanced_hu", "homogeneous
           "too_small_to_characterize", "stated_actions"]
 
 
-SPLITS = {"dev": "reports.json", "holdout": "reports_holdout.json"}
+# Fields scored per organ (a lung nodule is not scored on septa, etc.)
+COMMON = ["size_cm", "side", "stated_actions"]
+ORGAN_FIELDS = {
+    "kidney": FIELDS,
+    "adrenal": FIELDS,
+    "lung": COMMON + ["short_axis_cm", "nodule_type", "solid_component_mm", "multiple", "patient_risk"],
+    "liver": COMMON + ["appearance", "enhanced_hu", "homogeneous", "patient_risk", "fdg_avid"],
+    "pancreas": COMMON + ["patient_age", "duct_mm", "mural_nodule", "enhancing_nodule", "irregular_wall_or_septa"],
+    "thyroid": COMMON + ["patient_age", "appearance", "fdg_avid", "limited_life_expectancy"],
+    "pituitary": COMMON + ["chiasm_contact"],
+    "brain": COMMON + ["growth", "symptomatic"],
+    "bone": COMMON + ["bone_density", "appearance", "unenhanced_hu", "patient_risk"],
+}
+ALL_FIELDS = list(dict.fromkeys(f for v in ORGAN_FIELDS.values() for f in v))
+
+SPLITS = {"dev": "reports.json", "holdout": "reports_holdout.json", "synth_test": "synthetic_test.json"}
 
 
 def load_reports(split: str = "dev") -> List[dict]:
@@ -52,7 +67,7 @@ def _same(field, a, b):
 
 
 def evaluate(extractor: Callable[[str], ReportExtraction], name: str, split: str = "dev") -> Dict:
-    rows, field_hits, false_pos = [], {k: [] for k in FIELDS}, 0
+    rows, field_hits, false_pos = [], {k: [] for k in ALL_FIELDS}, 0
     reports = load_reports(split)
     for r in reports:
         gold = [Finding(**x["gold"]) for x in r["findings"]]
@@ -77,7 +92,7 @@ def evaluate(extractor: Callable[[str], ReportExtraction], name: str, split: str
                 row.update(pred_category=pg.category, pred_status=pc.status, pred_severity=pc.severity,
                            category_match=pg.category == gg.category, status_match=pc.status == gc.status)
                 wrong = []
-                for k in FIELDS:
+                for k in ORGAN_FIELDS[g.organ]:
                     ok = _same(k, getattr(g, k), getattr(p, k))
                     field_hits[k].append(ok)
                     if not ok:
@@ -111,6 +126,8 @@ def evaluate(extractor: Callable[[str], ReportExtraction], name: str, split: str
         "status_agreement": round(gold_rows["status_match"].mean(), 3),
         "discordance_sensitivity": round(tp / len(discordant), 3) if len(discordant) else None,
         "discordance_ppv": round(tp / len(flagged), 3) if len(flagged) else None,
+        "category_agreement_by_organ": {o: round(v, 3) for o, v in
+                                        gold_rows.groupby("organ")["category_match"].mean().items()},
         "high_severity_caught": f"{len(gold_rows[(gold_rows.gold_severity == 'high') & (gold_rows.pred_severity == 'high')])}"
                                 f"/{len(gold_rows[gold_rows.gold_severity == 'high'])}",
     }
