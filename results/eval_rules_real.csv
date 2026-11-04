@@ -21,10 +21,10 @@ P19,PMC12229246,lung,left,1.2,lung left 1.2,True,True,True,0
 P20,PMC12583920,lung,left,2.4,liver left 2.4,False,,False,1
 P21,PMC12223788,lung,right,1.1,,False,,False,0
 P22,PMC13218942,lung,right,2.3,lung right 2.3,True,True,True,0
-P23,PMC13281640,liver,unknown,5.8,liver right 5.8,True,,True,0
+P23,PMC13281640,liver,right,5.8,liver right 5.8,True,True,True,0
 P24,PMC12613024,liver,unknown,3.0,liver unknown 3.0,True,,True,0
 P25,PMC12788885,liver,unknown,8.2,liver unknown 8.2,True,,True,0
-P26,PMC13240968,liver,unknown,12.5,liver right 12.5,True,,True,0
+P26,PMC13240968,liver,right,12.5,liver right 12.5,True,True,True,0
 P27,PMC13695697,pancreas,unknown,2.1,pancreas unknown 2.1,True,,True,0
 P28,PMC13723721,pancreas,unknown,7.4,pancreas unknown 7.0,True,,False,0
 P29,PMC12419928,pancreas,unknown,3.5,pancreas unknown 2.2,True,,False,0

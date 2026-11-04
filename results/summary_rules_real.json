@@ -3,7 +3,7 @@
   "sentences": 51,
   "with_target_lesion": 44,
   "lesions_found": 0.705,
-  "side_correct_where_stated": 0.929,
+  "side_correct_where_stated": 0.938,
   "size_correct": 0.591,
   "found_by_organ": {
     "adrenal": 0.62,
