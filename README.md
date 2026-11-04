@@ -6,7 +6,7 @@
 
 **Live demo:** https://shaminiramkumart.github.io/incidentaloma-navigator/web/ (runs in the browser, no install)
 
-**Result:** I trained a small model on 600 synthetic reports. On 150 new synthetic reports across all nine organs it found every lesion and gave the same follow-up flag as the answer key for 85% of them. On my 16 hand-written held-out kidney and adrenal reports, it found more lesions than the regex baseline (88% vs 76%) but read the details less accurately, and it missed both high-severity under-calls that the regex caught. [Details below](#results).
+**Result:** I trained a small model on 600 synthetic reports and compared it with a hand-written regex reader, both covering all nine organs. On 150 new synthetic reports the model gave the same follow-up flag as the answer key for 85% of lesions, the regex for 38%. On 51 real sentences from published case reports, the model found 82% of lesions and the regex 70%. On reports I wrote myself the regex does better, which says more about who wrote the test than about the regex. [Details below](#results).
 
 ## Portfolio card
 
@@ -22,44 +22,62 @@
 
 **How?**
 - Two stages. A reader turns free text into fields. A **deterministic, cited rules engine** then makes the guideline call, so every flag can be traced to a threshold and a paper.
-- Three readers, scored the same way: a regex baseline (kidney and adrenal only), a trained token-labelling model (all organs), and an optional Claude reader that needs an API key.
+- Three readers, scored the same way: a regex baseline, a trained token-labelling model, and an optional Claude reader that needs an API key. The regex and the model both cover all nine organs. The regex started in the first version of the project, which covered kidney and adrenal only; I later added rules for the other seven organs so the comparison is complete.
 - The trained model is logistic regression from scikit-learn, trained from scratch on synthetic reports. Everything it learns comes from the synthetic reports in this repository, so nothing has to be downloaded or signed for. It trains in about 10 seconds on a laptop.
-- Data: 600 generated training reports, 150 generated test reports that include wordings the model never saw in training, and the original 46 hand-written kidney and adrenal reports (30 dev, 16 held-out).
+- Data: 600 generated training reports, 150 generated test reports that include wordings the model never saw in training, the original 46 hand-written kidney and adrenal reports (30 dev, 16 held-out), and 27 hand-written held-out reports for the seven newer organs.
 
 ## Results
 
+Four test sets, from least to most independent of me:
+
 | | Regex baseline | Trained model |
 |---|---|---|
-| **Held-out, hand-written** (16 reports, 17 lesions) | | |
+| **Hand-written held-out, kidney and adrenal** (16 reports, 17 lesions) | | |
 | Lesions found | 76% | 88% |
 | Guideline category agreement | 53% | 47% |
 | Flag agreement | 59% | 53% |
 | Discordances caught | 100% | 100% |
 | Flags that were real (PPV) | 67% | 55% |
 | High-severity under-calls caught | 2/2 | 0/2 |
+| **Hand-written held-out, seven newer organs** (27 reports, 28 lesions) | | |
+| Lesions found | 100% | 100% |
+| Guideline category agreement | 100% | 89% |
+| Flag agreement | 100% | 79% |
+| Discordances caught | 100% | 86% |
+| Flags that were real (PPV) | 100% | 75% |
+| High-severity under-calls caught | 3/3 | 3/3 |
 | **Synthetic test, 9 organs** (150 reports, 190 lesions) | | |
-| Lesions found | 4% | 100% |
-| Guideline category agreement | 3% | 78% |
-| Flag agreement | 2% | 85% |
-| Discordances caught | 6% | 88% |
-| Flags that were real (PPV) | 50% | 66% |
-| High-severity under-calls caught | 1/12 | 9/12 |
-| **Dev, hand-written** (30 reports, 32 lesions) | | |
-| Flag agreement | 100% | 84% |
+| Lesions found | 43% | 100% |
+| Guideline category agreement | 37% | 78% |
+| Flag agreement | 38% | 85% |
+| Discordances caught | 52% | 88% |
+| Flags that were real (PPV) | 86% | 66% |
+| High-severity under-calls caught | 7/12 | 9/12 |
+| **Real sentences from case reports** (51 sentences, 44 lesions; reading only, see below) | | |
+| Lesions found | 70% | 82% |
 
-The regex only knows kidney and adrenal, so its synthetic-test numbers mostly show what it doesn't cover. The fair comparison between the two readers is the held-out row.
+Flag agreement on the synthetic test, by organ:
 
-Guideline category agreement on the synthetic test, by organ: bone 100%, brain 100%, pancreas 100%, thyroid 88%, kidney 83%, pituitary 75%, liver 73%, adrenal 71%, lung 44%.
+| | Kidney | Adrenal | Lung | Liver | Pancreas | Thyroid | Pituitary | Brain | Bone |
+|---|---|---|---|---|---|---|---|---|---|
+| Regex | 11% | 17% | 32% | 46% | 61% | 35% | 44% | 71% | 40% |
+| Trained model | 89% | 67% | 82% | 88% | 83% | 82% | 81% | 100% | 100% |
 
 **What this shows:**
-- The model handles new sentence structure better than the regex: it found 15 of 17 held-out lesions where the regex found 13.
-- It is weak on words it has never seen. Lung scored lowest because the test set describes nodules as "nonsolid", "semisolid" or "numerous", words that never appear in training. Sizes written as "millimetres" were read as centimetres for the same reason.
-- Both held-out high-severity misses came from details: in H10 it missed the irregular 4 mm wall (so Bosniak III became Bosniak I), and in H12 it put 85 HU on the wrong contrast phase and missed "heterogeneous enhancement". A tool like this has to be measured on the dangerous cases separately, because a good average can hide them.
-- The dev set was used to debug the model, so its 84% is optimistic. The 16 held-out reports were never used for tuning.
+- On the 27 new hand-written reports the regex scores 100%. I wrote those reports and I wrote the regex rules for those organs, so both use my wording. I wrote the reports first and did not tune the regex on them, but the overlap in vocabulary is still there. That result says little about how the regex would do on someone else's reports.
+- On the two tests I didn't write sentence by sentence, the picture flips. On generated reports with varied wording, the model's flag agreement is 85% against 38% for the regex. On real published sentences, it finds 82% of lesions against 70%.
+- The model is weak on words it has never seen. On the synthetic test, lung nodules described as "nonsolid", "semisolid" or "numerous" were misread, and "millimetres" was read as centimetres.
+- On the new hand-written reports, most of the model's mistakes were in the impression: in three pancreas reports it added a specialist referral the report didn't ask for.
+- On the original 16 held-out reports, both model misses on high-severity cases came from details: in H10 it missed the irregular 4 mm wall (so Bosniak III became Bosniak I), and in H12 it put 85 HU on the wrong contrast phase and missed "heterogeneous enhancement". Dangerous cases need their own metric, because a good average can hide them.
+- The 30 dev reports were used to debug both readers, so their scores (regex 100%, model 84% flag agreement) are optimistic and are left out of the table.
 
-**What I'd change first:** add more varied wording to the generator (units, nodule types, phase descriptions), look at the word after a number when reading units, and get a radiologist to write a fresh held-out set so the test is not written by the same person who built the generator.
+**Two fixes made while building the new held-out set:**
+- *Thyroid rule.* Writing the reports showed that the engine called an FNA unnecessary for an FDG-avid thyroid nodule. The ACR paper recommends ultrasound and FNA there, so the rule now expects both, and accepts ultrasound with FNA for nodules with suspicious features.
+- *Scoring.* The scorer required the side of the lesion to match even for organs without sides, so "the left side of the pituitary" counted as a miss. It now ignores side when the answer key has none. This did not change any earlier result.
 
-To see exactly where each reader went wrong, open `results/eval_ml_holdout.csv` or `results/eval_ml_synth_test.csv`. They have one row per lesion with the correct answer, what the reader produced and which details it got wrong. The same tables appear as "Error log" in the Validation dashboard tab of the Streamlit app (`streamlit run app.py`).
+**What I'd change first:** add more varied wording to the generator (units, nodule types, phase descriptions, bone words), look at the word after a number when reading units, and get a radiologist to write a fresh held-out set, so the test is not written by the person who built both readers.
+
+To see exactly where each reader went wrong, open the CSV files in `results/` (for example `eval_ml_holdout_all.csv` or `eval_rules_synth_test.csv`). They have one row per lesion with the correct answer, what the reader produced and which details it got wrong. The same tables appear as "Error log" in the Validation dashboard tab of the Streamlit app (`streamlit run app.py`).
 
 ## Real-wording check (published case reports)
 
@@ -69,12 +87,17 @@ These are case-report sentences, not radiology reports, so this checks the readi
 
 | 51 real sentences | Regex baseline | Trained model |
 |---|---|---|
-| Lesions found (44) | 18% | 82% |
-| Side correct, where the sentence states it | 86% | 96% |
-| Largest size read correctly | 11% | 61% |
+| Lesions found (44) | 70% | 82% |
+| Side correct, where the sentence states it | 93% | 96% |
+| Largest size read correctly | 59% | 61% |
 | False alarms on the 7 negative sentences | 0/7 | 1/7 |
 
-Found by organ (trained model): adrenal, kidney, liver and brain 100%, pituitary 83%, lung and thyroid 75%, pancreas 50%, bone 0%.
+Found by organ:
+
+| | Kidney | Adrenal | Lung | Liver | Pancreas | Thyroid | Pituitary | Brain | Bone |
+|---|---|---|---|---|---|---|---|---|---|
+| Regex | 50% | 62% | 75% | 100% | 100% | 75% | 100% | 0% | 0% |
+| Trained model | 100% | 100% | 75% | 100% | 50% | 75% | 83% | 100% | 0% |
 
 The misses follow a pattern. The model often reads the wrong number from a size like "8.2 x 6.4 cm" or "4.0 × 3.8 cm, SUVmax 3.4", and it doesn't know bone words such as "osteochondroma", "mandible" or "scapula", which never appear in its training data. Both are fixable with more varied training sentences. Per-sentence results are in `results/eval_ml_real.csv`; run it with `python data/build_real_snippets.py && python run_real_eval.py`.
 
@@ -259,7 +282,7 @@ The real test sentences were found with the [Europe PMC search service](https://
 
 `web/index.html` runs in any browser, with no install and no API key. Open the file directly, or serve the repository with GitHub Pages. It has four tabs.
 
-"Check a report" lets you paste a report and check it live. It uses the regex reader, so it covers kidney and adrenal only. `web/engine.js` is a JavaScript port of the regex reader and the kidney/adrenal rules, and `web/parity_check.js` confirms it matches the Python on every sample report.
+"Check a report" lets you paste a report and check it live. It runs `web/engine.js`, a JavaScript copy of the regex reader and rules from the first version, so it covers kidney and adrenal only; the Python regex now covers all nine organs, but the browser copy has not been extended yet. `web/parity_check.js` confirms the JavaScript matches the Python on every kidney and adrenal sample report.
 
 "Worklist" lists the 46 hand-written reports, sorted by severity.
 
@@ -272,13 +295,14 @@ The real test sentences were found with the [Europe PMC search service](https://
 ```bash
 pip install -r requirements.txt
 python data/build_reports.py && (cd data && python build_holdout.py)   # hand-written kidney/adrenal reports
+python data/build_holdout_all.py      # hand-written held-out reports, seven newer organs
 python data/generate_synthetic.py     # 600 training + 150 test reports, all organs
 python train_model.py                 # trains the model (about 10 s) -> models/extractor.joblib
-python run_eval.py both all           # score regex and trained model on dev, holdout and synthetic test
+python run_eval.py both all           # score regex and model on dev, both held-out sets and synthetic test
 ANTHROPIC_API_KEY=... python run_eval.py llm all   # optional: score the Claude reader
 python web/build_model_results.py     # refresh the demo's all-organ tab
 python data/build_real_snippets.py && python run_real_eval.py   # real-wording check
-python -m pytest -q tests             # 69 guideline tests
+python -m pytest -q tests             # 97 guideline tests
 streamlit run app.py
 ```
 
@@ -287,7 +311,7 @@ streamlit run app.py
 ```
 navigator/schema.py          Finding model + action vocabulary
 navigator/guidelines.py      Rules engine for all nine organs + concordance check
-navigator/extract_rules.py   Regex baseline reader (kidney and adrenal)
+navigator/extract_rules.py   Regex baseline reader (all nine organs)
 navigator/extract_ml.py      Trained token-labelling reader (all organs)
 navigator/extract_llm.py     Claude structured-output reader
 navigator/evaluate.py        Matching + three-level scoring, fields scored per organ
@@ -302,7 +326,7 @@ web/                         Browser demo (index.html) and its JavaScript engine
 
 ## Limitations
 
-- All reports are synthetic and written or generated by one author, who also built the rules. The held-out set reduces tuning bias but doesn't remove it. Gold labels haven't been reviewed by a radiologist.
+- All reports are synthetic and written or generated by one author, who also built the rules and both readers. The held-out sets reduce tuning bias but don't remove it, as the regex's 100% on my own new reports shows. Gold labels haven't been reviewed by a radiologist.
 - The model learns from wording I generated, so it inherits my phrasing habits. It is weak on words it has never seen.
 - Guidelines are simplified to the type of action, not the interval. Pancreas schedules for patients over 80, liver rules on MRI and the Bone-RADS MRI branches are condensed. Brain covers suspected meningioma only.
 - Educational prototype on fictional data. Not a medical device and not for clinical use.
@@ -323,7 +347,7 @@ What this repository contains, who it belongs to, and under which terms:
 | Part | Where | Owner and licence |
 |---|---|---|
 | Code, browser demo, rules engine, trained model | `navigator/`, `web/`, scripts | Shamini Ramkumar T, MIT license ([LICENSE](LICENSE)) |
-| 46 hand-written reports | `data/reports.json`, `data/reports_holdout.json` | Shamini Ramkumar T, MIT. Fictional, no patient data |
+| 73 hand-written reports | `data/reports.json`, `data/reports_holdout.json`, `data/reports_holdout_all.json` | Shamini Ramkumar T, MIT. Fictional, no patient data |
 | 750 generated reports | `data/synthetic_*.json` | Shamini Ramkumar T, MIT. Fictional, made by `data/generate_synthetic.py`, no patient data |
 | 51 real sentences | `data/real_snippets.json` | The original authors of each case report, under CC BY. Copied word for word, not changed, each stored with its full source. They are not covered by the MIT license. All 51 references: see [Sources of the 51 sentences](#real-wording-check-published-case-reports) |
 | Answer key for the 51 sentences | `data/real_snippets.json` (`gold` fields) | Shamini Ramkumar T, MIT. Written by me from each sentence; not reviewed by a radiologist |

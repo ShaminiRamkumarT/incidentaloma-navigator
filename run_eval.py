@@ -1,4 +1,4 @@
-"""Usage: python run_eval.py [rules|ml|llm|both] [dev|holdout|synth_test|all]   (llm needs ANTHROPIC_API_KEY)"""
+"""Usage: python run_eval.py [rules|ml|llm|both] [dev|holdout|holdout_all|synth_test|all]   (llm needs ANTHROPIC_API_KEY)"""
 import json
 import sys
 
@@ -7,7 +7,7 @@ from navigator.evaluate import evaluate, save
 
 
 def main(which: str, split: str):
-    splits = ["dev", "holdout", "synth_test"] if split == "all" else [split]
+    splits = ["dev", "holdout", "holdout_all", "synth_test"] if split == "all" else [split]
     extractors = []
     if which in ("rules", "both"):
         extractors.append(("rules", "rules (regex baseline)", extract_rules.extract))
