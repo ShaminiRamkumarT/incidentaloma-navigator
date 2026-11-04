@@ -1,0 +1,39 @@
+{
+  "extractor": "rules (regex baseline)",
+  "split": "synth_test",
+  "reports": 150,
+  "gold_findings": 190,
+  "detection_recall": 0.042,
+  "false_positive_findings": 2,
+  "field_accuracy": {
+    "size_cm": 1.0,
+    "composition": 0.875,
+    "unenhanced_hu": 0.875,
+    "enhanced_hu": 0.875,
+    "homogeneous": 0.875,
+    "wall_mm": 1.0,
+    "septa_count": 0.875,
+    "septa_mm": 1.0,
+    "irregular_wall_or_septa": 1.0,
+    "enhancing_nodule": 0.875,
+    "macroscopic_fat": 1.0,
+    "too_small_to_characterize": 1.0,
+    "stated_actions": 0.375
+  },
+  "category_agreement": 0.032,
+  "status_agreement": 0.021,
+  "discordance_sensitivity": 0.062,
+  "discordance_ppv": 0.5,
+  "category_agreement_by_organ": {
+    "adrenal": 0.125,
+    "bone": 0.0,
+    "brain": 0.0,
+    "kidney": 0.167,
+    "liver": 0.0,
+    "lung": 0.0,
+    "pancreas": 0.0,
+    "pituitary": 0.0,
+    "thyroid": 0.0
+  },
+  "high_severity_caught": "1/12"
+}

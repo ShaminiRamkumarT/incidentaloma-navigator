@@ -1,0 +1,32 @@
+{
+  "extractor": "ml (trained token model)",
+  "split": "dev",
+  "reports": 30,
+  "gold_findings": 32,
+  "detection_recall": 0.969,
+  "false_positive_findings": 1,
+  "field_accuracy": {
+    "size_cm": 0.968,
+    "composition": 0.968,
+    "unenhanced_hu": 0.871,
+    "enhanced_hu": 0.903,
+    "homogeneous": 0.968,
+    "wall_mm": 0.935,
+    "septa_count": 0.871,
+    "septa_mm": 0.903,
+    "irregular_wall_or_septa": 0.968,
+    "enhancing_nodule": 1.0,
+    "macroscopic_fat": 1.0,
+    "too_small_to_characterize": 1.0,
+    "stated_actions": 0.935
+  },
+  "category_agreement": 0.875,
+  "status_agreement": 0.844,
+  "discordance_sensitivity": 0.933,
+  "discordance_ppv": 0.778,
+  "category_agreement_by_organ": {
+    "adrenal": 1.0,
+    "kidney": 0.818
+  },
+  "high_severity_caught": "4/5"
+}

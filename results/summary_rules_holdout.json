@@ -24,5 +24,9 @@
   "status_agreement": 0.588,
   "discordance_sensitivity": 1.0,
   "discordance_ppv": 0.667,
+  "category_agreement_by_organ": {
+    "adrenal": 0.714,
+    "kidney": 0.4
+  },
   "high_severity_caught": "2/2"
 }
