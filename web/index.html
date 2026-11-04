@@ -161,6 +161,10 @@ body{margin:0}
 .res ul{margin:0;padding-left:18px;display:grid;gap:10px;color:var(--muted)}
 .res ul b{color:var(--ink)}
 .app-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px;padding-top:12px;border-top:1px solid var(--line)}
+.real{display:grid;gap:14px;margin-top:8px;padding:22px;border:1px solid var(--line);border-radius:16px;background:var(--accent-soft)}
+.real h3{font-size:1.15rem}
+.kpis.small .kpi b{font-size:1.7rem}
+.real .fine a{color:var(--accent)}
 .foot2{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:.84rem;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
 .foot2 a{color:var(--accent)}
 @media (max-width:860px){.hero2,.res{grid-template-columns:minmax(0,1fr)}.steps{grid-template-columns:minmax(0,1fr)}
@@ -250,6 +254,17 @@ Left renal cystic lesion. <mark>Recommend follow-up ultrasound in 12 months.</ma
         <li><b>It missed both dangerous cases</b> in the hand-written set. That is why severe cases need their own metric.</li>
         <li><b>Next:</b> wider training wording, a radiologist-written test set, and real anonymised reports.</li>
       </ul>
+    </div>
+    <div class="real">
+      <div class="sec-head"><h3>Tested on real clinical wording</h3>
+        <p>51 imaging sentences taken word for word from published open-access case reports (CC BY). The model was not trained on them. This checks the reading step only, not the follow-up flag.</p></div>
+      <div class="kpis small">
+        <div class="kpi"><b>82%</b><span>of 44 real lesions found (regex: 18%)</span></div>
+        <div class="kpi"><b>96%</b><span>side read correctly</span></div>
+        <div class="kpi"><b>61%</b><span>largest size read correctly</span></div>
+        <div class="kpi"><b>1/7</b><span>false alarms on lesions in other organs</span></div>
+      </div>
+      <p class="fine">Weakest on bone words it never saw in training and on sizes written next to other numbers. <a href="https://github.com/ShaminiRamkumarT/incidentaloma-navigator#real-wording-check-published-case-reports">All 51 sources and per-sentence results on GitHub</a>.</p>
     </div>
   </section>
 </div>
