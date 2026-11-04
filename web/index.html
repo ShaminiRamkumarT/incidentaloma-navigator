@@ -238,19 +238,20 @@ Left renal cystic lesion. <mark>Recommend follow-up ultrasound in 12 months.</ma
 
   <section class="sec" id="evidence">
     <div class="sec-head"><span class="eyebrow">Results</span><h2>What the numbers say, including the misses</h2>
-      <p>The trained model against a keyword (regex) baseline on reports neither was tuned on.</p></div>
+      <p>The trained model against a keyword (regex) reader. Both cover all nine organs, and neither was tuned on these reports.</p></div>
     <div class="res">
       <div class="tbl"><table>
         <thead><tr><th>Test set</th><th>Regex</th><th>Model</th></tr></thead><tbody>
-        <tr><td>150 synthetic reports, 9 organs: same flag</td><td class="num">2%</td><td class="num">85%</td></tr>
-        <tr><td>150 synthetic reports: high-severity caught</td><td class="num">1/12</td><td class="num">9/12</td></tr>
-        <tr><td>16 hand-written reports: lesions found</td><td class="num">76%</td><td class="num">88%</td></tr>
-        <tr><td>16 hand-written reports: same flag</td><td class="num">59%</td><td class="num">53%</td></tr>
+        <tr><td>150 synthetic reports, 9 organs: same flag</td><td class="num">38%</td><td class="num">85%</td></tr>
+        <tr><td>150 synthetic reports: high-severity caught</td><td class="num">7/12</td><td class="num">9/12</td></tr>
+        <tr><td>51 real published sentences: lesions found</td><td class="num">70%</td><td class="num">82%</td></tr>
+        <tr><td>27 hand-written reports, newer organs: same flag</td><td class="num">100%</td><td class="num">79%</td></tr>
+        <tr><td>16 hand-written reports, kidney/adrenal: same flag</td><td class="num">59%</td><td class="num">53%</td></tr>
         <tr><td>16 hand-written reports: high-severity caught</td><td class="num">2/2</td><td class="num">0/2</td></tr>
       </tbody></table></div>
       <ul>
-        <li><b>The regex only knows kidney and adrenal,</b> so the fair comparison is the 16 hand-written reports.</li>
-        <li><b>The model finds more lesions</b> in unfamiliar sentences but reads some details less accurately.</li>
+        <li><b>On wording I didn't write myself,</b> generated reports and real published sentences, the model clearly beats the regex.</li>
+        <li><b>On reports I wrote,</b> the regex does as well or better, because I also wrote its rules. That says more about who wrote the test than about the regex.</li>
         <li><b>It missed both dangerous cases</b> in the hand-written set. That is why severe cases need their own metric.</li>
         <li><b>Next:</b> wider training wording, a radiologist-written test set, and real anonymised reports.</li>
       </ul>
@@ -259,7 +260,7 @@ Left renal cystic lesion. <mark>Recommend follow-up ultrasound in 12 months.</ma
       <div class="sec-head"><h3>Tested on real clinical wording</h3>
         <p>51 imaging sentences taken word for word from published open-access case reports (CC BY). The model was not trained on them. This checks the reading step only, not the follow-up flag.</p></div>
       <div class="kpis small">
-        <div class="kpi"><b>82%</b><span>of 44 real lesions found (regex: 18%)</span></div>
+        <div class="kpi"><b>82%</b><span>of 44 real lesions found (regex: 70%)</span></div>
         <div class="kpi"><b>96%</b><span>side read correctly</span></div>
         <div class="kpi"><b>61%</b><span>largest size read correctly</span></div>
         <div class="kpi"><b>1/7</b><span>false alarms on lesions in other organs</span></div>
@@ -306,7 +307,7 @@ Left renal cystic lesion. <mark>Recommend follow-up ultrasound in 12 months.</ma
   </section>
 
   <section id="p-ml" role="tabpanel" aria-labelledby="t-ml" class="panel" hidden>
-    <p class="hint">150 held-out synthetic reports across all nine organs, read by the trained model (a token-labelling model trained on 600 other synthetic reports) and checked against the guidelines. The model runs in Python; these results were generated offline. Select a row to see the report and what the model extracted. The "Check a report" tab uses the keyword reader, which only covers kidney and adrenal.</p>
+    <p class="hint">150 held-out synthetic reports across all nine organs, read by the trained model (a token-labelling model trained on 600 other synthetic reports) and checked against the guidelines. The model runs in Python; these results were generated offline. Select a row to see the report and what the model extracted. The "Check a report" tab runs a browser copy of the first-version keyword reader, which covers kidney and adrenal only.</p>
     <div class="stats" id="mlstats"></div>
     <div class="mlview" id="mlview"></div>
     <div class="tbl"><table>
