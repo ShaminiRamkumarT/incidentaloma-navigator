@@ -282,9 +282,9 @@ The real test sentences were found with the [Europe PMC search service](https://
 
 `web/index.html` runs in any browser, with no install and no API key. Open the file directly, or serve the repository with GitHub Pages. It has four tabs.
 
-"Check a report" lets you paste a report and check it live. It runs `web/engine.js`, a JavaScript copy of the regex reader and rules from the first version, so it covers kidney and adrenal only; the Python regex now covers all nine organs, but the browser copy has not been extended yet. `web/parity_check.js` confirms the JavaScript matches the Python on every kidney and adrenal sample report.
+"Check a report" lets you paste a report and check it live, for all nine organs. It runs `web/engine.js`, a JavaScript copy of the regex reader and the rules engine. `web/parity_export.py` and `web/parity_check.js` confirm that the browser copy gives exactly the same lesions, fields, categories and flags as the Python on all 223 hand-written and synthetic test reports.
 
-"Worklist" lists the 46 hand-written reports, sorted by severity.
+"Worklist" lists the 73 hand-written reports across all nine organs, sorted by severity.
 
 "All organs: trained model" shows the 150 synthetic test reports read by the trained model, with each verdict next to the answer key. The model runs in Python, and `web/build_model_results.py` writes its results to `web/model_results.js`.
 
@@ -301,6 +301,7 @@ python train_model.py                 # trains the model (about 10 s) -> models/
 python run_eval.py both all           # score regex and model on dev, both held-out sets and synthetic test
 ANTHROPIC_API_KEY=... python run_eval.py llm all   # optional: score the Claude reader
 python web/build_model_results.py     # refresh the demo's all-organ tab
+python web/parity_export.py > py_out.json && node web/parity_check.js py_out.json   # browser engine = Python
 python data/build_real_snippets.py && python run_real_eval.py   # real-wording check
 python -m pytest -q tests             # 97 guideline tests
 streamlit run app.py
