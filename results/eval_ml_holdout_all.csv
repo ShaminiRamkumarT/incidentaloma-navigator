@@ -1,0 +1,29 @@
+report,organ,side,size_cm,gold_category,gold_status,gold_severity,detected,error,pred_category,pred_status,pred_severity,category_match,status_match,field_errors
+A01,lung,right,0.7,Solid nodule 6-8 mm (single),under-call,medium,True,,Solid nodule 6-8 mm (single),concordant,none,True,False,"stated_actions: gold=[NO_FOLLOWUP] pred=[IMAGING_SURVEILLANCE,NO_FOLLOWUP]"
+A02,lung,left,0.4,Solid nodule <6 mm (single),over-call,low,True,,Solid nodule <6 mm (single),over-call,low,True,True,"stated_actions: gold=[IMAGING_SURVEILLANCE] pred=[SPECIALIST_REFERRAL,IMAGING_SURVEILLANCE]"
+A03,lung,left,1.6,"Part-solid nodule ≥6 mm, solid part ≥6 mm",concordant,none,True,,"Part-solid nodule ≥6 mm, solid part ≥6 mm",concordant,none,True,True,
+A04,lung,right,0.9,"Multiple subsolid nodules, one or more ≥6 mm",under-call,medium,True,,Ground-glass nodule ≥6 mm,under-call,medium,False,True,multiple: gold=True pred=False
+A05,liver,unknown,0.7,Liver lesion <1 cm,under-call,medium,True,,Liver lesion <1 cm,concordant,none,True,False,appearance: gold=indeterminate pred=benign
+A06,liver,unknown,2.4,Liver lesion with benign features,concordant,none,True,,Liver lesion with benign features,concordant,none,True,True,
+A07,liver,unknown,1.8,Liver lesion >1.5 cm with suspicious features,under-call,medium,True,,Liver lesion >1.5 cm with suspicious features,under-call,medium,True,True,
+A08,liver,unknown,1.2,Flash-filling liver lesion 1-1.5 cm,over-call,low,True,,Flash-filling liver lesion 1-1.5 cm,over-call,low,True,True,"stated_actions: gold=[IMAGING_SURVEILLANCE] pred=[CHARACTERIZATION_IMAGING,IMAGING_SURVEILLANCE]"
+A09,pancreas,unknown,0.9,Pancreatic cyst <1.5 cm,concordant,none,True,,Pancreatic cyst <1.5 cm,over-call,low,True,False,"stated_actions: gold=[IMAGING_SURVEILLANCE] pred=[SPECIALIST_REFERRAL,IMAGING_SURVEILLANCE]"
+A10,pancreas,unknown,2.8,Pancreatic cyst with high-risk stigmata,under-call,high,True,,Pancreatic cyst with high-risk stigmata,under-call,high,True,True,size_cm: gold=2.8 pred=0.5; mural_nodule: gold=False pred=True
+A11,pancreas,unknown,3.4,Pancreatic cyst ≥3 cm,concordant,none,True,,Pancreatic cyst ≥3 cm,over-call,low,True,False,"stated_actions: gold=[SPECIALIST_REFERRAL] pred=[SPECIALIST_REFERRAL,IMAGING_SURVEILLANCE]"
+A12,pancreas,unknown,1.6,"Pancreatic cyst, patient ≥80",concordant,none,True,,"Pancreatic cyst, patient ≥80",over-call,low,True,False,"stated_actions: gold=[NO_FOLLOWUP] pred=[SPECIALIST_REFERRAL,NO_FOLLOWUP]"
+A13,thyroid,left,1.2,"Thyroid nodule ≥1 cm, age <35",under-call,medium,True,,"Thyroid nodule ≥1 cm, age <35",under-call,medium,True,True,
+A14,thyroid,right,1.1,"Thyroid nodule <1.5 cm, age ≥35",over-call,low,True,,"Thyroid nodule <1.5 cm, age ≥35",over-call,low,True,True,
+A15,thyroid,right,1.4,FDG-avid thyroid nodule,concordant,none,True,,FDG-avid thyroid nodule,concordant,none,True,True,
+A16,thyroid,left,2.6,Thyroid nodule with suspicious features,concordant,none,True,,Thyroid nodule with suspicious features,concordant,none,True,True,
+A17,pituitary,unknown,0.6,Pituitary microincidentaloma (<1 cm),under-call,medium,True,,Pituitary microincidentaloma (<1 cm),under-call,medium,True,True,side: gold=unknown pred=left
+A18,pituitary,unknown,1.8,Pituitary lesion abutting/compressing the chiasm,concordant,none,True,,Pituitary macroincidentaloma (≥1 cm),over-call,low,False,False,chiasm_contact: gold=True pred=False
+A19,pituitary,unknown,1.3,Pituitary macroincidentaloma (≥1 cm),concordant,none,True,,Pituitary macroincidentaloma (≥1 cm),concordant,none,True,True,
+A20,brain,right,1.4,Incidental asymptomatic meningioma,under-call,medium,True,,Incidental asymptomatic meningioma,under-call,medium,True,True,
+A21,brain,left,3.1,Growing or symptomatic meningioma,under-call,high,True,,Growing or symptomatic meningioma,under-call,high,True,True,
+A22,brain,unknown,2.0,Incidental asymptomatic meningioma,concordant,none,True,,Incidental asymptomatic meningioma,concordant,none,True,True,
+A23,bone,left,1.1,Bone-RADS 1,concordant,none,True,,Bone-RADS 1,concordant,none,True,True,appearance: gold=None pred=benign
+A24,bone,unknown,1.5,Bone-RADS 2/3 (known cancer),under-call,medium,True,,Bone-RADS 4,under-call,high,False,True,appearance: gold=None pred=suspicious
+A25,bone,right,3.2,Bone-RADS 4,under-call,high,True,,Bone-RADS 4,under-call,high,True,True,
+A26,bone,unknown,1.2,Bone-RADS 1,concordant,none,True,,Bone-RADS 1,concordant,none,True,True,size_cm: gold=1.2 pred=2.0
+A27,lung,right,0.3,Solid nodule <6 mm (single),concordant,none,True,,Solid nodule <6 mm (single),concordant,none,True,True,
+A27,thyroid,left,0.8,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,,"Thyroid nodule <1.5 cm, age ≥35",concordant,none,True,True,
