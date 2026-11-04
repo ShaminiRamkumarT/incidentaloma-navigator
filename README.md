@@ -354,6 +354,8 @@ What this repository contains, who it belongs to, and under which terms:
 | Answer key for the 51 sentences | `data/real_snippets.json` (`gold` fields) | Shamini Ramkumar T, MIT. Written by me from each sentence; not reviewed by a radiologist |
 | Guideline tables | README, `navigator/guidelines.py`, demo | My simplified summaries of the cited guidelines. The guidelines belong to their publishers, and the societies that wrote them have not reviewed or endorsed this project. References and the copies read: see [Guideline logic](#guideline-logic-simplified) and [How the guideline rules were checked](#how-the-guideline-rules-were-checked) |
 | Fonts on the demo page | Google Fonts (Archivo, IBM Plex) | Their designers, under the SIL Open Font License |
+| Code, report generator, browser port, README drafts | Whole repository | Written with an AI assistant (Claude, by Anthropic), directed and reviewed by me. Covered by the MIT license above |
+| Scope, choice of organs and guidelines, data-sourcing decisions, review of results | Whole project | Shamini Ramkumar T |
 
 No real patient records, credentialed datasets (such as MIMIC) or data under restrictive terms were used. Sources I looked at and decided not to use, because their terms don't allow public redistribution, are MTSamples and the Indiana University chest X-ray reports (Open-i).
 
