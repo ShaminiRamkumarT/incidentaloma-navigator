@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>IncidentaLens Nodule Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: full-bleed lung-window CT behind everything; headline bottom-left, one glass
+   control card bottom-right where dragging nodule size moves the Fleischner call. Single dark look by design. */
+:root{
+  color-scheme:dark;
+  --bg:#070809; --fg:#f1f3f3; --muted:rgba(241,243,243,.68); --faint:rgba(241,243,243,.42);
+  --glass:rgba(22,25,27,.55); --glass-line:rgba(255,255,255,.16);
+  --flag:#ff8a3d; --ok:#7fd3b0; --mid:#ffc46b;
+  --display:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --body:"IBM Plex Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;overflow-x:hidden}
+#ct{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+.shade{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 90% at 20% 100%,rgba(7,8,9,.9),rgba(7,8,9,0) 55%),
+             radial-gradient(80% 70% at 100% 100%,rgba(7,8,9,.7),rgba(7,8,9,0) 60%),
+             linear-gradient(180deg,rgba(7,8,9,.55),rgba(7,8,9,0) 20%)}
+.stage{position:relative;z-index:2;min-height:100%;display:flex;flex-direction:column;justify-content:space-between;
+  padding:20px max(24px,env(safe-area-inset-right,0px)) 28px max(24px,env(safe-area-inset-left,0px))}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{display:inline-flex;align-items:center;gap:12px;padding:8px 14px;border-radius:999px;background:var(--glass);border:1px solid var(--glass-line);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:13px;color:var(--muted)}
+.brand b{font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:-.02em;color:var(--fg)}
+.brand b span{color:var(--flag)}
+.brand i{width:1px;height:16px;background:var(--glass-line)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:var(--glass);border:1px solid var(--glass-line);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--fg);text-decoration:none;font-size:14px;font-weight:500}
+.btn:hover{background:rgba(255,255,255,.12)}
+a:focus-visible,button:focus-visible,input:focus-visible+.chart{outline:2px solid var(--flag);outline-offset:3px}
+
+.bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap}
+.copy{max-width:560px;min-width:0}
+.eyebrow{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,5.2vw,76px);line-height:.98;letter-spacing:-.035em;margin:0;text-wrap:balance}
+.copy p.sub{margin:18px 0 0;max-width:46ch;color:var(--muted);font-size:16px}
+.note{margin-top:16px;font-family:var(--mono);font-size:11px;color:var(--faint)}
+
+.card{width:380px;max-width:100%;padding:18px 18px 16px;border-radius:22px;background:var(--glass);border:1px solid var(--glass-line);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);display:grid;gap:14px}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.lab{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.big{font-family:var(--display);font-weight:700;font-size:44px;letter-spacing:-.03em;line-height:1;margin-top:4px;font-variant-numeric:tabular-nums}
+.big small{font-family:var(--body);font-weight:400;font-size:15px;letter-spacing:0;color:var(--muted);margin-left:4px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--fg);color:#111;font-size:12px;font-weight:500;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--dot,#888)}
+.chartwrap{position:relative}
+.chartwrap input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+.chart{display:block;width:100%;height:auto;border-radius:8px}
+.axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:4px;position:relative;height:14px}
+.axis span{position:absolute;transform:translateX(-50%)}
+.axis span:first-child{transform:none}.axis span:last-child{transform:translateX(-100%)}
+.seg{display:grid;grid-template-columns:1fr 1fr;padding:3px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid var(--glass-line)}
+.seg button{all:unset;text-align:center;padding:6px 0;border-radius:999px;font-size:12.5px;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--fg);color:#111;font-weight:500}
+.seg button:focus-visible{outline:2px solid var(--flag)}
+dl{margin:0;display:grid;gap:10px;padding-top:12px;border-top:1px solid var(--glass-line)}
+dt{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+dd{margin:2px 0 0;font-size:13.5px}
+dd.mono{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.verdict{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pill{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.05em;padding:4px 10px;border-radius:6px;color:#140b04;background:var(--vc,var(--ok))}
+.hint{font-size:11px;color:var(--faint)}
+
+@media (max-width:760px){
+  .brand .tag{display:none}
+  .bottom{flex-direction:column;align-items:stretch;gap:22px}
+  .card{width:100%}
+  .stage{padding-top:14px;padding-bottom:16px}
+  h1{font-size:40px}
+  .bottom{margin-top:38vh}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="ct" aria-hidden="true"></canvas>
+<div class="shade"></div>
+
+<main class="stage">
+  <header>
+    <a class="brand" href="./" style="text-decoration:none"><b>IncidentaLens<span>.</span></b><i></i><span class="tag">Lung nodule · PET-CT · Fleischner 2017</span></a>
+    <a class="btn" href="web/">Full checker →</a>
+  </header>
+
+  <div class="bottom">
+    <section class="copy">
+      <p class="eyebrow">Same report, different nodule</p>
+      <h1>Size changes the answer.</h1>
+      <p class="sub">Fleischner sets lung nodule follow-up by size and patient risk. Drag the curve and watch the guideline call move while the report stays the same.</p>
+      <p class="note">Fictional case · illustrative PET uptake · simplified rules · not a medical device</p>
+    </section>
+
+    <section class="card" aria-label="Nodule size and guideline check">
+      <div class="row">
+        <div>
+          <div class="lab">Solid nodule · average size</div>
+          <div class="big" id="size">9<small>mm</small></div>
+        </div>
+        <span class="chip" id="band" style="--dot:var(--flag)">&gt; 8 mm</span>
+      </div>
+
+      <div>
+        <div class="chartwrap">
+          <input id="slider" type="range" min="3" max="20" step="0.5" value="12" aria-label="Nodule size in millimetres">
+          <svg class="chart" id="chart" viewBox="0 0 320 120" role="img" aria-label="Follow-up intensity by nodule size"></svg>
+        </div>
+        <div class="axis"><span style="left:0">3</span><span style="left:17.6%">6</span><span style="left:29.4%">8</span><span style="left:100%">20</span></div>
+      </div>
+
+      <div class="seg" role="group" aria-label="Patient risk">
+        <button id="low" aria-pressed="true">Low-risk patient</button>
+        <button id="high" aria-pressed="false">High-risk patient</button>
+      </div>
+
+      <dl>
+        <div><dt>Fleischner 2017</dt><dd id="rec">Consider CT at 3 months, PET/CT or tissue sampling</dd></div>
+        <div><dt>Report says</dt><dd class="mono" id="report">IMPRESSION: 9 mm solid nodule, right upper lobe. Likely benign. No follow-up needed.</dd></div>
+        <div class="verdict"><span class="pill" id="verdict">UNDER-CALL · HIGH</span><span class="hint">← drag the curve →</span></div>
+      </dl>
+    </section>
+  </div>
+</main>
+
+<script>
+(() => {
+  // ---------- guideline (simplified Fleischner 2017, solid, single) ----------
+  const LEVEL = {none:100, optional:84, ct:56, work:18};
+  function call(mm, risk){
+    if (mm < 6)  return risk==='low' ? {lvl:'none', txt:'No routine follow-up'} : {lvl:'optional', txt:'Optional CT at 12 months'};
+    if (mm <= 8) return {lvl:'ct', txt: risk==='low' ? 'CT at 6–12 months, then consider CT at 18–24 months' : 'CT at 6–12 months, then CT at 18–24 months'};
+    return {lvl:'work', txt:'Consider CT at 3 months, PET/CT or tissue sampling'};
+  }
+  const X = mm => (mm-3)/(20-3)*320;
+
+  const slider = document.getElementById('slider'), chart = document.getElementById('chart');
+  let risk = 'low', size = 12;
+
+  function drawChart(){
+    const yLow = risk==='low' ? LEVEL.none : LEVEL.optional;
+    const d = `M0 ${yLow} H${X(6)} V${LEVEL.ct} H${X(8.25)} V${LEVEL.work} H320`;
+    const y = LEVEL[call(size,risk).lvl], hx = X(size);
+    chart.innerHTML = `
+      <defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".32"/><stop offset="1" stop-color="#fff" stop-opacity=".03"/></linearGradient></defs>
+      ${[18,56,100].map(v=>`<line x1="0" x2="320" y1="${v}" y2="${v}" stroke="#fff" stroke-opacity=".06"/>`).join('')}
+      <path d="${d} V120 H0 Z" fill="url(#fill)" clip-path="inset(0 ${320-hx}px 0 0)"/>
+      <path d="${d} V120 H0 Z" fill="#fff" fill-opacity=".04"/>
+      <path d="${d}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="${hx}" x2="${hx}" y1="${y}" y2="118" stroke="#fff" stroke-opacity=".55" stroke-dasharray="2 3"/>
+      <circle cx="${hx}" cy="${y}" r="7" fill="#fff"/>
+      <text x="316" y="13" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="9" fill="#fff" fill-opacity=".45">CT 3 mo / PET / biopsy</text>
+      <text x="${X(6)+5}" y="${LEVEL.ct+13}" text-anchor="start" font-family="IBM Plex Mono,monospace" font-size="9" fill="#fff" fill-opacity=".45">CT 6–12 mo</text>
+      <text x="4" y="${yLow-6}" font-family="IBM Plex Mono,monospace" font-size="9" fill="#fff" fill-opacity=".45">${risk==='low'?'none':'optional'}</text>`;
+  }
+
+  function update(){
+    const c = call(size, risk);
+    const s = Number.isInteger(size) ? size : size.toFixed(1);
+    document.getElementById('size').innerHTML = `${s}<small>mm</small>`;
+    const band = document.getElementById('band');
+    band.textContent = size < 6 ? '< 6 mm' : size <= 8 ? '6–8 mm' : '> 8 mm';
+    band.style.setProperty('--dot', size < 6 ? 'var(--ok)' : size <= 8 ? 'var(--mid)' : 'var(--flag)');
+    document.getElementById('rec').textContent = c.txt;
+    document.getElementById('report').textContent = `IMPRESSION: ${s} mm solid nodule, right upper lobe. Likely benign. No follow-up needed.`;
+    const v = document.getElementById('verdict');
+    if (c.lvl==='none' || c.lvl==='optional'){ v.textContent='CONCORDANT'; v.style.setProperty('--vc','var(--ok)'); }
+    else if (c.lvl==='ct'){ v.textContent='UNDER-CALL · MEDIUM'; v.style.setProperty('--vc','var(--mid)'); }
+    else { v.textContent='UNDER-CALL · HIGH'; v.style.setProperty('--vc','var(--flag)'); }
+    drawChart(); paint();
+  }
+  slider.addEventListener('input', () => { size = parseFloat(slider.value); update(); });
+  ['low','high'].forEach(k => document.getElementById(k).addEventListener('click', () => {
+    risk = k; document.getElementById('low').setAttribute('aria-pressed', k==='low'); document.getElementById('high').setAttribute('aria-pressed', k==='high'); update();
+  }));
+
+  // ---------- CT slice, lung window (W1500 / L-600), level of the carina ----------
+  const cv = document.getElementById('ct'), ctx = cv.getContext('2d');
+  let W, H, dpr, cx, cy, R, film, nod;
+  let seed = 1; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+  const g = v => `rgb(${v|0},${v|0},${v|0})`;
+  function blob(x,y,rx,ry,rot,wob,k){
+    const n=80, ph=[rnd()*6.28,rnd()*6.28,rnd()*6.28], pts=[];
+    for(let i=0;i<n;i++){ const a=i/n*Math.PI*2, m=1+wob*(.55*Math.sin(2*a+ph[0])+.3*Math.sin(3*a+ph[1])+.15*Math.sin((k||5)*a+ph[2]));
+      const px=Math.cos(a)*rx*m, py=Math.sin(a)*ry*m; pts.push([x+px*Math.cos(rot)-py*Math.sin(rot), y+px*Math.sin(rot)+py*Math.cos(rot)]); }
+    const p = new Path2D(); p.moveTo((pts[0][0]+pts[n-1][0])/2,(pts[0][1]+pts[n-1][1])/2);
+    for(let i=0;i<n;i++){ const a=pts[i], b=pts[(i+1)%n]; p.quadraticCurveTo(a[0],a[1],(a[0]+b[0])/2,(a[1]+b[1])/2); }
+    p.closePath(); return p;
+  }
+  function fill(c,p,v){ c.fillStyle=g(v); c.fill(p); }
+
+  function smoothPath(pts){
+    const p = new Path2D(), n = pts.length;
+    p.moveTo((pts[0][0]+pts[n-1][0])/2,(pts[0][1]+pts[n-1][1])/2);
+    for(let i=0;i<n;i++){ const a=pts[i], b=pts[(i+1)%n]; p.quadraticCurveTo(a[0],a[1],(a[0]+b[0])/2,(a[1]+b[1])/2); }
+    p.closePath(); return p;
+  }
+  // rainbow PET colour map (blue -> cyan -> green -> yellow -> red)
+  const stops = [[0,[20,0,90]],[.18,[60,0,200]],[.32,[0,70,255]],[.46,[0,200,230]],[.6,[0,220,70]],[.74,[250,235,0]],[.87,[255,110,0]],[1,[255,20,10]]];
+  function cmap(v){ for(let k=1;k<stops.length;k++){ if(v<=stops[k][0]){ const [a0,c0]=stops[k-1],[a1,c1]=stops[k],t=(v-a0)/(a1-a0); return c0.map((q,j)=>q+(c1[j]-q)*t); } } return stops[stops.length-1][1]; }
+  function colourise(canvas, thr, maxA){
+    const c = canvas.getContext('2d'), im = c.getImageData(0,0,canvas.width,canvas.height), d = im.data;
+    for(let i=0;i<d.length;i+=4){ const v=Math.min(1,d[i+3]/255*(1+(Math.random()-.5)*.1)); if(v<thr){d[i+3]=0;continue;}
+      const col=cmap(v); d[i]=col[0]; d[i+1]=col[1]; d[i+2]=col[2]; d[i+3]=Math.min(1,(v-thr)/.3)*maxA; }
+    c.putImageData(im,0,0);
+  }
+
+  // CT at the level of the carina, lung window (W1500 / L-600), fused with FDG PET
+  function drawSlice(){
+    const S=document.createElement('canvas'); S.width=W*dpr; S.height=H*dpr;
+    const c=S.getContext('2d'); c.scale(dpr,dpr); c.translate(cx,cy); seed=4242;
+    const r=R, sc = pts => pts.map(([x,y])=>[x*r,y*r]);
+    c.beginPath(); c.arc(0,0.03*r,1.25*r,0,Math.PI*2); c.fillStyle=g(40); c.fill();
+    c.beginPath(); c.moveTo(-1.1*r,.78*r); c.quadraticCurveTo(0,.88*r,1.1*r,.78*r); c.lineWidth=.03*r; c.strokeStyle=g(150); c.stroke();
+    // body wall (fat and muscle are both near-white in a lung window)
+    fill(c, blob(0,0,r,.68*r,0,.02), 206);
+    fill(c, blob(0,0,.985*r,.665*r,0,.02), 222);
+    // scapulae and spine
+    fill(c, blob(-.6*r,.44*r,.2*r,.022*r,-.5,.08), 250); fill(c, blob(.6*r,.44*r,.2*r,.022*r,.5,.08), 250);
+    fill(c, blob(0,.5*r,.1*r,.085*r,0,.03),252); fill(c, blob(0,.5*r,.084*r,.07*r,0,.05),236);
+    fill(c, blob(0,.63*r,.038*r,.03*r,0,.05),210);
+    c.beginPath(); c.moveTo(-.055*r,.6*r); c.quadraticCurveTo(0,.74*r,.055*r,.6*r); c.lineWidth=.02*r; c.strokeStyle=g(250); c.stroke();
+    c.beginPath(); c.moveTo(0,.68*r); c.lineTo(0,.76*r); c.stroke();
+    fill(c, blob(0,-.6*r,.07*r,.024*r,0,.1),250);
+
+    // lungs: flat medial border, deep posterior gutters, anterior tips
+    const right = [[-.06,-.46],[-.2,-.54],[-.34,-.53],[-.55,-.47],[-.74,-.32],[-.84,-.06],[-.82,.2],[-.71,.42],[-.49,.56],[-.29,.58],[-.15,.5],[-.14,.36],[-.16,.16],[-.14,-.04],[-.1,-.24]];
+    const left  = [[.08,-.45],[.22,-.53],[.34,-.52],[.56,-.46],[.75,-.3],[.84,-.04],[.82,.22],[.7,.43],[.48,.56],[.28,.57],[.18,.5],[.2,.3],[.22,.12],[.23,-.06],[.17,-.26]];
+    const lungs = [smoothPath(sc(right)), smoothPath(sc(left))];
+    // ribs just outside the lungs
+    for(let i=0;i<14;i++){ const s=i<7?-1:1, a=((i%7)/6*2.2-1.1)+(s<0?Math.PI:0); const x=Math.cos(a)*.9*r, y=Math.sin(a)*.6*r;
+      fill(c, blob(x,y,.04*r,.02*r,a+1.57,.15),252); fill(c, blob(x,y,.022*r,.01*r,a+1.57,.15),226); }
+    lungs.forEach((p,i)=>{
+      const s = i===0?-1:1;
+      fill(c,p,62);
+      c.save(); c.clip(p);
+      const gr=c.createLinearGradient(0,-.5*r,0,.58*r); gr.addColorStop(0,'rgba(255,255,255,0)'); gr.addColorStop(1,'rgba(255,255,255,.1)');
+      c.fillStyle=gr; c.fillRect(-r,-r,2*r,2*r);
+      // vessels: a few thick hilar trunks that branch, curve and taper quickly toward the periphery
+      function vessel(x,y,ang,len,w,depth){
+        const steps=7; let px=x, py=y;
+        for(let st=0;st<steps;st++){
+          const nx=px+Math.cos(ang)*len/steps, ny=py+Math.sin(ang)*len/steps;
+          c.beginPath(); c.moveTo(px,py); c.lineTo(nx,ny); c.lineCap='round'; c.lineWidth=w;
+          c.strokeStyle=`rgba(226,226,226,${Math.min(.9,.3+w/(.012*r)*.5)})`; c.stroke();
+          if(depth<2 && rnd()<.32) vessel(nx,ny,ang+(rnd()<.5?-1:1)*(.45+rnd()*.5),len*(.45+rnd()*.2),w*.62,depth+1);
+          px=nx; py=ny; ang+=(rnd()-.5)*.35; w*=.8; if(w<.6) break;
+        }
+      }
+      for(let k=0;k<13;k++){
+        const oy=(-.18+rnd()*.42)*r, ox=s*(.19+rnd()*.03)*r;
+        const base=(s<0?Math.PI:0), ang=base+(s<0?-1:1)*((rnd()-.5)*2.4 + (oy/r)*1.2);
+        vessel(ox,oy,ang,(.28+rnd()*.3)*r,(.008+rnd()*.012)*r,0);
+      }
+      for(let k=0;k<70;k++){ const a=rnd()*6.28, d=(.15+Math.sqrt(rnd())*.5)*r; const x=s*.45*r+Math.cos(a)*d*.75, y=Math.sin(a)*d*.85, b=a+(rnd()-.5)*.8, l=(.012+rnd()*.03)*r;
+        c.beginPath(); c.moveTo(x,y); c.lineTo(x+Math.cos(b)*l,y+Math.sin(b)*l); c.lineWidth=.7+rnd()*1.3; c.strokeStyle=`rgba(222,222,222,${.25+rnd()*.35})`; c.stroke(); }
+      // vessels seen end-on, denser and larger near the hilum
+      for(let k=0;k<170;k++){ const x=s*(.2+rnd()*.62)*r, y=(-.48+rnd()*1.0)*r;
+        const big = Math.max(0,1-Math.abs(x/r-s*.2)/.45);
+        c.beginPath(); c.arc(x,y,(.0015+rnd()*.004+big*.005)*r,0,6.28); c.fillStyle=`rgba(225,225,225,${.25+rnd()*.45})`; c.fill(); }
+      // fissure
+      c.beginPath(); c.moveTo(s*.22*r,-.3*r); c.quadraticCurveTo(s*.5*r,-.02*r,s*.66*r,.36*r); c.lineWidth=.7; c.strokeStyle='rgba(190,190,190,.3)'; c.stroke();
+      c.restore();
+    });
+    fill(c, blob(-.2*r,.03*r,.035*r,.06*r,.2,.12),232); fill(c, blob(.22*r,.0,.035*r,.06*r,-.2,.12),232);  // hilar vessels
+    // mediastinum at the carina: anterior fat, great vessels, airway, oesophagus
+    fill(c, blob(-.04*r,-.36*r,.08*r,.1*r,.2,.1), 200);                // anterior fat / thymic remnant
+    fill(c, blob(-.03*r,-.2*r,.075*r,.075*r,0,.03), 236);              // ascending aorta
+    fill(c, blob(-.12*r,-.24*r,.035*r,.042*r,0,.05), 232);             // SVC
+    fill(c, blob(.11*r,-.15*r,.085*r,.07*r,.4,.05), 234);              // main pulmonary artery
+    fill(c, blob(.14*r,.32*r,.06*r,.06*r,0,.03), 236);                 // descending aorta
+    fill(c, blob(.05*r,.33*r,.02*r,.018*r,0,.1), 214);                 // oesophagus
+    fill(c, blob(.0,.13*r,.05*r,.03*r,.0,.06), 236);                   // carina wall
+    fill(c, blob(-.035*r,.13*r,.02*r,.017*r,.3,.08), 50); fill(c, blob(.04*r,.135*r,.016*r,.014*r,-.3,.08), 50);  // main bronchi
+
+    film=document.createElement('canvas'); film.width=S.width; film.height=S.height;
+    const f=film.getContext('2d'); f.fillStyle='#070809'; f.fillRect(0,0,film.width,film.height);
+    f.filter=`blur(${1.1*dpr}px)`; f.drawImage(S,0,0); f.filter='none';
+    const lw=Math.ceil(film.width/5), lh=Math.ceil(film.height/5), low=document.createElement('canvas'); low.width=lw; low.height=lh;
+    const lc=low.getContext('2d'), li=lc.createImageData(lw,lh);
+    for(let i=0;i<li.data.length;i+=4){ const v=128+(Math.random()-.5)*110; li.data[i]=li.data[i+1]=li.data[i+2]=v; li.data[i+3]=255; }
+    lc.putImageData(li,0,0);
+    f.save(); f.globalCompositeOperation='overlay'; f.globalAlpha=.2; f.filter=`blur(${1.2*dpr}px)`; f.drawImage(low,0,0,film.width,film.height); f.restore();
+    const img=f.getImageData(0,0,film.width,film.height), d=img.data;
+    for(let i=0;i<d.length;i+=4){ const n=(Math.random()-.5)*18; d[i]+=n; d[i+1]+=n; d[i+2]+=n; }
+    f.putImageData(img,0,0);
+
+    // physiological FDG uptake: blood pool, myocardium edge, marrow, oesophagus
+    const PT=document.createElement('canvas'); PT.width=film.width; PT.height=film.height;
+    const pc=PT.getContext('2d'); pc.scale(dpr,dpr); pc.translate(cx,cy); pc.globalCompositeOperation='lighter';
+    const hot=(x,y,rx,ry,v)=>{ pc.save(); pc.translate(x*R,y*R); pc.scale(rx*R,ry*R); const gg=pc.createRadialGradient(0,0,0,0,0,1);
+      gg.addColorStop(0,`rgba(255,255,255,${v})`); gg.addColorStop(1,'rgba(255,255,255,0)'); pc.fillStyle=gg; pc.beginPath(); pc.arc(0,0,1,0,6.28); pc.fill(); pc.restore(); };
+    hot(-.03,-.2,.09,.09,.2); hot(.11,-.15,.1,.08,.2); hot(.14,.32,.07,.07,.2); hot(-.12,-.24,.05,.05,.16);
+    hot(0,.5,.11,.09,.24); hot(.05,.33,.03,.03,.22); hot(.6,.44,.12,.04,.1); hot(-.6,.44,.12,.04,.1);
+    const bl=document.createElement('canvas'); bl.width=PT.width; bl.height=PT.height; const bc=bl.getContext('2d');
+    bc.filter=`blur(${9*dpr}px)`; bc.drawImage(PT,0,0); colourise(bl,.08,120);
+    f.drawImage(bl,0,0);
+    f.fillStyle='rgba(7,8,9,.26)'; f.fillRect(0,0,film.width,film.height);
+    nod = {x: cx - .52*R, y: cy - .18*R};
+    if (W < 760) nod = {x: cx - .47*R, y: cy - .12*R};
+  }
+
+  function paint(){
+    if(!film) return;
+    ctx.setTransform(1,0,0,1,0,0); ctx.drawImage(film,0,0);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const pxPerMm = R/170, rad = size/2*pxPerMm;
+    // the nodule on CT
+    ctx.save(); ctx.filter='blur(1px)'; ctx.beginPath(); ctx.arc(nod.x,nod.y,rad,0,Math.PI*2); ctx.fillStyle='rgba(205,205,205,.95)'; ctx.fill(); ctx.restore();
+    // its FDG uptake: below PET resolution when tiny, hotter as it grows (illustrative only)
+    const uptake = Math.max(0, Math.min(1, (size-4)/12));
+    const suv = (0.6 + uptake*7.2);
+    if (uptake > 0.02){
+      const box = Math.ceil(rad*3+30), pt = document.createElement('canvas'); pt.width = box*2*dpr; pt.height = box*2*dpr;
+      const pc = pt.getContext('2d'); pc.scale(dpr,dpr);
+      const gg = pc.createRadialGradient(box,box,0,box,box,rad*1.6+6);
+      const core=Math.min(1,.35+uptake*.9); gg.addColorStop(0,`rgba(255,255,255,${core})`); gg.addColorStop(.35,`rgba(255,255,255,${core*.72})`); gg.addColorStop(.7,`rgba(255,255,255,${core*.38})`); gg.addColorStop(1,'rgba(255,255,255,0)');
+      pc.fillStyle=gg; pc.beginPath(); pc.arc(box,box,rad*1.6+6,0,6.28); pc.fill();
+      const bl=document.createElement('canvas'); bl.width=pt.width; bl.height=pt.height; const bc=bl.getContext('2d');
+      bc.filter=`blur(${3*dpr}px)`; bc.drawImage(pt,0,0); colourise(bl,.05,215);
+      ctx.drawImage(bl, nod.x-box, nod.y-box, box*2, box*2);
+    }
+    const rr = rad*1.6 + 14;
+    ctx.strokeStyle='rgba(255,255,255,.85)'; ctx.lineWidth=1.3;
+    ctx.beginPath(); ctx.arc(nod.x,nod.y,rr,0,Math.PI*2); ctx.stroke();
+    [[0,-1],[0,1],[-1,0],[1,0]].forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(nod.x+a*(rr-5),nod.y+b*(rr-5));ctx.lineTo(nod.x+a*(rr+7),nod.y+b*(rr+7));ctx.stroke();});
+    ctx.font='500 12px "IBM Plex Mono", monospace'; ctx.fillStyle='rgba(255,255,255,.92)'; ctx.textAlign='center';
+    const s = Number.isInteger(size)?size:size.toFixed(1);
+    const lbl=`${s} mm · SUVmax ${uptake>0.02 ? suv.toFixed(1) : '<1'}`, hw=ctx.measureText(lbl).width/2+16;
+    ctx.fillText(lbl, Math.min(Math.max(nod.x,hw),W-hw), nod.y+rr+22);
+    ctx.textAlign='left';
+    if (W >= 760){
+      ctx.font='11px "IBM Plex Mono", monospace'; ctx.fillStyle='rgba(241,243,243,.5)';
+      ['PET/CT FUSION  ·  18F-FDG','60 min p.i.  ·  AX 2.0 mm','CT W 1500  L -600'].forEach((t,i)=>ctx.fillText(t, 24, 92+i*15));
+      for(let k=0;k<120;k++){ const col=cmap(k/119); ctx.fillStyle=`rgb(${col[0]|0},${col[1]|0},${col[2]|0})`; ctx.fillRect(24+k,144,1,6); }
+      ctx.fillStyle='rgba(241,243,243,.5)'; ctx.fillText('SUV 0',24,164); ctx.textAlign='right'; ctx.fillText('8',144,164); ctx.textAlign='left';
+    }
+  }
+
+  function layout(){
+    W=innerWidth; H=innerHeight; dpr=Math.min(2,devicePixelRatio||1);
+    cv.width=W*dpr; cv.height=H*dpr;
+    if (W < 760){ cx=W*.5; cy=H*.3; R=Math.max(W*.7, H*.3); }
+    else { cx=W*.48; cy=H*.5; R=Math.max(W*.5, H*.72); }
+    drawSlice(); paint();
+  }
+  layout(); update();
+  let to; addEventListener('resize',()=>{clearTimeout(to); to=setTimeout(layout,120);});
+  if (document.fonts) document.fonts.ready.then(paint);
+})();
+</script>
+</body>
+</html>
