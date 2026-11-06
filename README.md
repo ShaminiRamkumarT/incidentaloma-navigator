@@ -2,11 +2,7 @@
 
 **AI · Radiology · Incidental findings · CT, MRI, PET-CT · Python/Streamlit**
 
-**Live demo:** <https://shaminiramkumart.github.io/incidentaloma-navigator/web/> (runs in the browser, no install)
-
-**Landing page:** <https://shaminiramkumart.github.io/incidentaloma-navigator/>
-
-**How it works (nodule demo):** <https://shaminiramkumart.github.io/incidentaloma-navigator/how-it-works.html>
+[Live demo](https://shaminiramkumart.github.io/incidentaloma-navigator/web/) · [Landing page](https://shaminiramkumart.github.io/incidentaloma-navigator/) · [How it works](https://shaminiramkumart.github.io/incidentaloma-navigator/how-it-works.html)
 
 IncidentaLens reads a radiology report, finds the incidental lesions in it, applies the published guideline for each organ and flags follow-up recommendations that ask for too little or too much.
 
