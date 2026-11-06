@@ -62,6 +62,62 @@ The trained model against the keyword (regex) reader. Both cover all nine organs
 - On reports I wrote, the regex reader does as well or better, because I also wrote its rules. That says more about who wrote the test than about the regex.
 - The model missed both dangerous cases in the hand-written kidney/adrenal set. That is why high-severity cases get their own metric, and why catching them is the first thing to improve.
 
+<details>
+<summary>Full results: every metric, every test set, by organ</summary>
+
+Four test sets, from least to most independent of me:
+
+| | Regex baseline | Trained model |
+|---|---|---|
+| **Hand-written held-out, kidney and adrenal** (16 reports, 17 lesions) | | |
+| Lesions found | 76% | 88% |
+| Guideline category agreement | 53% | 47% |
+| Flag agreement | 59% | 53% |
+| Discordances caught | 100% | 100% |
+| Flags that were real (PPV) | 67% | 55% |
+| High-severity under-calls caught | 2/2 | 0/2 |
+| **Hand-written held-out, seven newer organs** (27 reports, 28 lesions) | | |
+| Lesions found | 100% | 100% |
+| Guideline category agreement | 100% | 89% |
+| Flag agreement | 100% | 79% |
+| Discordances caught | 100% | 86% |
+| Flags that were real (PPV) | 100% | 75% |
+| High-severity under-calls caught | 3/3 | 3/3 |
+| **Synthetic test, 9 organs** (150 reports, 190 lesions) | | |
+| Lesions found | 43% | 100% |
+| Guideline category agreement | 37% | 78% |
+| Flag agreement | 38% | 85% |
+| Discordances caught | 51% | 88% |
+| Flags that were real (PPV) | 86% | 66% |
+| High-severity under-calls caught | 7/13 | 10/13 |
+| **Real sentences from case reports** (51 sentences, 44 lesions; reading only, see below) | | |
+| Lesions found | 70% | 82% |
+
+Flag agreement on the synthetic test, by organ:
+
+| | Kidney | Adrenal | Lung | Liver | Pancreas | Thyroid | Pituitary | Brain | Bone |
+|---|---|---|---|---|---|---|---|---|---|
+| Regex | 11% | 17% | 32% | 46% | 61% | 35% | 44% | 71% | 40% |
+| Trained model | 89% | 67% | 82% | 88% | 83% | 82% | 81% | 100% | 100% |
+
+**What the detail shows:**
+- On the 27 new hand-written reports the regex scores 100%. I wrote those reports and I wrote the regex rules for those organs, so both use my wording. I wrote the reports first and did not tune the regex on them, but the overlap in vocabulary is still there. That result says little about how the regex would do on someone else's reports.
+- On the two tests I didn't write sentence by sentence, the picture flips. On generated reports with varied wording, the model's flag agreement is 85% against 38% for the regex. On real published sentences, it finds 82% of lesions against 70%.
+- The model is weak on words it has never seen. On the synthetic test, lung nodules described as "nonsolid", "semisolid" or "numerous" were misread, and "millimetres" was read as centimetres.
+- On the new hand-written reports, most of the model's mistakes were in the impression: in three pancreas reports it added a specialist referral the report didn't ask for.
+- On the original 16 held-out reports, both model misses on high-severity cases came from details: in H10 it missed the irregular 4 mm wall (so Bosniak III became Bosniak I), and in H12 it put 85 HU on the wrong contrast phase and missed "heterogeneous enhancement". Dangerous cases need their own metric, because a good average can hide them.
+- The 30 dev reports were used to debug both readers, so their scores (regex 100%, model 84% flag agreement) are optimistic and are left out of the table.
+
+**Two fixes made while building the new held-out set:**
+- *Thyroid rule.* Writing the reports showed that the engine called an FNA unnecessary for an FDG-avid thyroid nodule. The original ACR paper says both ultrasound and FNA should be done, with FNA "regardless of the ultrasound findings", so the rule now expects both and flags ultrasound alone as falling short. For nodules with suspicious features it expects ultrasound and also accepts ultrasound with FNA, as the paper suggests "consideration for FNA".
+- *Scoring.* The scorer required the side of the lesion to match even for organs without sides, so "the left side of the pituitary" counted as a miss. It now ignores side when the answer key has none. This did not change any earlier result.
+
+**What I'd change first:** add more varied wording to the generator (units, nodule types, phase descriptions, bone words), look at the word after a number when reading units, and get a radiologist to write a fresh held-out set, so the test is not written by the person who built both readers.
+
+To see exactly where each reader went wrong, open the CSV files in `results/` (for example `eval_ml_holdout_all.csv` or `eval_rules_synth_test.csv`). They have one row per lesion with the correct answer, what the reader produced and which details it got wrong. The same tables appear as "Error log" in the Validation dashboard tab of the Streamlit app (`streamlit run app.py`).
+
+</details>
+
 ## Real wording check: published case reports
 
 51 imaging sentences taken word for word from open-access case reports (CC BY). The model was not trained on them. This checks the reading step only, not the follow-up flag.
@@ -76,6 +132,24 @@ The trained model against the keyword (regex) reader. Both cover all nine organs
 The model is weakest on bone terms it never saw in training and on sizes written next to other numbers.
 
 Each sentence, its source and its answer key are in `data/real_snippets.json`. Per-sentence results are in `results/eval_ml_real.csv` (model) and `results/eval_rules_real.csv` (regex).
+
+<details>
+<summary>How the answer key was checked, and results by organ</summary>
+
+After writing the answer key I went back through all 51 labels one sentence at a time, using a review sheet with agree, disagree and not sure. I accepted 41 as written and flagged 10. Only two labels changed: two liver lesions in the right hepatic lobe had their side set to "unknown", and are now "right". The other flags asked about things the label leaves out on purpose, such as metastases from the same cancer, a recurrence where a kidney had been removed, and a brain cavernoma (the brain rules cover meningioma only). Those labels now say what was left out and why. For two adrenal masses I added the described appearance, which is recorded but not scored. Each sentence's verdict, comment and resulting change is in `data/real_snippets.json`. This was a second pass by me, not an independent review by a radiologist.
+
+These are case-report sentences, not radiology reports, so this checks the reading step only. It does not test the follow-up flag: case reports describe the treatment a patient got, not the follow-up a radiologist advised. The model was not retrained on any of them.
+
+Found by organ:
+
+| | Kidney | Adrenal | Lung | Liver | Pancreas | Thyroid | Pituitary | Brain | Bone |
+|---|---|---|---|---|---|---|---|---|---|
+| Regex | 50% | 62% | 75% | 100% | 100% | 75% | 100% | 0% | 0% |
+| Trained model | 100% | 100% | 75% | 100% | 50% | 75% | 83% | 100% | 0% |
+
+The misses follow a pattern. The model often reads the wrong number from a size like "8.2 x 6.4 cm" or "4.0 × 3.8 cm, SUVmax 3.4", and it doesn't know bone words such as "osteochondroma", "mandible" or "scapula", which never appear in its training data. Both are fixable with more varied training sentences. Per-sentence results are in `results/eval_ml_real.csv`; run it with `python data/build_real_snippets.py && python run_real_eval.py`.
+
+</details>
 
 <details>
 <summary>Sources of the 51 sentences (all CC BY)</summary>
@@ -134,31 +208,183 @@ Each sentence, its source and its answer key are in `data/real_snippets.json`. P
 
 </details>
 
+## Guideline logic (simplified)
+
+The engine checks the type of action (no follow-up, imaging, specialist referral or biopsy, hormonal work-up), not the exact interval. When a report doesn't state the patient's risk or age, any answer the guideline allows for some patient counts as concordant.
+
+<details>
+<summary>Rules for all nine organs</summary>
+
+### Kidney (Bosniak v2019, ACR 2018) and adrenal (ESE/ENSAT 2023)
+
+| Organ | Feature | Category | Action |
+|---|---|---|---|
+| Kidney | Macroscopic fat | Angiomyolipoma | None (<4 cm), urology review (≥4 cm) |
+| Kidney | Cystic + enhancing nodule | Bosniak IV | Urology referral |
+| Kidney | Wall/septa ≥4 mm or irregular | Bosniak III | Urology referral |
+| Kidney | Wall/septa 3 mm or ≥4 thin septa | Bosniak IIF | Imaging at 6 and 12 months, then yearly to 5 years |
+| Kidney | 1-3 thin septa; ≥70 HU unenhanced; 21-30 HU portal venous; too small to characterize | Bosniak II | None |
+| Kidney | Simple fluid, thin wall, no septa | Bosniak I | None |
+| Kidney | Solid, enhancement ≥20 HU, no fat | Suspicious for RCC | Urology referral (<1 cm: imaging follow-up) |
+| Kidney | Anything else | Indeterminate | Renal mass protocol CT or MRI |
+| Adrenal | <1 cm | Below threshold | None |
+| Adrenal | Homogeneous ≤10 HU unenhanced | Lipid-rich adenoma | No more imaging; 1 mg dexamethasone suppression test |
+| Adrenal | ≥4 cm or heterogeneous (not benign) | Indeterminate, high risk | MDT/surgical review + hormonal work-up |
+| Adrenal | >10 HU or no unenhanced phase | Indeterminate | Further imaging or repeat in 6-12 months + hormonal work-up |
+
+### Lung nodules (Fleischner 2017)
+
+Size is the mean of the long and short axis.
+
+| Nodule | Low risk | High risk |
+|---|---|---|
+| Solid <6 mm | No follow-up | Optional CT at 12 months |
+| Solid 6-8 mm | CT at 6-12 months (3-6 if multiple) | Same, plus CT at 18-24 months |
+| Solid >8 mm | CT at 3 months, PET-CT or biopsy | Same |
+| Ground-glass or part-solid <6 mm | No follow-up (multiple: CT at 3-6 months) | Same |
+| Ground-glass ≥6 mm | CT at 6-12 months, then every 2 years to 5 years | Same |
+| Part-solid ≥6 mm | CT at 3-6 months; solid part ≥6 mm: referral also acceptable | Same |
+
+### Liver lesions (ACR 2017)
+
+High risk means known cancer, cirrhosis or a liver risk factor.
+
+| Size | Features | Low risk | High risk |
+|---|---|---|---|
+| <1 cm | Any | No follow-up | MRI in 3-6 months |
+| ≥1 cm | Benign | No follow-up | No follow-up |
+| 1-1.5 cm | Flash-filling | No follow-up | Prompt MRI |
+| >1.5 cm | Flash-filling | Prompt MRI | Prompt MRI |
+| ≥1 cm | Suspicious | Prompt MRI | Prompt MRI (biopsy acceptable if >1.5 cm) |
+| >1 cm | Can't tell on this scan | MRI | MRI |
+
+On PET-CT, uptake above normal liver counts as a suspicious feature. That rule is mine, not the ACR's, and the tool labels it as such.
+
+### Pancreatic cysts (ACR 2017)
+
+| Cyst | Action |
+|---|---|
+| Enhancing solid component or main duct ≥10 mm | EUS-FNA and surgical consultation |
+| Thickened/enhancing wall, non-enhancing mural nodule or duct ≥7 mm | EUS-FNA and surgical consultation |
+| ≥3 cm with nothing else | EUS-FNA, or imaging follow-up |
+| 1.5-3 cm | Imaging follow-up, or EUS-FNA |
+| <1.5 cm | Imaging yearly (<65) or every 2 years (65-79), stop after 9-10 years or at 80 |
+| Patient ≥80 | Usually no follow-up |
+
+### Thyroid nodules on CT, MRI or PET-CT (ACR 2015)
+
+| Nodule | Action |
+|---|---|
+| Local invasion or abnormal lymph nodes | Thyroid ultrasound |
+| Limited life expectancy or serious comorbidity | No further evaluation |
+| Focal FDG uptake | Ultrasound and FNA |
+| Age <35 and ≥1 cm, or age ≥35 and ≥1.5 cm | Thyroid ultrasound |
+| Smaller | No work-up |
+
+### Pituitary incidentaloma (Endocrine Society 2011) and meningioma (EANO 2021)
+
+| Lesion | Action |
+|---|---|
+| Pituitary, any size | Hormonal work-up for excess and deficiency |
+| Pituitary <1 cm | MRI at 1 year, then every 1-2 years |
+| Pituitary ≥1 cm | MRI at 6 months, then yearly for 3 years |
+| Pituitary touching the optic chiasm | Visual fields and neurosurgery referral |
+| Found on CT | Dedicated pituitary MRI first |
+| Meningioma, no symptoms, not growing | MRI yearly for 5 years, then every 2 years |
+| Meningioma, growing or symptomatic | Neurosurgery referral |
+
+### Bone lesions (Bone-RADS 2022)
+
+| Lesion | Category | Action |
+|---|---|---|
+| Pain, cortical involvement, soft-tissue extension, pathologic fracture or aggressive periosteal reaction | Bone-RADS 4 | Biopsy and/or orthopaedic oncology |
+| Known cancer that spreads to bone | Bone-RADS 2/3 | PET, bone scan or MRI, or follow-up imaging |
+| Macroscopic fat, purely sclerotic >885 HU, or a classic benign lesion | Bone-RADS 1 | Leave alone |
+| Anything else | Bone-RADS 3 | Imaging at 6, 6 and 12 months |
+
+</details>
+
+### Guideline references
+
+1. Silverman SG, Pedrosa I, Ellis JH, et al. Bosniak Classification of Cystic Renal Masses, Version 2019: An Update Proposal and Needs Assessment. *Radiology*. 2019;292(2):475-488. doi:10.1148/radiol.2019182646
+2. Herts BR, Silverman SG, Hindman NM, et al. Management of the Incidental Renal Mass on CT: A White Paper of the ACR Incidental Findings Committee. *J Am Coll Radiol*. 2018;15(2):264-273. doi:10.1016/j.jacr.2017.04.028
+3. Fassnacht M, Tsagarakis S, Terzolo M, et al. European Society of Endocrinology clinical practice guidelines on the management of adrenal incidentalomas, in collaboration with the European Network for the Study of Adrenal Tumors. *Eur J Endocrinol*. 2023;189(1):G1-G42. doi:10.1093/ejendo/lvad066
+4. MacMahon H, Naidich DP, Goo JM, et al. Guidelines for Management of Incidental Pulmonary Nodules Detected on CT Images: From the Fleischner Society 2017. *Radiology*. 2017;284(1):228-243. doi:10.1148/radiol.2017161659
+5. Gore RM, Pickhardt PJ, Mortele KJ, et al. Management of Incidental Liver Lesions on CT: A White Paper of the ACR Incidental Findings Committee. *J Am Coll Radiol*. 2017;14(11):1429-1437. doi:10.1016/j.jacr.2017.07.018
+6. Megibow AJ, Baker ME, Morgan DE, et al. Management of Incidental Pancreatic Cysts: A White Paper of the ACR Incidental Findings Committee. *J Am Coll Radiol*. 2017;14(7):911-923. doi:10.1016/j.jacr.2017.03.010
+7. Hoang JK, Langer JE, Middleton WD, et al. Managing Incidental Thyroid Nodules Detected on Imaging: White Paper of the ACR Incidental Thyroid Findings Committee. *J Am Coll Radiol*. 2015;12(2):143-150. doi:10.1016/j.jacr.2014.09.038
+8. Freda PU, Beckers AM, Katznelson L, et al. Pituitary Incidentaloma: An Endocrine Society Clinical Practice Guideline. *J Clin Endocrinol Metab*. 2011;96(4):894-904. doi:10.1210/jc.2010-1048
+9. Goldbrunner R, Stavrinou P, Jenkinson MD, et al. EANO guideline on the diagnosis and management of meningiomas. *Neuro Oncol*. 2021;23(11):1821-1834. doi:10.1093/neuonc/noab150
+10. Chang CY, Garner HW, Ahlawat S, et al. Society of Skeletal Radiology – white paper. Guidelines for the diagnostic management of incidental solitary bone lesions on CT and MRI in adults: bone reporting and data system (Bone-RADS). *Skeletal Radiol*. 2022;51(9):1743-1764. doi:10.1007/s00256-022-04022-8
+
+### How the guideline rules were checked
+
+The rules for kidney and adrenal come from the first version of the project. For the seven organs added later, I checked each rule against a copy of the guideline before coding it. Not every original paper was openly readable, so this is what was actually read:
+
+| Guideline | What was read | What could not be confirmed |
+|---|---|---|
+| Fleischner 2017 (lung) | The original paper's Table 1 and notes, on the [RSNA site](https://pubs.rsna.org/doi/full/10.1148/radiol.2017161659) (free access); earlier also summary tables from [UW eRadiology](https://sites.uw.edu/eradsite/trauma-radiology-reference-resource/4-chest/fleischner-guidelines-for-pulmonary-nodules-2017) and [North York General](https://www.nygh.on.ca/wp-content/uploads/2024/03/3133_Fleischner_Society_2017_Guidelines.pdf) | Every row of Table 1 matches the rules, including size as the average of long and short axis. The guideline does not apply to lung cancer screening, immunosuppressed patients, patients with known cancer or people under 35; the engine does not check for these |
+| ACR liver 2017 | The paper itself ([Dartmouth copy](https://geiselmed.dartmouth.edu/radiology/wp-content/uploads/sites/47/2019/04/incidental_liver.pdf)) and the [Canadian adaptation](https://journals.sagepub.com/doi/full/10.1177/0846537120928349) | The flowchart is an image, so the rules were rebuilt from the paper's text and figure notes. Volume and pages of the citation were taken from a secondary site |
+| ACR pancreas 2017 | The paper itself ([University of Wisconsin copy](https://wiki.radiology.wisc.edu/images/1/13/Acrpancfull.pdf)) and the [UCSD summary](https://radres.ucsd.edu/pancreas) | The interval charts are images; schedules for patients over 80 were not readable. The issue number was not confirmed |
+| ACR thyroid 2015 | The full text of the white paper ([copy hosted by Professional Radiology](https://www.professionalradiology.com/media/user/resources/Incidental%20Thyroid%20Nodules.pdf)), plus [Radiopaedia](https://radiopaedia.org/articles/69951) and [AuntMinnie](https://www.auntminnie.com/clinical-news/ultrasound/article/15610817/acr-committee-offers-tips-for-incidental-thyroid-nodules) earlier | Rules match the paper after one correction (FNA for FDG-avid nodules, see Results). The paper does not apply to patients at increased thyroid cancer risk, with thyroid symptoms, or children, and recommends ultrasound for an enlarged heterogeneous gland; the engine does not model these |
+| Endocrine Society pituitary 2011 | The guideline itself ([University of Liège copy](https://orbi.uliege.be/bitstream/2268/71283/1/JCEMFreda-2010.pdf)) | Nothing important |
+| EANO meningioma 2021 | The [publisher's page](https://academic.oup.com/neuro-oncology/article/23/11/1821/6310843) | About half the text was read word for word; the follow-up interval came from the rest of the page and should be checked against the PDF |
+| Bone-RADS 2022 | The paper's text ([SciSpace copy](https://scispace.com/pdf/society-of-skeletal-radiology-white-paper-guidelines-for-the-jumd1zv5.pdf)) | The flowcharts are images and only about half the text was available, so the rules follow the paper's prose. The MRI branch with low signal on both sequences was not read |
+
+The real test sentences were found with the [Europe PMC search service](https://europepmc.org/RestfulWebService), limited to open-access case reports licensed CC BY.
+
 ## Browser demo
 
-`web/index.html` is a self-contained version of the checker that runs in any browser, with no install and no API key. Nothing you paste leaves the browser. It has a report checker, a worklist of 73 sample reports sorted by severity, and the guideline rules for all nine organs.
+`web/index.html` is a self-contained version of the checker that runs in any browser, with no install and no API key. Nothing you paste leaves the browser. It has a report checker, a worklist of 73 sample reports sorted by severity, the 150 synthetic test reports as read by the trained model, and the guideline rules for all nine organs.
 
 The browser checker uses the regex reader. The trained model's results come from Python, run offline on the synthetic test reports.
 
+`web/parity_export.py` and `web/parity_check.js` confirm that the browser checker gives exactly the same lesions, fields, categories and flags as the Python on all 223 hand-written and synthetic test reports.
+
 ## Run it
 
-```
+```bash
 pip install -r requirements.txt
-python data/generate_synthetic.py    # 600 training + 150 test reports
-python train_model.py                # train the model (about 10 s)
-python run_eval.py both all          # score the regex reader and the model on all test sets
-python data/build_real_snippets.py && python run_real_eval.py   # real wording check
-python -m pytest -q tests            # guideline tests
+python data/build_reports.py && (cd data && python build_holdout.py)   # hand-written kidney/adrenal reports
+python data/build_holdout_all.py      # hand-written held-out reports, seven newer organs
+python data/generate_synthetic.py     # 600 training + 150 test reports, all organs
+python train_model.py                 # trains the model (about 10 s) -> models/extractor.joblib
+python run_eval.py both all           # score regex and model on dev, both held-out sets and synthetic test
+ANTHROPIC_API_KEY=... python run_eval.py llm all   # optional: score the Claude reader
+python web/build_model_results.py     # refresh the demo's all-organ tab
+python web/parity_export.py > py_out.json && node web/parity_check.js py_out.json   # browser engine = Python
+python data/build_real_snippets.py && python run_real_eval.py   # real-wording check
+python -m pytest -q tests             # 97 guideline tests
 streamlit run app.py
+```
+
+## Layout
+
+```
+navigator/schema.py          Finding model + action vocabulary
+navigator/guidelines.py      Rules engine for all nine organs + concordance check
+navigator/extract_rules.py   Regex baseline reader (all nine organs)
+navigator/extract_ml.py      Trained token-labelling reader (all organs)
+navigator/extract_llm.py     Claude structured-output reader
+navigator/evaluate.py        Matching + three-level scoring, fields scored per organ
+data/generate_synthetic.py   Labelled report generator (train and test phrase banks)
+data/build_real_snippets.py  Real CC BY sentences with sources and answer key
+data/                        Hand-written, synthetic and real-sentence data with gold labels
+results/                     Per-lesion CSVs and summary JSON per run
+train_model.py               Trains and saves the model
+app.py                       Streamlit app (report checker, validation dashboard, guideline tables)
+web/                         Browser demo (index.html) and its JavaScript engine
 ```
 
 ## Limitations
 
 - Synthetic and hand-written reports come from one author, who also built the rules. Held-out sets reduce tuning bias but do not remove it.
 - Gold labels have not been reviewed by a radiologist.
+- The model learns from wording I generated, so it inherits my phrasing habits. It is weak on words it has never seen.
+- Patient context that changes management (known cancer, age, symptoms, prior imaging, hormone results) is only partly modelled.
+- Guidelines are simplified to the type of action, not the interval. Pancreas schedules for patients over 80, liver rules on MRI and the Bone-RADS MRI branches are condensed. Brain covers suspected meningioma only.
 - The model missed both high-severity under-calls in the hand-written kidney/adrenal set.
 - Reports are in English. German reports have not been tested.
-- Patient context that changes management (known cancer, age, symptoms, prior imaging, hormone results) is only partly modelled. Several guideline branches are condensed.
 - Educational prototype on fictional data. Not a medical device and not for clinical use.
 
 ## Next steps
@@ -167,10 +393,26 @@ streamlit run app.py
 2. A test set written by a radiologist instead of by me.
 3. Real anonymised reports, and a radiologist-labelled subset with inter-rater agreement reported alongside model accuracy.
 4. German-language reports.
+5. Try the Claude reader on the same test sets and compare cost, speed and accuracy with the trained model.
 
 ## Author and license
 
 Built by Shamini Ramkumar T, 2026.
 
-- Code and fictional reports: MIT license.
-- Real test sentences: CC BY, copyright of their original authors, with each source listed alongside the per-sentence results.
+What this repository contains, who it belongs to, and under which terms:
+
+| Part | Where | Owner and licence |
+|---|---|---|
+| Code, browser demo, rules engine, trained model | `navigator/`, `web/`, scripts | Shamini Ramkumar T, MIT license ([LICENSE](LICENSE)) |
+| 73 hand-written reports | `data/reports.json`, `data/reports_holdout.json`, `data/reports_holdout_all.json` | Shamini Ramkumar T, MIT. Fictional, no patient data |
+| 750 generated reports | `data/synthetic_*.json` | Shamini Ramkumar T, MIT. Fictional, made by `data/generate_synthetic.py`, no patient data |
+| 51 real sentences | `data/real_snippets.json` | The original authors of each case report, under CC BY. Copied word for word, not changed, each stored with its full source. They are not covered by the MIT license. All 51 references: see [Sources of the 51 sentences](#real-wording-check-published-case-reports) |
+| Answer key for the 51 sentences | `data/real_snippets.json` (`gold` fields) | Shamini Ramkumar T, MIT. Written by me from each sentence; not reviewed by a radiologist |
+| Guideline tables | README, `navigator/guidelines.py`, demo | My simplified summaries of the cited guidelines. The guidelines belong to their publishers, and the societies that wrote them have not reviewed or endorsed this project. References and the copies read: see [Guideline logic](#guideline-logic-simplified) and [How the guideline rules were checked](#how-the-guideline-rules-were-checked) |
+| Fonts on the demo page | Google Fonts (Archivo, IBM Plex) | Their designers, under the SIL Open Font License |
+| Code, report generator, browser port, README drafts | Whole repository | Written with an AI assistant (Claude, by Anthropic), directed and reviewed by me. Covered by the MIT license above |
+| Scope, choice of organs and guidelines, data-sourcing decisions, review of results | Whole project | Shamini Ramkumar T |
+
+No real patient records, credentialed datasets (such as MIMIC) or data under restrictive terms were used. Sources I looked at and decided not to use, because their terms don't allow public redistribution, are MTSamples and the Indiana University chest X-ray reports (Open-i).
+
+This is an educational prototype. It is not a medical device, it has not been clinically validated, and it must not be used to make decisions about patients.
