@@ -1,7 +1,7 @@
 """Builds data/reports_holdout_all.json: 27 hand-written held-out reports for the seven organs added
 after the first version (lung, liver, pancreas, thyroid, pituitary, brain, bone).
 
-Written by hand, in my own wording, BEFORE the regex reader was extended to these organs, and never
+Drafted with an AI assistant (Claude) and reviewed by the author, BEFORE the regex reader was extended to these organs, and never
 used to tune the regex, the generator or the model. All reports are fictional. Gold labels describe
 what a careful reader would extract; `expected_category` and `expected_status` are what I expect the
 guideline engine to return, written before running it.

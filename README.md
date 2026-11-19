@@ -59,7 +59,7 @@ The trained model against the keyword (regex) reader. Both cover all nine organs
 **What this shows**
 
 - On wording I did not write myself (generated reports and real published sentences), the model clearly beats the regex reader.
-- On reports I wrote, the regex reader does as well or better, because I also wrote its rules. That says more about who wrote the test than about the regex.
+- On my held-out reports, the regex reader does as well or better. The reports and the regex rules came out of the same project, so they share wording. That says more about the test than about the regex.
 - The model missed both dangerous cases in the hand-written kidney/adrenal set. That is why high-severity cases get their own metric, and why catching them is the first thing to improve.
 
 <details>
@@ -101,7 +101,7 @@ Flag agreement on the synthetic test, by organ:
 | Trained model | 89% | 67% | 82% | 88% | 83% | 82% | 81% | 100% | 100% |
 
 **What the detail shows:**
-- On the 27 new hand-written reports the regex scores 100%. I wrote those reports and I wrote the regex rules for those organs, so both use my wording. I wrote the reports first and did not tune the regex on them, but the overlap in vocabulary is still there. That result says little about how the regex would do on someone else's reports.
+- On the 27 new hand-written reports the regex scores 100%. The reports and the regex rules for those organs came out of the same project, so both use similar wording. The reports were written first and the regex was not tuned on them, but the overlap in vocabulary is still there. That result says little about how the regex would do on someone else's reports.
 - On the two tests I didn't write sentence by sentence, the picture flips. On generated reports with varied wording, the model's flag agreement is 85% against 38% for the regex. On real published sentences, it finds 82% of lesions against 70%.
 - The model is weak on words it has never seen. On the synthetic test, lung nodules described as "nonsolid", "semisolid" or "numerous" were misread, and "millimetres" was read as centimetres.
 - On the new hand-written reports, most of the model's mistakes were in the impression: in three pancreas reports it added a specialist referral the report didn't ask for.
@@ -112,7 +112,7 @@ Flag agreement on the synthetic test, by organ:
 - *Thyroid rule.* Writing the reports showed that the engine called an FNA unnecessary for an FDG-avid thyroid nodule. The original ACR paper says both ultrasound and FNA should be done, with FNA "regardless of the ultrasound findings", so the rule now expects both and flags ultrasound alone as falling short. For nodules with suspicious features it expects ultrasound and also accepts ultrasound with FNA, as the paper suggests "consideration for FNA".
 - *Scoring.* The scorer required the side of the lesion to match even for organs without sides, so "the left side of the pituitary" counted as a miss. It now ignores side when the answer key has none. This did not change any earlier result.
 
-**What I'd change first:** add more varied wording to the generator (units, nodule types, phase descriptions, bone words), look at the word after a number when reading units, and get a radiologist to write a fresh held-out set, so the test is not written by the person who built both readers.
+**What I'd change first:** add more varied wording to the generator (units, nodule types, phase descriptions, bone words), look at the word after a number when reading units, and get a radiologist to write a fresh held-out set, so the test does not come from the same project as both readers.
 
 To see exactly where each reader went wrong, open the CSV files in `results/` (for example `eval_ml_holdout_all.csv` or `eval_rules_synth_test.csv`). They have one row per lesion with the correct answer, what the reader produced and which details it got wrong. The same tables appear as "Error log" in the Validation dashboard tab of the Streamlit app (`streamlit run app.py`).
 
@@ -378,7 +378,7 @@ web/                         Browser demo (index.html) and its JavaScript engine
 
 ## Limitations
 
-- Synthetic and hand-written reports come from one author, who also built the rules. Held-out sets reduce tuning bias but do not remove it.
+- The synthetic and hand-written reports were drafted with an AI assistant (Claude) and reviewed by me, and they come from the same project as the rules. Held-out sets reduce tuning bias but do not remove it.
 - Gold labels have not been reviewed by a radiologist.
 - The model learns from wording I generated, so it inherits my phrasing habits. It is weak on words it has never seen.
 - Patient context that changes management (known cancer, age, symptoms, prior imaging, hormone results) is only partly modelled.
@@ -404,7 +404,7 @@ What this repository contains, who it belongs to, and under which terms:
 | Part | Where | Owner and licence |
 |---|---|---|
 | Code, browser demo, rules engine, trained model | `navigator/`, `web/`, scripts | Shamini Ramkumar T, MIT license ([LICENSE](LICENSE)) |
-| 73 hand-written reports | `data/reports.json`, `data/reports_holdout.json`, `data/reports_holdout_all.json` | Shamini Ramkumar T, MIT. Fictional, no patient data |
+| 73 hand-written reports | `data/reports.json`, `data/reports_holdout.json`, `data/reports_holdout_all.json` | Shamini Ramkumar T, MIT. Drafted with an AI assistant (Claude) and reviewed by me. Fictional, no patient data |
 | 750 generated reports | `data/synthetic_*.json` | Shamini Ramkumar T, MIT. Fictional, made by `data/generate_synthetic.py`, no patient data |
 | 51 real sentences | `data/real_snippets.json` | The original authors of each case report, under CC BY. Copied word for word, not changed, each stored with its full source. They are not covered by the MIT license. All 51 references: see [Sources of the 51 sentences](#real-wording-check-published-case-reports) |
 | Answer key for the 51 sentences | `data/real_snippets.json` (`gold` fields) | Shamini Ramkumar T, MIT. Written by me from each sentence; not reviewed by a radiologist |
